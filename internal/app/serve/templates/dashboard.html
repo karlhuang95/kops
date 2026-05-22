@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kops — Kubernetes 资源治理仪表盘</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            font-size: 0.875rem; min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #1a1f36 0%, #2d3561 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 0 1.25rem; height: 56px;
+        }
+        .navbar-brand { font-weight: 700; font-size: 1.15rem; }
+        .navbar-brand .bi { font-size: 1.3rem; margin-right: 6px; }
+        .navbar-meta { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+
+        .summary-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; margin-bottom: 1.25rem;
+        }
+        @media (max-width: 992px) { .summary-row { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 576px) { .summary-row { grid-template-columns: 1fr; } }
+
+        .stat-card {
+            background: #fff; border-radius: 10px; padding: 1.15rem 1.25rem;
+            display: flex; align-items: center; gap: 1rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: box-shadow 0.2s;
+        }
+        .stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; flex-shrink: 0;
+        }
+        .stat-icon.blue   { background: #e8f0fe; color: #1a73e8; }
+        .stat-icon.green  { background: #e6f4ea; color: #1e8e3e; }
+        .stat-icon.orange { background: #fef7e0; color: #e37400; }
+        .stat-icon.red    { background: #fce8e6; color: #d93025; }
+        .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+        .stat-label { font-size: 0.78rem; color: #5f6368; margin-top: 2px; }
+
+        .tab-card {
+            background: #fff; border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #e8eaed; padding: 0 1rem; background: #fafbfc;
+        }
+        .nav-tabs .nav-link {
+            border: none; border-bottom: 3px solid transparent;
+            color: #5f6368; font-weight: 550; font-size: 0.9rem;
+            padding: 0.85rem 1.25rem; margin-bottom: -2px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .nav-tabs .nav-link:hover { color: #1a73e8; border-bottom-color: #a8c7fa; }
+        .nav-tabs .nav-link.active { color: #1a73e8; background: transparent; border-bottom-color: #1a73e8; }
+        .nav-tabs .nav-link .badge { font-size: 0.7rem; vertical-align: middle; }
+
+        .table { margin-bottom: 0; }
+        .table > thead > tr > th {
+            background: #f8f9fb; font-weight: 600; font-size: 0.78rem;
+            color: #444; border-bottom: 2px solid #dee2e6;
+            white-space: nowrap; padding: 0.6rem 0.65rem;
+        }
+        .table > tbody > tr > td { padding: 0.5rem 0.65rem; vertical-align: middle; }
+        .table > tbody > tr:hover { background: #f5f8ff; }
+        .table .svc-name { font-weight: 600; color: #1a73e8; text-decoration: none; }
+        .table .svc-name:hover { text-decoration: underline; }
+        .badge { font-weight: 500; font-size: 0.75rem; padding: 0.3em 0.65em; }
+
+        .blackhole-footer { border-top: 3px solid #d93025; margin-top: 1.5rem; }
+        .blackhole-title {
+            padding: 0.75rem 1rem; font-weight: 650; font-size: 0.9rem;
+            background: #fef7f7; color: #c5221f;
+        }
+
+        .alert { border-radius: 10px; font-size: 0.9rem; }
+        .spinner-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.65); backdrop-filter: blur(2px);
+            display: flex; align-items: center; justify-content: center; z-index: 9999;
+        }
+        .spinner-box {
+            background: #fff; border-radius: 14px; padding: 2rem 2.5rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12); text-align: center;
+        }
+
+        .page-footer { text-align: center; padding: 1.25rem 0; color: #9aa0a6; font-size: 0.78rem; }
+
+        .text-mono { font-family: "SF Mono", "Fira Code", monospace; }
+        .saving-positive { color: #1e8e3e; font-weight: 600; }
+        .waste-high { color: #d93025; font-weight: 600; }
+
+        /* charts grid */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        @media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } }
+        .chart-box {
+            background: #fff; border: 1px solid #eee; border-radius: 10px;
+            padding: 1rem;
+        }
+        .chart-box h6 { font-size: 0.85rem; font-weight: 650; color: #333; margin-bottom: 0.75rem; }
+        .chart-box canvas { max-height: 280px; }
+
+        /* pagination bar */
+        .table-toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.5rem 1rem; background: #fafbfc; border-top: 1px solid #eee;
+            font-size: 0.8rem; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .table-toolbar .search-input {
+            width: 260px; font-size: 0.8rem;
+        }
+        .table-toolbar .page-size-select {
+            width: 90px; font-size: 0.8rem;
+        }
+        .table-toolbar .page-btn {
+            font-size: 0.78rem; padding: 0.2rem 0.5rem;
+        }
+        .table-toolbar .page-info { color: #5f6368; white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="spinner-overlay">
+    <div class="spinner-box">
+        <div class="spinner-border text-primary mb-3" role="status" style="width:2.5rem;height:2.5rem;"></div>
+        <div class="text-muted">正在从 Prometheus 拉取最新指标数据 ...</div>
+    </div>
+</div>
+
+<nav class="navbar navbar-dark">
+    <span class="navbar-brand"><i class="bi bi-cpu"></i>kops 资源治理</span>
+    <span class="navbar-meta d-flex align-items-center gap-2">
+        {{if .ErrorMessage}}
+        <span class="badge bg-danger">查询失败</span>
+        {{else}}
+        <span class="opacity-75">{{if .FromCache}}📦 缓存数据{{else}}🔴 实时数据{{end}}</span>
+        <span class="badge bg-white text-dark opacity-75">更新于 {{.LastUpdated}}</span>
+        <span class="opacity-75">窗口 {{.Duration}}</span>
+        <button id="refreshBtn" class="btn btn-sm btn-outline-light" onclick="syncData()" title="从 Prometheus 重新拉取并覆盖缓存">
+            <i class="bi bi-arrow-repeat"></i> 同步数据
+        </button>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-download me-1"></i>导出
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/api/export/csv"><i class="bi bi-filetype-csv me-1"></i>CSV</a></li>
+                <li><a class="dropdown-item" href="/api/export/json"><i class="bi bi-filetype-json me-1"></i>JSON</a></li>
+            </ul>
+        </div>
+        {{end}}
+    </span>
+</nav>
+
+<div class="container-fluid pt-4 px-4">
+
+{{if .ErrorMessage}}
+<div class="alert alert-danger d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+    <div><strong>分析失败</strong> &mdash; {{.ErrorMessage}}</div>
+</div>
+<div class="alert alert-light border">
+    <i class="bi bi-info-circle me-2"></i>
+    请确认 Prometheus 服务可达，且 <code>config.yaml</code> 中地址与时间范围配置正确。
+</div>
+{{else}}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <label class="form-label mb-0 text-muted" style="font-size:0.82rem;">命名空间：</label>
+    <select class="form-select form-select-sm" style="width:auto;" id="namespaceFilter" onchange="filterNamespace(this.value)">
+        <option value="">全部</option>
+        {{range .NamespaceList}}<option value="{{.}}" {{if eq . $.CurrentNS}}selected{{end}}>{{.}}</option>{{end}}
+    </select>
+</div>
+
+<div class="summary-row">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="bi bi-diagram-3"></i></div>
+        <div><div class="stat-value">{{len .Analysis.AdvisorResults}}</div><div class="stat-label">已分析服务</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-piggy-bank"></i></div>
+        <div><div class="stat-value saving-positive">${{formatFloat .Analysis.TotalMonthlySaving}}</div><div class="stat-label">预计月节省</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-heart-pulse"></i></div>
+        <div>
+            <div class="stat-value">
+                <span class="text-danger">{{.Analysis.CriticalCount}}</span>
+                <small class="text-muted mx-1">/</small>
+                <span class="text-warning">{{.Analysis.WarningCount}}</span>
+            </div>
+            <div class="stat-label">严重 / 警告 服务</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="bi bi-exclamation-diamond"></i></div>
+        <div><div class="stat-value text-danger">{{len .Analysis.BlackHoles}}</div><div class="stat-label">资源黑洞</div></div>
+    </div>
+</div>
+
+<div class="tab-card">
+    <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#chartPane" type="button" role="tab">
+                <i class="bi bi-pie-chart me-1"></i>可视化
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#advisorPane" type="button" role="tab">
+                <i class="bi bi-lightning-charge me-1"></i>资源推荐
+                <span class="badge bg-primary ms-1">{{len .Analysis.AdvisorResults}}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#efficiencyPane" type="button" role="tab">
+                <i class="bi bi-speedometer2 me-1"></i>流量效率
+                <span class="badge bg-primary ms-1">{{len .Analysis.EfficiencyResults}}</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#healthPane" type="button" role="tab">
+                <i class="bi bi-heart-pulse me-1"></i>健康状态
+                <span class="badge bg-primary ms-1">{{len .Analysis.HealthStatuses}}</span>
+                {{if or (gt .Analysis.CriticalCount 0) (gt .Analysis.WarningCount 0)}}
+                <span class="badge bg-danger ms-1">{{add .Analysis.CriticalCount .Analysis.WarningCount}}</span>
+                {{end}}
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- ====== 可视化 ====== -->
+        <div class="tab-pane fade show active" id="chartPane" role="tabpanel">
+            <div class="chart-grid">
+                <div class="chart-box">
+                    <h6><i class="bi bi-heart-pulse me-1"></i>健康状态分布</h6>
+                    <canvas id="healthChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h6><i class="bi bi-shield-exclamation me-1"></i>风险等级分布</h6>
+                    <canvas id="riskChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h6><i class="bi bi-speedometer2 me-1"></i>流量效率评级分布</h6>
+                    <canvas id="rankChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h6><i class="bi bi-bar-chart me-1"></i>Top 10 成本最高服务 — 当前 vs 推荐 (USD)</h6>
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 资源推荐 ====== -->
+        <div class="tab-pane fade" id="advisorPane" role="tabpanel">
+            <div class="table-toolbar">
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-control form-control-sm search-input" type="text" placeholder="搜索服务或命名空间..." oninput="filterTable('advisorTable', this.value)">
+                    <span class="page-info" id="advisorInfo"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select class="form-select form-select-sm page-size-select" onchange="changePageSize('advisorTable', this.value)">
+                        <option value="20">20条/页</option>
+                        <option value="50">50条/页</option>
+                        <option value="100">100条/页</option>
+                    </select>
+                    <div class="btn-group btn-group-sm" id="advisorPager"></div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="advisorTable">
+                    <thead>
+                        <tr>
+                            <th>服务</th><th>命名空间</th><th>当前 CPU (m)</th><th>推荐 CPU (m)</th>
+                            <th>当前内存 (MiB)</th><th>推荐内存 (MiB)</th><th>当前成本</th><th>推荐成本</th>
+                            <th>月节省</th><th>风险等级</th><th>操作建议</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Analysis.AdvisorResults}}
+                        <tr>
+                            <td><a href="/service/{{.Namespace}}/{{.Deployment}}" class="svc-name">{{.Deployment}}</a></td>
+                            <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
+                            <td class="text-mono">{{.OldCPURequest}}</td>
+                            <td class="text-mono">{{.NewCPURequest}}</td>
+                            <td class="text-mono">{{.OldMemRequest}}</td>
+                            <td class="text-mono">{{.NewMemRequest}}</td>
+                            <td>${{formatFloat .CurrentCost}}</td>
+                            <td>${{formatFloat .RecommendedCost}}</td>
+                            <td class="{{if gt .MonthlySaving 100.0}}saving-positive{{end}}">${{formatFloat .MonthlySaving}}</td>
+                            <td><span class="badge {{riskBadgeClass .RiskLevel}}">{{.RiskLevel}}</span></td>
+                            <td>{{.Action}}</td>
+                        </tr>
+                        {{else}}
+                        <tr><td colspan="11" class="text-center text-muted py-4">暂无资源推荐。</td></tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ====== 流量效率 ====== -->
+        <div class="tab-pane fade" id="efficiencyPane" role="tabpanel">
+            <div class="table-toolbar">
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-control form-control-sm search-input" type="text" placeholder="搜索服务或命名空间..." oninput="filterTable('efficiencyTable', this.value)">
+                    <span class="page-info" id="efficiencyInfo"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select class="form-select form-select-sm page-size-select" onchange="changePageSize('efficiencyTable', this.value)">
+                        <option value="20">20条/页</option>
+                        <option value="50">50条/页</option>
+                        <option value="100">100条/页</option>
+                    </select>
+                    <div class="btn-group btn-group-sm" id="efficiencyPager"></div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="efficiencyTable">
+                    <thead>
+                        <tr>
+                            <th>服务</th><th>命名空间</th><th>当前 CPU (m)</th><th>推荐 CPU (m)</th>
+                            <th>流量密度</th><th>评级</th><th>当前成本</th><th>推荐成本</th>
+                            <th>浪费金额</th><th>浪费比例</th><th>操作建议</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Analysis.EfficiencyResults}}
+                        <tr>
+                            <td><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="svc-name">{{.ServiceName}}</a></td>
+                            <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
+                            <td class="text-mono">{{.CurrentCPU}}</td>
+                            <td class="text-mono">{{.RecCPU}}</td>
+                            <td>{{formatFloat .TrafficDensity}}</td>
+                            <td><span class="badge {{densityRankClass .TrafficDensityRank}}">{{.TrafficDensityRank}}</span></td>
+                            <td>${{formatFloat .CurrentCost}}</td>
+                            <td>${{formatFloat .RecCost}}</td>
+                            <td>${{formatFloat .WasteAmount}}</td>
+                            <td>{{formatPercent .WasteRatio}}</td>
+                            <td>{{.Action}}</td>
+                        </tr>
+                        {{else}}
+                        <tr><td colspan="11" class="text-center text-muted py-4">暂无流量效率数据。</td></tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{if .Analysis.BlackHoles}}
+            <div class="blackhole-footer">
+                <div class="blackhole-title">
+                    <i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>
+                    资源黑洞 Top {{if lt (len .Analysis.BlackHoles) 5}}{{len .Analysis.BlackHoles}}{{else}}5{{end}}（高成本、近零利用）
+                </div>
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr><th>#</th><th>服务</th><th>命名空间</th><th>当前成本</th><th>实际消耗</th><th>浪费比例</th><th>浪费金额</th></tr>
+                    </thead>
+                    <tbody>
+                        {{range $i, $bh := .Analysis.BlackHoles}}
+                        {{if lt $i 5}}
+                        <tr>
+                            <td class="fw-bold text-muted">{{add $i 1}}</td>
+                            <td><span class="svc-name">{{$bh.ServiceName}}</span></td>
+                            <td><span class="badge bg-light text-dark">{{$bh.Namespace}}</span></td>
+                            <td>${{formatFloat $bh.CurrentCost}}</td>
+                            <td>${{formatFloat $bh.ActualCost}}</td>
+                            <td class="waste-high">{{formatPercent $bh.WasteRatio}}</td>
+                            <td class="waste-high">${{formatFloat $bh.WasteAmount}}</td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{end}}
+        </div>
+
+        <!-- ====== 健康状态 ====== -->
+        <div class="tab-pane fade" id="healthPane" role="tabpanel">
+            {{if .Analysis.HealthWarning}}
+            <div class="alert alert-warning m-3 d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                健康数据采集受限：{{.Analysis.HealthWarning}}
+            </div>
+            {{end}}
+            <div class="table-toolbar">
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-control form-control-sm search-input" type="text" placeholder="搜索服务或命名空间..." oninput="filterTable('healthTable', this.value)">
+                    <span class="page-info" id="healthInfo"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <select class="form-select form-select-sm page-size-select" onchange="changePageSize('healthTable', this.value)">
+                        <option value="20">20条/页</option>
+                        <option value="50">50条/页</option>
+                        <option value="100">100条/页</option>
+                    </select>
+                    <div class="btn-group btn-group-sm" id="healthPager"></div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="healthTable">
+                    <thead>
+                        <tr>
+                            <th>服务</th><th>命名空间</th><th>RPS</th><th>5xx 错误率</th><th>4xx 错误率</th>
+                            <th>P99 延迟 (ms)</th><th>健康评级</th><th>状态</th><th>无效支出</th><th>诊断</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Analysis.HealthStatuses}}
+                        <tr class="{{healthRowClass .HealthCode}}">
+                            <td><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="svc-name">{{.ServiceName}}</a></td>
+                            <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
+                            {{if ge .RPS 0.001}}
+                            <td class="text-mono">{{formatFloat .RPS}}</td>
+                            <td>{{formatPercent .Error5xxRate}}</td>
+                            <td>{{formatPercent .Error4xxRate}}</td>
+                            <td class="text-mono">{{printf "%.0f" (mul .P99Latency 1000)}}</td>
+                            {{else}}
+                            <td colspan="4" class="text-muted">空闲 / 无流量</td>
+                            {{end}}
+                            <td><span class="badge {{healthCodeClass .HealthCode}}">{{.HealthCode}}</span></td>
+                            <td>{{.StatusIcon}}</td>
+                            <td>${{formatFloat .InvalidSpend}}</td>
+                            <td>{{.Diagnosis}}</td>
+                        </tr>
+                        {{else}}
+                        <tr><td colspan="10" class="text-center text-muted py-4">暂无健康数据。</td></tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /tab-content -->
+</div><!-- /tab-card -->
+
+{{end}}
+
+<div class="page-footer">
+    kops &mdash; Kubernetes 资源画像与成本优化 · 实时 Prometheus 分析仪表盘
+</div>
+
+</div><!-- /container -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    document.getElementById('loading').style.display = 'none';
+
+    // ====== Namespace filter ======
+    function filterNamespace(ns) {
+        const url = new URL(window.location);
+        if (ns) {
+            url.searchParams.set('namespace', ns);
+        } else {
+            url.searchParams.delete('namespace');
+        }
+        window.location = url.toString();
+    }
+
+    // ====== Charts ======
+    {{if not .ErrorMessage}}
+    const chartData = {{.ChartJS}};
+
+    function makePie(canvasId, labels, values, colors) {
+        new Chart(document.getElementById(canvasId), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16, font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    makePie('healthChart', chartData.healthLabels, chartData.healthValues, chartData.healthColors);
+    makePie('riskChart', chartData.riskLabels, chartData.riskValues, chartData.riskColors);
+    makePie('rankChart', chartData.rankLabels, chartData.rankValues, chartData.rankColors);
+
+    new Chart(document.getElementById('costChart'), {
+        type: 'bar',
+        data: {
+            labels: chartData.costLabels,
+            datasets: [
+                {
+                    label: '当前成本',
+                    data: chartData.costCurrent,
+                    backgroundColor: '#d93025',
+                    borderRadius: 4
+                },
+                {
+                    label: '推荐成本',
+                    data: chartData.costRec,
+                    backgroundColor: '#1e8e3e',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16, font: { size: 12 } } }
+            },
+            scales: {
+                x: {
+                    ticks: { callback: v => '$' + v, font: { size: 11 } },
+                    grid: { color: '#eee' },
+                    stacked: false
+                },
+                y: {
+                    ticks: { font: { size: 11 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    {{end}}
+
+    // ====== Pagination ======
+    const pageState = {};
+
+    function getPageState(tableId) {
+        if (!pageState[tableId]) {
+            pageState[tableId] = { page: 1, pageSize: 20, filter: '' };
+        }
+        return pageState[tableId];
+    }
+
+    function filterTable(tableId, query) {
+        const st = getPageState(tableId);
+        st.filter = query.toLowerCase();
+        st.page = 1;
+        renderTable(tableId);
+    }
+
+    function changePageSize(tableId, size) {
+        const st = getPageState(tableId);
+        st.pageSize = parseInt(size);
+        st.page = 1;
+        renderTable(tableId);
+    }
+
+    function renderTable(tableId) {
+        const st = getPageState(tableId);
+        const table = document.getElementById(tableId);
+        const tbody = table.querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr');
+        const emptyRow = tbody.querySelector('tr[colspan]');
+
+        let visibleRows = [];
+        rows.forEach(row => {
+            if (row.hasAttribute('colspan')) return;
+            if (st.filter && !row.textContent.toLowerCase().includes(st.filter)) {
+                row.style.display = 'none';
+            } else {
+                visibleRows.push(row);
+            }
+        });
+
+        const total = visibleRows.length;
+        const totalPages = Math.max(1, Math.ceil(total / st.pageSize));
+        if (st.page > totalPages) st.page = totalPages;
+
+        const start = (st.page - 1) * st.pageSize;
+        const end = start + st.pageSize;
+
+        visibleRows.forEach((row, i) => {
+            row.style.display = (i >= start && i < end) ? '' : 'none';
+        });
+
+        // Info text
+        const infoEl = document.getElementById(tableId.replace('Table', 'Info'));
+        if (infoEl) {
+            infoEl.textContent = total > 0
+                ? '共 ' + total + ' 条，第 ' + st.page + '/' + totalPages + ' 页'
+                : '';
+        }
+
+        // Pager buttons
+        const pagerEl = document.getElementById(tableId.replace('Table', 'Pager'));
+        if (pagerEl) {
+            let html = '';
+            html += '<button class="btn btn-outline-secondary page-btn" onclick="goPage(\'' + tableId + '\',' + (st.page-1) + ')" ' + (st.page<=1?'disabled':'') + '>上一页</button>';
+
+            const maxBtns = 5;
+            let pStart = Math.max(1, st.page - Math.floor(maxBtns/2));
+            let pEnd = Math.min(totalPages, pStart + maxBtns - 1);
+            if (pEnd - pStart < maxBtns - 1) pStart = Math.max(1, pEnd - maxBtns + 1);
+
+            for (let p = pStart; p <= pEnd; p++) {
+                html += '<button class="btn btn-sm page-btn ' + (p===st.page ? 'btn-primary' : 'btn-outline-secondary') + '" onclick="goPage(\'' + tableId + '\',' + p + ')">' + p + '</button>';
+            }
+
+            html += '<button class="btn btn-outline-secondary page-btn" onclick="goPage(\'' + tableId + '\',' + (st.page+1) + ')" ' + (st.page>=totalPages?'disabled':'') + '>下一页</button>';
+            pagerEl.innerHTML = html;
+        }
+
+        // Hide empty-row if we have data
+        if (emptyRow) emptyRow.style.display = total > 0 ? 'none' : '';
+    }
+
+    function goPage(tableId, page) {
+        const st = getPageState(tableId);
+        st.page = page;
+        renderTable(tableId);
+    }
+
+    // Init all tables on tab show
+    ['advisorTable','efficiencyTable','healthTable'].forEach(function(id) {
+        renderTable(id);
+    });
+
+    // Re-render when switching tabs (for chart resize + table init)
+    document.querySelectorAll('#dashboardTabs button[data-bs-toggle="tab"]').forEach(function(btn) {
+        btn.addEventListener('shown.bs.tab', function(e) {
+            const paneId = e.target.getAttribute('data-bs-target').replace('#', '');
+            if (paneId === 'advisorPane') renderTable('advisorTable');
+            if (paneId === 'efficiencyPane') renderTable('efficiencyTable');
+            if (paneId === 'healthPane') renderTable('healthTable');
+        });
+    });
+
+    // ====== Sync ======
+    async function syncData() {
+        const btn = document.getElementById('refreshBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>同步中...';
+        document.getElementById('loading').style.display = 'flex';
+
+        try {
+            const resp = await fetch('/api/refresh', { method: 'POST' });
+            const result = await resp.json();
+            if (result.status === 'ok') {
+                location.reload();
+            } else {
+                alert('同步失败: ' + (result.error || '未知错误'));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> 同步数据';
+                document.getElementById('loading').style.display = 'none';
+            }
+        } catch (e) {
+            alert('请求失败: ' + e.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> 同步数据';
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>

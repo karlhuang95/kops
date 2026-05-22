@@ -1,0 +1,54 @@
+# 分析范围
+namespaces:
+  - examp-prod
+
+# 数据源
+prometheus:
+  address: "https://prom.examp.com"
+  timeout: 30s
+  # 采样策略
+  range: "7d"        # 分析过去一周的数据，覆盖周末和工作日周期
+  step: "5m"         # 5分钟采样一次
+
+# 治理标准与约束 (关键补充)
+governance:
+  # 规格对齐
+  cpu_step: 50       # mCPU, 建议值按 50, 100, 150 对齐
+  memory_step: 128   # MiB, 建议值按 128, 256, 384 对齐
+
+  # 最小水位
+  min_cpu: 100       # 无论如何不建议低于 0.1C
+  min_memory: 128    # 无论如何不建议低于 128Mi
+
+  # 超卖倍率建议
+  cpu_limit_factor: 2.0  # Limit 是 Request 的 2 倍
+  mem_limit_factor: 1.1  # 内存是不可压缩资源，建议 Limit 贴近 Request
+
+  # 目标水位
+  target_utilization: 0.8 # 期望最终达到 80% 的平均利用率
+
+  # 阈值配置 (新增)
+  rps_low_threshold: 0.01        # 僵尸服务 RPS 阈值
+  cpu_low_threshold: 5.0          # 僵尸服务 CPU 阈值 (mCPU)
+  throttle_high_threshold: 10.0   # 高风险限流阈值 (秒)
+  mem_high_threshold: 0.9         # 高风险内存阈值 (占比)
+  p95_low_threshold: 0.4         # 低利用率阈值 (占比)
+  rps_density_threshold: 0.1      # 低效服务 RPS 密度阈值
+
+  # 治理优先级配置
+  black_hole_cost_threshold: 100.0   # 黑洞判定成本阈值（元/月）
+  high_traffic_threshold: 0.3        # 高流量服务阈值（权重）
+
+# 经济核算
+cost:
+  price: 1197.42           # 单台 Node 月单价
+  count: 6                 # Node 节点数
+  cpu_cores: 16
+  memory_gb: 64
+  resource_weight:
+    cpu: 1.0               # 100% 成本由 CPU 承担
+    memory: 0.0            # 内存仅作为参考，不计入节省金额
+
+gateway_cost:
+  price: 478.47 # 单台 traefik价格
+  count: 3 # 节点数
