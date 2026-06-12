@@ -90,7 +90,7 @@ go test ./...
 # config.yaml
 namespaces:
   - web-prod
-  - zhike-prod
+  - demo-prod
 
 prometheus:
   address: "https://prom.example.com"
