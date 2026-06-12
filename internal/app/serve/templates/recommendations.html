@@ -1,0 +1,89 @@
+{{template "head.html" .}}
+{{template "nav.html" .}}
+
+<div class="container-fluid pt-3 px-3">
+{{if .ErrorMessage}}
+<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>加载失败</strong> — {{.ErrorMessage}}</div>
+{{else}}
+
+<div class="card-page">
+    <div class="px-3 pt-2">
+        <div class="chip-row" id="recommendationsChips">
+            <span class="chip active" data-chip="all" onclick="setChipFilter('recommendations','all',this)">全部 <span class="chip-count">{{len .Results}}</span></span>
+            <span class="chip" data-chip="high-risk" onclick="setChipFilter('recommendations','high-risk',this)">⚡ 高风险</span>
+            <span class="chip" data-chip="saving" onclick="setChipFilter('recommendations','saving',this)">💰 可节省</span>
+            <span class="chip" data-chip="scale-down" onclick="setChipFilter('recommendations','scale-down',this)">📉 缩容</span>
+            <span class="chip" data-chip="scale-up" onclick="setChipFilter('recommendations','scale-up',this)">📈 扩容</span>
+            <span class="chip" data-chip="protected" onclick="setChipFilter('recommendations','protected',this)">🛡️ 核心服务</span>
+        </div>
+    </div>
+    <div class="table-toolbar">
+        <div class="d-flex align-items-center gap-2">
+            <input class="form-control form-control-sm search-input" type="text" placeholder="搜索..." oninput="filterTable('recommendationsTable',this.value)">
+            <span class="page-info" id="recommendationsInfo"></span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select class="form-select form-select-sm page-size-select" onchange="changePageSize('recommendationsTable',this.value)">
+                <option value="20">20条</option><option value="50">50条</option><option value="100">100条</option><option value="99999">全部</option>
+            </select>
+            <div class="btn-group btn-group-sm" id="recommendationsPager"></div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="recommendationsTable">
+            <thead><tr>
+                <th data-sort="string" onclick="sortTable('recommendationsTable',0,'string')">服务 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="string" onclick="sortTable('recommendationsTable',1,'string')">命名空间 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('recommendationsTable',2,'number')">当前 CPU <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('recommendationsTable',3,'number')">推荐 CPU <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('recommendationsTable',4,'number')">当前内存 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('recommendationsTable',5,'number')">推荐内存 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('recommendationsTable',6,'number')">成本 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('recommendationsTable',7,'number')">月节省 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="string" onclick="sortTable('recommendationsTable',8,'string')">风险 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th>建议</th>
+            </tr></thead>
+            <tbody>
+                {{range .Results}}
+                <tr data-risk="{{.RiskLevel}}" data-action="{{.Action}}" data-saving="{{.MonthlySaving}}" data-protected="{{if .IsProtected}}true{{end}}" onclick="toggleRowExpand(this)">
+                    <td><a href="/service/{{.Namespace}}/{{.Deployment}}" class="svc-name" onclick="event.stopPropagation()">{{.Deployment}}</a></td>
+                    <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
+                    <td class="text-mono">{{.OldCPURequest}} m</td>
+                    <td class="text-mono">{{.NewCPURequest}} m<span class="diff-bar"><span class="diff-bar-inner {{if lt .NewCPURequest .OldCPURequest}}down{{else if gt .NewCPURequest .OldCPURequest}}up{{end}}" style="width:{{cpuDiffPercent .OldCPURequest .NewCPURequest}}%"></span></span></td>
+                    <td class="text-mono">{{.OldMemRequest}} MiB</td>
+                    <td class="text-mono">{{.NewMemRequest}} MiB</td>
+                    <td>${{formatFloat .CurrentCost}}</td>
+                    <td class="{{if gt .MonthlySaving 100.0}}saving-positive{{end}}">${{formatFloat .MonthlySaving}}</td>
+                    <td><span class="badge {{riskBadgeClass .RiskLevel}}">{{.RiskLevel}}</span></td>
+                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{.Action}}: {{.Reason}}">{{.Action}}</td>
+                </tr>
+                <tr class="expand-row" style="display:none" onclick="event.stopPropagation()"><td colspan="10">
+                    <div class="expand-panel">
+                        <div class="expand-item"><div class="expand-label">操作建议</div><div class="expand-value">{{.Action}}</div></div>
+                        <div class="expand-item"><div class="expand-label">原因</div><div class="expand-value" style="font-size:0.78rem">{{.Reason}}</div></div>
+                        <div class="expand-item"><div class="expand-label">流量权重</div><div class="expand-value">{{formatPercent .RpsWeight}}</div></div>
+                        <div class="expand-item"><div class="expand-label">Gateway 分摊</div><div class="expand-value">${{formatFloat .GwShareCost}}</div></div>
+                        <div class="expand-item"><div class="expand-label">全链路单位成本</div><div class="expand-value">${{formatFloat .FullUnitCost}} / 万请求</div></div>
+                        <div class="expand-item"><div class="expand-label">RPS 密度</div><div class="expand-value">{{formatFloat .RPSDensity}} RPS/Core</div></div>
+                        <div style="grid-column:1/-1;display:flex;gap:0.5rem">
+                            <a href="/service/{{.Namespace}}/{{.Deployment}}" class="btn btn-sm btn-outline-primary">查看详情 →</a>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="copyKubectlPatch('{{.Deployment}}','{{.Namespace}}','{{.NewCPURequest}}','{{.NewMemRequest}}')"><i class="bi bi-clipboard me-1"></i>复制 kubectl 命令</button>
+                        </div>
+                    </div>
+                </td></tr>
+                {{else}}
+                <tr><td colspan="10" class="text-center text-muted py-4">暂无数据。请先在总览页点击"同步"刷新数据。</td></tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{end}}
+<div class="page-footer">kops — 资源推荐</div>
+</div>
+
+{{template "scripts.html"}}
+<script>renderTable('recommendationsTable')</script>
+</body>
+</html>

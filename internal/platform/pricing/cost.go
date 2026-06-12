@@ -117,12 +117,28 @@ func (gcc *GatewayCostCalculator) CalculateHealthWaste(podCost, gwShareCost, err
 	return totalCost * errorRate5xx
 }
 
-func (gcc *GatewayCostCalculator) CalculateHealthScore(errorRate5xx, wastedSpend, monthlyCost float64) float64 {
+// CalculateHealthScore 计算健康评分（0-100），分数越高越健康
+func (gcc *GatewayCostCalculator) CalculateHealthScore(errorRate5xx, errorRate4xx float64, p99Latency float64, restartCount int, cpuUtilization float64) float64 {
 	score := 100.0
-	score -= errorRate5xx * 100
-	if monthlyCost > 0 {
-		wastedRatio := wastedSpend / monthlyCost
-		score -= wastedRatio * 50
+	// 5xx 错误率惩罚
+	score -= errorRate5xx * 200
+	// 4xx 错误率惩罚（较轻）
+	score -= errorRate4xx * 50
+	// P99 延迟惩罚（> 1s 开始扣分）
+	if p99Latency > 1.0 {
+		score -= (p99Latency - 1.0) * 20
+	}
+	// 重启惩罚
+	if restartCount > 0 {
+		penalty := float64(restartCount) * 5
+		if penalty > 30 {
+			penalty = 30
+		}
+		score -= penalty
+	}
+	// CPU 利用率惩罚（> 80% 开始扣分）
+	if cpuUtilization > 0.8 {
+		score -= (cpuUtilization - 0.8) * 100
 	}
 	return math.Max(0, score)
 }

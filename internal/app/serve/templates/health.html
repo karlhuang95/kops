@@ -1,0 +1,99 @@
+{{template "head.html" .}}
+{{template "nav.html" .}}
+
+<div class="container-fluid pt-3 px-3">
+{{if .ErrorMessage}}
+<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>加载失败</strong> — {{.ErrorMessage}}</div>
+{{else}}
+
+{{if .HealthWarning}}
+<div class="alert alert-warning d-flex align-items-center"><i class="bi bi-exclamation-triangle me-2"></i>健康数据采集受限：{{.HealthWarning}}</div>
+{{end}}
+
+<div class="stat-row">
+    <div class="stat-card"><div class="stat-icon red"><i class="bi bi-shield-exclamation"></i></div><div><div class="stat-value text-danger">{{.CriticalCount}}</div><div class="stat-label">严重</div></div></div>
+    <div class="stat-card"><div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div><div><div class="stat-value text-warning">{{.WarningCount}}</div><div class="stat-label">警告</div></div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value text-success">{{.HealthyCount}}</div><div class="stat-label">健康</div></div></div>
+    <div class="stat-card"><div class="stat-icon blue" style="background:#e8eaed;color:#666"><i class="bi bi-dash-circle"></i></div><div><div class="stat-value text-muted">{{.IdleCount}}</div><div class="stat-label">空闲</div></div></div>
+    <div class="stat-card"><div class="stat-icon teal"><i class="bi bi-cash-coin"></i></div><div><div class="stat-value">${{formatFloat .TotalInvalidSpend}}</div><div class="stat-label">无效支出</div></div></div>
+    <div class="stat-card"><div class="stat-icon purple"><i class="bi bi-shield-check"></i></div><div><div class="stat-value">{{.AvgScore}}%</div><div class="stat-label">平均健康分</div></div></div>
+</div>
+
+<div class="card-page">
+    <div class="px-3 pt-2">
+        <div class="chip-row" id="healthChips">
+            <span class="chip active" data-chip="all" onclick="setChipFilter('health','all',this)">全部 <span class="chip-count">{{len .Results}}</span></span>
+            <span class="chip" data-chip="critical" onclick="setChipFilter('health','critical',this)">🔴 严重</span>
+            <span class="chip" data-chip="warning" onclick="setChipFilter('health','warning',this)">🟡 警告</span>
+            <span class="chip" data-chip="healthy" onclick="setChipFilter('health','healthy',this)">🟢 健康</span>
+            <span class="chip" data-chip="idle" onclick="setChipFilter('health','idle',this)">⚪ 空闲</span>
+            <span class="chip" data-chip="has-waste" onclick="setChipFilter('health','has-waste',this)">💸 有无效支出</span>
+        </div>
+    </div>
+    <div class="table-toolbar">
+        <div class="d-flex align-items-center gap-2">
+            <input class="form-control form-control-sm search-input" type="text" placeholder="搜索..." oninput="filterTable('healthTable',this.value)">
+            <span class="page-info" id="healthInfo"></span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select class="form-select form-select-sm page-size-select" onchange="changePageSize('healthTable',this.value)">
+                <option value="20">20条</option><option value="50">50条</option><option value="100">100条</option><option value="99999">全部</option>
+            </select>
+            <div class="btn-group btn-group-sm" id="healthPager"></div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="healthTable">
+            <thead><tr>
+                <th data-sort="string" onclick="sortTable('healthTable',0,'string')">服务 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="string" onclick="sortTable('healthTable',1,'string')">命名空间 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('healthTable',2,'number')">RPS <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('healthTable',3,'number')">5xx <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('healthTable',4,'number')">4xx <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('healthTable',5,'number')">P99 (ms) <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="string" onclick="sortTable('healthTable',6,'string')">评级 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('healthTable',7,'number')">健康分 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('healthTable',8,'number')">无效支出 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th>诊断</th>
+            </tr></thead>
+            <tbody>
+                {{range .Results}}
+                <tr class="{{healthRowClass .HealthCode}}" data-health-code="{{.HealthCode}}" data-invalid-spend="{{.InvalidSpend}}" onclick="toggleRowExpand(this)">
+                    <td><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="svc-name" onclick="event.stopPropagation()">{{.ServiceName}}</a></td>
+                    <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
+                    {{if ge .RPS 0.001}}
+                    <td class="text-mono">{{formatFloat .RPS}}</td><td>{{formatPercent .Error5xxRate}}</td><td>{{formatPercent .Error4xxRate}}</td>
+                    <td class="text-mono">{{printf "%.0f" (mul .P99Latency 1000)}}</td>
+                    {{else}}
+                    <td colspan="4" class="text-muted">空闲 / 无流量</td>
+                    {{end}}
+                    <td><span class="badge {{healthCodeClass .HealthCode}}">{{.HealthCode}}</span></td>
+                    <td><div class="d-flex align-items-center gap-1"><div class="progress" style="width:46px;height:5px"><div class="progress-bar {{if ge .HealthScore 80.0}}bg-success{{else if ge .HealthScore 50.0}}bg-warning{{else}}bg-danger{{end}}" style="width:{{.HealthScore}}%"></div></div><small>{{formatFloat .HealthScore}}</small></div></td>
+                    <td>${{formatFloat .InvalidSpend}}</td>
+                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{.Diagnosis}}">{{.Diagnosis}}</td>
+                </tr>
+                <tr class="expand-row" style="display:none" onclick="event.stopPropagation()"><td colspan="10">
+                    <div class="expand-panel">
+                        <div class="expand-item"><div class="expand-label">状态</div><div class="expand-value">{{.StatusIcon}} {{.HealthCode}}</div></div>
+                        <div class="expand-item"><div class="expand-label">全链路损耗</div><div class="expand-value">${{formatFloat .WastedSpendTotal}}</div></div>
+                        <div class="expand-item"><div class="expand-label">建议操作</div><div class="expand-value">{{.Action}}</div></div>
+                        <div class="expand-item"><div class="expand-label">诊断详情</div><div class="expand-value" style="font-size:0.78rem">{{.Diagnosis}}</div></div>
+                        <div style="grid-column:1/-1"><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="btn btn-sm btn-outline-primary">查看详情 →</a></div>
+                    </div>
+                </td></tr>
+                {{else}}
+                <tr><td colspan="10" class="text-center text-muted py-4">暂无数据。请先在总览页点击"同步"刷新数据。</td></tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{end}}
+<div class="page-footer">kops — 健康状态</div>
+</div>
+
+{{template "scripts.html"}}
+<script>renderTable('healthTable')</script>
+</body>
+</html>

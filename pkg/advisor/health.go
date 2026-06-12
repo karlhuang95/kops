@@ -34,6 +34,13 @@ func (he *HealthEngine) DetermineHealthCode(metrics model.HealthMetrics, thresho
 		InvalidSpend: 0,
 	}
 
+	// 统一计算健康评分（所有分支共享）
+	if he.gatewayCostCalc != nil {
+		status.HealthScore = he.gatewayCostCalc.CalculateHealthScore(
+			metrics.Error5xxRate, metrics.Error4xxRate, metrics.P99Latency,
+			metrics.RestartCount, metrics.CPUUtilization)
+	}
+
 	// 检查是否离线/空转
 	if metrics.RPS < 0.001 {
 		status.HealthCode = "Idle"
@@ -71,13 +78,20 @@ func (he *HealthEngine) DetermineHealthCode(metrics model.HealthMetrics, thresho
 		return status
 	}
 
-	// Pod 重启 -> 红码（稳定性风险，非实际浪费）
-	if metrics.RestartCount > 0 {
+	// Pod 重启 -> 分级判定（避免滚动更新被误判）
+	if metrics.RestartCount > 3 {
 		status.HealthCode = "Critical"
 		status.StatusIcon = "🔴"
-		status.Diagnosis = fmt.Sprintf("Pod 重启 %d 次，服务不稳定", metrics.RestartCount)
+		status.Diagnosis = fmt.Sprintf("Pod 重启 %d 次，服务异常不稳定", metrics.RestartCount)
 		status.Action = "检查应用崩溃日志/OOM Killer"
 		return status
+	}
+	if metrics.RestartCount > 0 {
+		status.HealthCode = "Warning"
+		status.StatusIcon = "🟡"
+		status.Diagnosis = fmt.Sprintf("Pod 重启 %d 次（可能是滚动更新），需关注", metrics.RestartCount)
+		status.Action = "确认是否为正常滚动更新，排除异常重启"
+		// 不直接返回，继续检查其他条件
 	}
 
 	// 4xx 错误率超 5% -> 黄码

@@ -1,0 +1,25 @@
+{{define "nav.html"}}
+<nav class="navbar navbar-dark navbar-expand">
+    <span class="navbar-brand"><i class="bi bi-cpu"></i>kops</span>
+    <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link {{if eq .Active "overview"}}active{{end}}" href="/"><i class="bi bi-speedometer2 me-1"></i>总览</a></li>
+        <li class="nav-item"><a class="nav-link {{if eq .Active "recommendations"}}active{{end}}" href="/recommendations"><i class="bi bi-lightning-charge me-1"></i>资源推荐</a></li>
+        <li class="nav-item"><a class="nav-link {{if eq .Active "efficiency"}}active{{end}}" href="/efficiency"><i class="bi bi-speedometer me-1"></i>流量效率</a></li>
+        <li class="nav-item"><a class="nav-link {{if eq .Active "health"}}active{{end}}" href="/health"><i class="bi bi-heart-pulse me-1"></i>健康状态</a></li>
+        <li class="nav-item"><a class="nav-link {{if eq .Active "cluster"}}active{{end}}" href="/cluster"><i class="bi bi-diagram-3 me-1"></i>集群分析</a></li>
+    </ul>
+    <span class="navbar-meta d-flex align-items-center gap-2">
+        <span class="d-flex align-items-center gap-1" id="promStatus" title="Prometheus 连接状态">
+            <span class="prom-indicator unknown"></span>
+            <span style="font-size:0.68rem;">Prometheus</span>
+        </span>
+        <span class="badge bg-white text-dark opacity-75" id="updateTime">更新于 {{.LastUpdated}}</span>
+        <button id="refreshBtn" class="btn btn-sm btn-outline-light" onclick="syncData()" title="刷新数据">
+            <i class="bi bi-arrow-repeat"></i> 同步
+        </button>
+        <span class="theme-toggle" onclick="toggleTheme()" title="切换暗色模式">
+            <i class="bi" id="themeIcon">🌙</i>
+        </span>
+    </span>
+</nav>
+{{end}}

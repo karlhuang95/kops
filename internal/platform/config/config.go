@@ -20,6 +20,7 @@ func LoadConfig(cfgFile string) (*GlobalConfig, error) {
 	v.AutomaticEnv()
 
 	v.SetDefault("governance.target_utilization", 0.8)
+	v.SetDefault("governance.memory_target_utilization", 0.8)
 	v.SetDefault("governance.cpu_step", 50)
 	v.SetDefault("governance.memory_step", 128)
 	v.SetDefault("governance.min_cpu", 100)
@@ -66,6 +67,9 @@ func ValidateConfig(cfg *GlobalConfig) error {
 	}
 	if cfg.Governance.TargetUtilization <= 0 || cfg.Governance.TargetUtilization > 1 {
 		return fmt.Errorf("配置错误: governance.target_utilization 必须在 (0,1] 范围内")
+	}
+	if cfg.Governance.MemoryTargetUtilization <= 0 || cfg.Governance.MemoryTargetUtilization > 1 {
+		return fmt.Errorf("配置错误: governance.memory_target_utilization 必须在 (0,1] 范围内")
 	}
 	if cfg.GatewayCost.Count < 0 {
 		return fmt.Errorf("配置错误: gateway_cost.count 不能小于 0")

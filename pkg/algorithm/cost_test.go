@@ -270,11 +270,11 @@ func TestCalculateHealthScore(t *testing.T) {
 	cfg := &config.GlobalConfig{}
 	calc := NewGatewayCostCalculator(cfg)
 
-	// 高错误率 + 高损耗
-	score1 := calc.CalculateHealthScore(0.2, 30.0, 100.0) // 应该较低
+	// 高错误率 + 高延迟 + 多重启 → 分数较低
+	score1 := calc.CalculateHealthScore(0.2, 0.1, 3.0, 5, 0.9)
 
-	// 低错误率 + 低损耗
-	score2 := calc.CalculateHealthScore(0.01, 1.0, 100.0) // 应该较高
+	// 低错误率 + 低延迟 + 无重启 → 分数较高
+	score2 := calc.CalculateHealthScore(0.01, 0.0, 0.5, 0, 0.5)
 
 	if score1 >= score2 {
 		t.Errorf("Expected score1 (%.2f) < score2 (%.2f)", score1, score2)

@@ -1,0 +1,88 @@
+{{template "head.html" .}}
+{{template "nav.html" .}}
+
+<div class="container-fluid pt-3 px-3">
+<div class="row g-3">
+    <!-- Node Density -->
+    <div class="col-lg-6">
+        <div class="card" style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--thead-bg);border-bottom:1px solid var(--border);font-weight:650;font-size:0.85rem">
+                <span><i class="bi bi-grid-3x3-gap me-1"></i>节点密度分析</span>
+                <span class="spinner-border spinner-border-sm text-primary" id="nodeSpinner"></span>
+            </div>
+            <div class="card-body p-2" id="nodeDensityContent"><p class="text-muted text-center py-3">加载中...</p></div>
+        </div>
+    </div>
+    <!-- Node Scaling -->
+    <div class="col-lg-6">
+        <div class="card" style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px">
+            <div class="card-header" style="background:var(--thead-bg);border-bottom:1px solid var(--border);font-weight:650;font-size:0.85rem">
+                <i class="bi bi-arrows-angle-expand me-1"></i>节点伸缩建议
+            </div>
+            <div class="card-body p-2" id="nodeScalingContent"><p class="text-muted text-center py-3">加载中...</p></div>
+        </div>
+    </div>
+    <!-- Cost Attribution -->
+    <div class="col-12">
+        <div class="card" style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px">
+            <div class="card-header" style="background:var(--thead-bg);border-bottom:1px solid var(--border);font-weight:650;font-size:0.85rem">
+                <i class="bi bi-tags me-1"></i>成本归属（按 Namespace + App）
+            </div>
+            <div class="card-body p-2" id="costAttributionContent"><p class="text-muted text-center py-3">加载中...</p></div>
+        </div>
+    </div>
+</div>
+<div class="page-footer">kops — 集群分析</div>
+</div>
+
+{{template "scripts.html"}}
+<script>
+// Node density
+fetch('/api/cluster/nodes').then(function(r){return r.json()}).then(function(d){
+    document.getElementById('nodeSpinner').style.display='none';
+    if(!d||!d.nodes||d.nodes.length===0){document.getElementById('nodeDensityContent').innerHTML='<div class="alert alert-warning m-3">无法获取节点数据。</div>';return}
+    var h='<div class="row g-2 mb-2 px-2">'+
+        '<div class="col-sm-3"><div class="stat-card" style="padding:0.6rem 0.8rem"><div><div class="stat-value" style="font-size:1.1rem">'+d.totalNodes+'</div><div class="stat-label">节点总数</div></div></div></div>'+
+        '<div class="col-sm-3"><div class="stat-card" style="padding:0.6rem 0.8rem"><div><div class="stat-value '+(d.avgCPUUtilization>0.8?'text-danger':'')+'" style="font-size:1.1rem">'+(d.avgCPUUtilization*100).toFixed(1)+'%</div><div class="stat-label">平均 CPU 分配率</div></div></div></div>'+
+        '<div class="col-sm-3"><div class="stat-card" style="padding:0.6rem 0.8rem"><div><div class="stat-value '+(d.avgMemUtilization>0.8?'text-danger':'')+'" style="font-size:1.1rem">'+(d.avgMemUtilization*100).toFixed(1)+'%</div><div class="stat-label">平均 Mem 分配率</div></div></div></div>'+
+        '<div class="col-sm-3"><div class="stat-card" style="padding:0.6rem 0.8rem"><div><div class="stat-value text-warning" style="font-size:1.1rem">'+(d.fragmentedNodes?d.fragmentedNodes.length:0)+'</div><div class="stat-label">碎片化节点</div></div></div></div></div>';
+    h+='<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>节点</th><th>可分配 CPU</th><th>已请求 CPU</th><th>CPU%</th><th>可分配 Mem</th><th>已请求 Mem</th><th>Mem%</th><th>Pod</th></tr></thead><tbody>';
+    d.nodes.forEach(function(n){
+        var cc=n.cpuUtilization>0.8?'text-danger fw-bold':(n.cpuUtilization<0.3?'text-warning':'');
+        var mc=n.memUtilization>0.8?'text-danger fw-bold':(n.memUtilization<0.3?'text-warning':'');
+        h+='<tr><td class="text-mono">'+n.nodeName+'</td><td>'+(n.allocatableCPU/1000).toFixed(1)+' C</td><td>'+(n.requestedCPU/1000).toFixed(1)+' C</td><td class="'+cc+'">'+(n.cpuUtilization*100).toFixed(1)+'%</td><td>'+n.allocatableMem.toFixed(0)+' GiB</td><td>'+n.requestedMem.toFixed(0)+' GiB</td><td class="'+mc+'">'+(n.memUtilization*100).toFixed(1)+'%</td><td>'+n.podCount+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    document.getElementById('nodeDensityContent').innerHTML=h;
+}).catch(function(e){document.getElementById('nodeDensityContent').innerHTML='<div class="alert alert-danger m-3">加载失败: '+e.message+'</div>'});
+
+// Node scaling
+fetch('/api/cluster/scaling').then(function(r){return r.json()}).then(function(d){
+    if(!d||d.currentNodes===0){document.getElementById('nodeScalingContent').innerHTML='<div class="alert alert-warning m-3">无法获取集群数据。</div>';return}
+    var a='',ac='';
+    if(d.canRemoveNodes){ac='text-success';a='<div class="alert alert-success m-2"><i class="bi bi-arrow-down-circle me-2"></i><strong>建议缩容</strong> — 可安全移除 <strong>'+d.nodesToRemove+'</strong> 个节点<br><small>预计月节省: <strong>$'+(d.monthlySavings||0).toFixed(2)+'</strong></small></div>'}
+    else if(d.needMoreNodes){ac='text-danger';a='<div class="alert alert-danger m-2"><i class="bi bi-arrow-up-circle me-2"></i><strong>建议扩容</strong> — 需要增加 <strong>'+d.nodesToAdd+'</strong> 个节点</div>'}
+    else{a='<div class="alert alert-info m-2"><i class="bi bi-check-circle me-2"></i><strong>集群规模合理</strong></div>'}
+    a+='<div class="row g-2 px-2"><div class="col-6"><div class="stat-card" style="padding:0.6rem 0.8rem"><div class="stat-icon blue"><i class="bi bi-server"></i></div><div><div class="stat-value" style="font-size:1.2rem">'+d.currentNodes+' → '+d.recommendedNodes+'</div><div class="stat-label">当前 → 推荐节点数</div></div></div></div>'+
+        '<div class="col-6"><div class="stat-card" style="padding:0.6rem 0.8rem"><div class="stat-icon green"><i class="bi bi-cpu"></i></div><div><div class="stat-value" style="font-size:1.2rem">'+(d.avgCPUUtilization*100).toFixed(1)+'% / '+(d.avgMemUtilization*100).toFixed(1)+'%</div><div class="stat-label">CPU / Mem 分配率</div></div></div></div></div>';
+    if(d.hotNodes&&d.hotNodes.length>0)a+='<div class="mt-2 px-2"><span class="badge bg-danger me-1">热节点</span>'+d.hotNodes.join(', ')+'</div>';
+    if(d.fragmentedNodes&&d.fragmentedNodes.length>0)a+='<div class="mt-1 px-2"><span class="badge bg-warning text-dark me-1">碎片节点</span>'+d.fragmentedNodes.join(', ')+'</div>';
+    document.getElementById('nodeScalingContent').innerHTML=a;
+}).catch(function(e){document.getElementById('nodeScalingContent').innerHTML='<div class="alert alert-danger m-3">加载失败: '+e.message+'</div>'});
+
+// Cost attribution
+fetch('/api/cost-attribution').then(function(r){return r.json()}).then(function(d){
+    var attrs=d.attributions;
+    if(!attrs||attrs.length===0){document.getElementById('costAttributionContent').innerHTML='<div class="alert alert-warning m-3">未找到成本归属数据。</div>';return}
+    var tc=0;attrs.forEach(function(a){tc+=a.value.totalCost});
+    var h='<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Label</th><th>值</th><th>服务数</th><th>Pod 成本</th><th>总成本</th><th>占比</th></tr></thead><tbody>';
+    attrs.forEach(function(a){
+        var pct=tc>0?(a.value.totalCost/tc*100).toFixed(1):'0',bw=tc>0?(a.value.totalCost/tc*100):0;
+        h+='<tr><td><span class="badge bg-secondary">'+a.value.labelKey+'</span></td><td class="fw-bold">'+a.value.labelValue+'</td><td>'+a.value.serviceCount+'</td><td>$'+a.value.podCost.toFixed(2)+'</td><td><strong>$'+a.value.totalCost.toFixed(2)+'</strong></td><td><div class="d-flex align-items-center gap-1"><div class="progress flex-grow-1" style="height:6px"><div class="progress-bar bg-primary" style="width:'+bw+'%"></div></div><small>'+pct+'%</small></div></td></tr>';
+    });
+    h+='</tbody></table></div>';
+    document.getElementById('costAttributionContent').innerHTML=h;
+}).catch(function(e){document.getElementById('costAttributionContent').innerHTML='<div class="alert alert-danger m-3">加载失败: '+e.message+'</div>'});
+</script>
+</body>
+</html>

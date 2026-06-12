@@ -120,6 +120,7 @@ func TestIdentifyResourceBlackHole(t *testing.T) {
 				Deployment:  "busy-service",
 				CPURequest:  1000,
 				CPUUsageAvg: 150,
+				AvgRPS:      1.0,
 				Replicas:    1,
 			},
 			wantOK: false,

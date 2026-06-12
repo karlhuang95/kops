@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,85 +7,233 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body { background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif; font-size: 0.875rem; }
-        .navbar { background: linear-gradient(135deg, #1a1f36 0%, #2d3561 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 0 1.25rem; height: 56px; }
-        .navbar-brand { font-weight: 700; font-size: 1.15rem; }
-        .chart-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 1.25rem; margin-bottom: 1.25rem; }
-        .chart-card h6 { font-weight: 650; font-size: 0.9rem; }
-        .chart-card canvas { max-height: 300px; }
+        :root{--bg:#f0f2f5;--card-bg:#fff;--card-shadow:0 1px 4px rgba(0,0,0,0.06);--text:#212529;--text-muted:#5f6368;--border:#eee}
+        [data-theme="dark"]{--bg:#1a1f2e;--card-bg:#252d3d;--card-shadow:0 1px 4px rgba(0,0,0,0.25);--text:#e0e2e6;--text-muted:#9aa0a6;--border:#363f51}
+        body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;font-size:0.875rem;color:var(--text);min-height:100vh}
+        .navbar{background:linear-gradient(135deg,#1a1f36 0%,#2d3561 100%);box-shadow:0 2px 8px rgba(0,0,0,0.15);padding:0 1rem;height:52px;position:sticky;top:0;z-index:1030}
+        .navbar-brand{font-weight:700;font-size:1.05rem}
+        .chart-card{background:var(--card-bg);border-radius:10px;box-shadow:var(--card-shadow);padding:1rem 1.25rem;margin-bottom:1rem;min-height:320px}
+        .chart-card h6{font-weight:650;font-size:0.88rem;margin-bottom:0.5rem}
+        .chart-card .chart-wrap{position:relative;height:260px;width:100%}
+        .chart-card canvas{width:100%!important;height:100%!important}
+        .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem}
+        @media(max-width:768px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+        .stat-card{background:var(--card-bg);border-radius:10px;padding:0.8rem 0.95rem;display:flex;align-items:center;gap:0.65rem;box-shadow:var(--card-shadow)}
+        .stat-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
+        .stat-icon.blue{background:#e8f0fe;color:#1a73e8}.stat-icon.green{background:#e6f4ea;color:#1e8e3e}
+        .stat-icon.orange{background:#fef7e0;color:#e37400}.stat-icon.red{background:#fce8e6;color:#d93025}
+        .stat-value{font-size:1.2rem;font-weight:700;line-height:1.2}
+        .stat-label{font-size:0.7rem;color:var(--text-muted)}
+        .rec-card{background:var(--card-bg);border-radius:10px;box-shadow:var(--card-shadow);padding:1rem 1.25rem;margin-bottom:1rem}
+        .rec-card h6{font-weight:650;font-size:0.88rem;margin-bottom:0.75rem}
+        .rec-table{width:100%;font-size:0.82rem}
+        .rec-table th,.rec-table td{padding:0.4rem 0.6rem;border-bottom:1px solid var(--border)}
+        .rec-table th{background:#f8f9fb;font-weight:600;font-size:0.74rem;color:#444}
+        [data-theme="dark"] .rec-table th{background:#2a3345;color:#b0b8c4}
+        .time-btns{display:flex;gap:0.3rem;flex-wrap:wrap}
+        .time-btns .btn{font-size:0.74rem;padding:0.22rem 0.6rem}
+        .time-btns .btn.active{font-weight:700}
+        .text-mono{font-family:"SF Mono","Fira Code",monospace;font-size:0.8rem}
+        .saving-positive{color:#1e8e3e;font-weight:600}
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-dark">
-    <span class="navbar-brand"><i class="bi bi-cpu"></i>kops 资源治理</span>
-    <span class="navbar-text">
-        <a href="/" class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-left me-1"></i>返回仪表盘</a>
-    </span>
+    <span class="navbar-brand"><i class="bi bi-cpu"></i>kops</span>
+    <span><a href="/" class="btn btn-sm btn-outline-light"><i class="bi bi-arrow-left me-1"></i>返回</a></span>
 </nav>
 
-<div class="container-fluid pt-4 px-4">
+<div class="container-fluid pt-3 px-3">
 
-<h5 class="mb-3">
-    <span class="text-primary">{{.ServiceName}}</span>
-    <small class="text-muted ms-2">{{.Namespace}}</small>
-    <small class="text-muted ms-3 fs-6">最近 {{.Duration}} 趋势</small>
-</h5>
-
-<div class="chart-card">
-    <h6><i class="bi bi-cpu me-1"></i>CPU 使用量 (millicores)</h6>
-    <canvas id="cpuChart"></canvas>
+<div class="d-flex justify-content-between align-items-start mb-2">
+    <h5><span class="text-primary">{{.ServiceName}}</span><small class="text-muted ms-2">{{.Namespace}}</small></h5>
+    <div class="d-flex align-items-center gap-2">
+        <div class="time-btns" id="timeBtns">
+            <button class="btn btn-sm btn-outline-secondary active" data-dur="6h" onclick="loadTimeSeries('6h',this)">6小时</button>
+            <button class="btn btn-sm btn-outline-secondary" data-dur="24h" onclick="loadTimeSeries('24h',this)">24小时</button>
+            <button class="btn btn-sm btn-outline-secondary" data-dur="7d" onclick="loadTimeSeries('7d',this)">7天</button>
+            <button class="btn btn-sm btn-outline-secondary" data-dur="30d" onclick="loadTimeSeries('30d',this)">30天</button>
+        </div>
+        <span class="spinner-border spinner-border-sm text-primary" id="tsSpinner" style="display:none;width:1rem;height:1rem;"></span>
+    </div>
 </div>
 
-<div class="chart-card">
-    <h6><i class="bi bi-memory me-1"></i>内存使用量 (MiB)</h6>
-    <canvas id="memChart"></canvas>
+<!-- Summary Cards -->
+<div class="stat-row">
+    <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-cpu"></i></div><div><div class="stat-value" id="cpuCur">--</div><div class="stat-label">CPU 总和 (m) <span id="cpuPodHint" class="text-muted"></span></div></div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-memory"></i></div><div><div class="stat-value" id="memCur">--</div><div class="stat-label">内存总和 (MiB) <span id="memPodHint" class="text-muted"></span></div></div></div>
+    <div class="stat-card"><div class="stat-icon orange"><i class="bi bi-graph-up"></i></div><div><div class="stat-value" id="rpsCur">--</div><div class="stat-label">RPS 总和 <span id="rpsPodHint" class="text-muted"></span></div></div></div>
+    <div class="stat-card"><div class="stat-icon red"><i class="bi bi-cpu-fill"></i></div><div><div class="stat-value" id="cpuPeak">--</div><div class="stat-label">CPU 峰值 (m)</div></div></div>
 </div>
 
+<!-- Recommendation -->
+<div class="rec-card">
+    <h6><i class="bi bi-clipboard-check me-1"></i>资源推荐对比 <span class="spinner-border spinner-border-sm text-primary" id="recSpinner" style="width:0.85rem;height:0.85rem;"></span></h6>
+    <div id="recContent"><p class="text-muted mb-0">加载中...</p></div>
+</div>
+
+<!-- CPU Chart -->
 <div class="chart-card">
-    <h6><i class="bi bi-graph-up me-1"></i>RPS (请求/秒)</h6>
-    <canvas id="rpsChart"></canvas>
+    <h6><i class="bi bi-cpu me-1"></i>CPU 使用量 · 所有 Pod 总和 (millicores) <small class="text-muted" style="font-size:0.7rem;">— 北京时间</small></h6>
+    <div class="chart-wrap"><canvas id="cpuChart"></canvas></div>
+</div>
+
+<!-- Memory Chart -->
+<div class="chart-card">
+    <h6><i class="bi bi-memory me-1"></i>内存使用量 · 所有 Pod 总和 (MiB) <small class="text-muted" style="font-size:0.7rem;">— 北京时间</small></h6>
+    <div class="chart-wrap"><canvas id="memChart"></canvas></div>
+</div>
+
+<!-- RPS Chart -->
+<div class="chart-card">
+    <h6><i class="bi bi-graph-up me-1"></i>RPS · 所有 Pod 总和 (请求/秒) <small class="text-muted" style="font-size:0.7rem;">— 北京时间</small></h6>
+    <div class="chart-wrap"><canvas id="rpsChart"></canvas></div>
 </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
-function makeLineChart(canvasId, label, points, color) {
-    const data = points.map(p => ({ x: p.t * 1000, y: p.v }));
-    new Chart(document.getElementById(canvasId), {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: label, data: data,
-                borderColor: color, backgroundColor: color + '20',
-                fill: true, tension: 0.3, pointRadius: 0
-            }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: { unit: 'minute', displayFormats: { minute: 'HH:mm' } },
-                    grid: { color: '#eee' }
+(function(){
+    var s=localStorage.getItem('kops-theme');
+    if(s==='dark')document.documentElement.setAttribute('data-theme','dark');
+})();
+
+// Beijing time formatters
+function toBJ(ts){return new Date(ts*1000).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit'})}
+function toBJDate(ts){return new Date(ts*1000).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function isLongRange(points){
+    if(!points||points.length<2)return false;
+    var a=points[0],b=points[points.length-1];
+    var t0=a.t||a.Timestamp||0,t1=b.t||b.Timestamp||0;
+    return(t1-t0)>86400;
+}
+
+var cpuChart,memChart,rpsChart;
+
+function makeLineChart(canvasId,label,points,color){
+    var canvas=document.getElementById(canvasId);
+    if(!canvas)return null;
+    var old=Chart.getChart(canvasId);
+    if(old)old.destroy();
+
+    if(!points||points.length===0){
+        var ctx=canvas.getContext('2d');
+        canvas.width=canvas.parentElement.clientWidth||600;
+        canvas.height=canvas.parentElement.clientHeight||260;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.font='13px sans-serif';ctx.fillStyle='#999';ctx.textAlign='center';
+        ctx.fillText('暂无数据',canvas.width/2,canvas.height/2);
+        return null;
+    }
+
+    var longRange=isLongRange(points);
+    var data=points.map(function(p){
+        return{x:(p.t||p.Timestamp||0),y:p.v!==undefined?p.v:(p.Value||0)};
+    });
+
+    return new Chart(canvas,{
+        type:'line',
+        data:{datasets:[{label:label,data:data,borderColor:color,backgroundColor:color+'18',fill:true,tension:0.3,pointRadius:0,borderWidth:2}]},
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            animation:{duration:200},
+            interaction:{mode:'index',intersect:false},
+            plugins:{legend:{display:false}},
+            scales:{
+                x:{
+                    type:'linear',
+                    ticks:{maxTicksLimit:10,font:{size:10},callback:function(v){return longRange?toBJDate(v):toBJ(v)}},
+                    grid:{color:'#eee'}
                 },
-                y: { grid: { color: '#eee' }, beginAtZero: true }
+                y:{grid:{color:'#eee'},beginAtZero:true,ticks:{font:{size:10}}}
             }
         }
     });
 }
 
-const cpuPoints = {{.CPUPoints}};
-const memPoints = {{.MemPoints}};
-const rpsPoints = {{.RPSPoints}};
+function stats(points){
+    if(!points||points.length===0)return{last:0,max:0};
+    var sum=0,mx=0;
+    points.forEach(function(p){var v=p.v!==undefined?p.v:(p.Value||0);sum+=v;if(v>mx)mx=v});
+    var last=points[points.length-1];
+    return{last:last.v!==undefined?last.v:(last.Value||0),max:mx,avg:sum/points.length};
+}
 
-if (cpuPoints.length > 0) makeLineChart('cpuChart', 'CPU (m)', cpuPoints, '#1a73e8');
-if (memPoints.length > 0) makeLineChart('memChart', 'Memory (MiB)', memPoints, '#e37400');
-if (rpsPoints.length > 0) makeLineChart('rpsChart', 'RPS', rpsPoints, '#1e8e3e');
+function updateStats(cpu,mem,rps){
+    var cs=stats(cpu),ms=stats(mem),rs=stats(rps);
+    document.getElementById('cpuCur').textContent=cs.last.toFixed(1);
+    document.getElementById('memCur').textContent=ms.last.toFixed(1);
+    document.getElementById('rpsCur').textContent=rs.last.toFixed(3);
+    document.getElementById('cpuPeak').textContent=cs.max.toFixed(1);
+}
+
+function drawAll(cpu,mem,rps){
+    cpuChart=makeLineChart('cpuChart','CPU (m)',cpu,'#1a73e8');
+    memChart=makeLineChart('memChart','Mem (MiB)',mem,'#e37400');
+    rpsChart=makeLineChart('rpsChart','RPS',rps,'#1e8e3e');
+    updateStats(cpu,mem,rps);
+}
+
+// Initial data from server
+var cpuPoints={{.CPUPoints}};
+var memPoints={{.MemPoints}};
+var rpsPoints={{.RPSPoints}};
+setTimeout(function(){drawAll(cpuPoints,memPoints,rpsPoints);},100);
+
+// Time range switcher
+function loadTimeSeries(dur,btn){
+    document.querySelectorAll('#timeBtns .btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    document.getElementById('tsSpinner').style.display='inline-block';
+
+    var step=dur==='24h'?'15m':(dur==='7d'?'1h':(dur==='30d'?'6h':'5m'));
+    fetch('/api/service/{{.Namespace}}/{{.ServiceName}}/timeseries?duration='+dur+'&step='+step)
+    .then(function(r){return r.json()})
+    .then(function(d){
+        document.getElementById('tsSpinner').style.display='none';
+        drawAll(d.cpuPoints||[],d.memPoints||[],d.rpsPoints||[]);
+    }).catch(function(e){
+        document.getElementById('tsSpinner').style.display='none';
+        console.error(e);
+    });
+}
+
+// Recommendation
+fetch('/api/service/{{.Namespace}}/{{.ServiceName}}/recommendation')
+.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+.then(function(data){
+    document.getElementById('recSpinner').style.display='none';
+    var svc=data.advice||data;  // support both wrapped and unwrapped response
+    var replicas=data.replicas||data.podCount||0;
+
+    // Show pod count in stat labels
+    var podHint=replicas>0?'×'+replicas+' Pod':'';
+    document.getElementById('cpuPodHint').textContent=podHint;
+    document.getElementById('memPodHint').textContent=podHint;
+    document.getElementById('rpsPodHint').textContent=podHint;
+
+    if(!svc||!svc.OldCPURequest){
+        document.getElementById('recContent').innerHTML='<p class="text-muted mb-0">该服务暂无推荐数据（可能未配 resource requests）。</p>';
+        return;
+    }
+    var oc=svc.OldCPURequest,nc=svc.NewCPURequest,om=svc.OldMemRequest,nm=svc.NewMemRequest;
+    var saving=svc.MonthlySaving||0,risk=svc.RiskLevel||'?',action=svc.Action||'',reason=svc.Reason||'';
+    var cd=nc-oc,md=nm-om;
+    var ca=cd<0?'text-success':(cd>0?'text-danger':''),ma=md<0?'text-success':(md>0?'text-danger':'');
+    var bc=risk==='高'?'bg-danger':(risk==='中'?'bg-warning text-dark':'bg-success');
+    document.getElementById('recContent').innerHTML=
+        '<table class="rec-table"><thead><tr><th>资源</th><th>当前</th><th>→</th><th>推荐</th><th>变化</th><th>月节省</th></tr></thead><tbody>'+
+        '<tr><td><strong>CPU</strong></td><td class="text-mono">'+oc+' m</td><td>→</td><td class="text-mono">'+nc+' m</td><td class="'+ca+' fw-bold">'+(cd<0?'↓':'↑')+' '+Math.abs(cd)+' m</td>'+
+        '<td rowspan="2" class="saving-positive align-middle" style="font-size:1.1rem">$'+saving.toFixed(2)+'</td></tr>'+
+        '<tr><td><strong>内存</strong></td><td class="text-mono">'+om+' MiB</td><td>→</td><td class="text-mono">'+nm+' MiB</td><td class="'+ma+' fw-bold">'+(md<0?'↓':'↑')+' '+Math.abs(md)+' MiB</td></tr>'+
+        '<tr><td colspan="6"><span class="badge '+bc+' me-2">'+risk+'</span>'+action+'：'+reason+'</td></tr></tbody></table>';
+}).catch(function(e){
+    document.getElementById('recSpinner').style.display='none';
+    document.getElementById('recContent').innerHTML='<p class="text-muted mb-0">推荐加载失败：'+e.message+'。<br><small>请确认服务名正确（如 <code>mpbase-prod</code> 而非 <code>mpbase</code>）。</small></p>';
+});
 </script>
 </body>
 </html>

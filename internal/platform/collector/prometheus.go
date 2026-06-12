@@ -21,10 +21,14 @@ type PromCollector struct {
 }
 
 func NewCollector(cfg *config.GlobalConfig) *PromCollector {
+	timeout := 30 * time.Second
+	if d, err := time.ParseDuration(cfg.Prometheus.Timeout); err == nil && d > 0 {
+		timeout = d
+	}
 	return &PromCollector{
 		cfg:     cfg,
 		Address: strings.TrimRight(cfg.Prometheus.Address, "/"),
-		Timeout: 30 * time.Second,
+		Timeout: timeout,
 	}
 }
 
@@ -85,10 +89,10 @@ func (pc *PromCollector) fetchSingleService(ns, deploy string) model.ServiceMetr
 		AppGroup:   extractAppGroup(deploy),
 	}
 
-	m.CPURequest = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_requests{namespace="%s", pod=~"%s-.*", resource="cpu"}) * 1000`, ns, deploy))
-	m.CPULimit = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_limits{namespace="%s", pod=~"%s-.*", resource="cpu"}) * 1000`, ns, deploy))
-	m.MemRequest = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_requests{namespace="%s", pod=~"%s-.*", resource="memory"}) / 1024 / 1024`, ns, deploy))
-	m.MemLimit = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_limits{namespace="%s", pod=~"%s-.*", resource="memory"}) / 1024 / 1024`, ns, deploy))
+	m.CPURequest = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_requests{namespace="%s", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*", resource="cpu"}) * 1000`, ns, deploy))
+	m.CPULimit = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_limits{namespace="%s", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*", resource="cpu"}) * 1000`, ns, deploy))
+	m.MemRequest = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_requests{namespace="%s", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*", resource="memory"}) / 1024 / 1024`, ns, deploy))
+	m.MemLimit = pc.queryScalar(fmt.Sprintf(`max(kube_pod_container_resource_limits{namespace="%s", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*", resource="memory"}) / 1024 / 1024`, ns, deploy))
 
 	replicas := pc.queryScalar(fmt.Sprintf(`kube_deployment_spec_replicas{namespace="%s", deployment="%s"}`, ns, deploy))
 	m.Replicas = int(replicas)
@@ -96,13 +100,30 @@ func (pc *PromCollector) fetchSingleService(ns, deploy string) model.ServiceMetr
 		m.Replicas = 1
 	}
 
-	m.CPUUsageMax = pc.queryScalar(fmt.Sprintf(`quantile_over_time(0.95, sum(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", pod=~"%s-.*"}[5m]))[7d:5m]) * 1000`, ns, deploy))
-	m.CPUUsageAvg = pc.queryScalar(fmt.Sprintf(`avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", pod=~"%s-.*"}[5m]))[7d:1h]) * 1000`, ns, deploy))
-	m.MemUsageMax = pc.queryScalar(fmt.Sprintf(`max_over_time(sum(container_memory_working_set_bytes{namespace="%s", container!="", pod=~"%s-.*"})[7d:5m]) / 1024 / 1024`, ns, deploy))
+	m.CPUUsageMax = pc.queryScalar(fmt.Sprintf(`quantile_over_time(0.95, sum(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*"}[5m]))[7d:5m]) * 1000`, ns, deploy))
+	m.CPUUsageAvg = pc.queryScalar(fmt.Sprintf(`avg_over_time(sum(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*"}[5m]))[7d:1h]) * 1000`, ns, deploy))
+	m.MemUsageMax = pc.queryScalar(fmt.Sprintf(`max_over_time(sum(container_memory_working_set_bytes{namespace="%s", container!="", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*"})[7d:5m]) / 1024 / 1024`, ns, deploy))
 
-	m.ThrottleSecond = pc.queryScalar(fmt.Sprintf(`sum(increase(container_cpu_cfs_throttled_seconds_total{namespace="%s", pod=~"%s-.*"}[24h]))`, ns, deploy))
+	m.ThrottleSecond = pc.queryScalar(fmt.Sprintf(`sum(increase(container_cpu_cfs_throttled_seconds_total{namespace="%s", pod=~"^%s-.*", pod!~".*-consumer-.*|.*-cron-.*|.*-job-.*|.*-worker-.*"}[24h]))`, ns, deploy))
 	m.AvgRPS = pc.queryScalar(fmt.Sprintf(`avg_over_time(sum(rate(traefik_service_requests_total{exported_service=~"%s-%s-.*"}[5m]))[7d:1h])`, ns, deploy))
 
+	return m
+}
+
+// CollectSingleService fetches metrics for a single deployment (public wrapper).
+// Falls back to fuzzy matching if exact deployment name not found.
+func (pc *PromCollector) CollectSingleService(ns, deploy string) model.ServiceMetrics {
+	// Try exact deployment name first
+	m := pc.fetchSingleService(ns, deploy)
+	if m.CPURequest > 0 {
+		return m
+	}
+	// Try with -prod suffix (common naming convention)
+	m2 := pc.fetchSingleService(ns, deploy+"-prod")
+	if m2.CPURequest > 0 {
+		return m2
+	}
+	// Return whatever we got from regex matching
 	return m
 }
 
@@ -167,7 +188,7 @@ type TimeSeriesPoint struct {
 
 // QueryRange executes a Prometheus range query and returns time-series data.
 func (pc *PromCollector) QueryRange(queryStr string, start, end time.Time, step time.Duration) ([]TimeSeriesPoint, error) {
-	u := fmt.Sprintf("%s/api/v1/query_range?query=%s&start=%d&end=%d&step=%ds",
+	u := fmt.Sprintf("%s/api/v1/query_range?query=%s&start=%d&end=%d&step=%d",
 		pc.Address, url.QueryEscape(queryStr), start.Unix(), end.Unix(), int(step.Seconds()))
 
 	client := &http.Client{Timeout: pc.Timeout}
@@ -197,12 +218,27 @@ func (pc *PromCollector) QueryRange(queryStr string, start, end time.Time, step 
 			if len(v) < 2 {
 				continue
 			}
-			ts, _ := strconv.ParseInt(fmt.Sprintf("%v", v[0]), 10, 64)
-			val, _ := strconv.ParseFloat(fmt.Sprintf("%v", v[1]), 64)
-			points = append(points, TimeSeriesPoint{Timestamp: ts, Value: val})
+			ts := parseNumeric(v[0])
+			val := parseNumeric(v[1])
+			points = append(points, TimeSeriesPoint{Timestamp: int64(ts), Value: val})
 		}
 	}
 	return points, nil
+}
+
+// parseNumeric converts a Prometheus JSON number (which may be float64 or string) to float64.
+func parseNumeric(v interface{}) float64 {
+	switch n := v.(type) {
+	case float64:
+		return n
+	case string:
+		f, _ := strconv.ParseFloat(n, 64)
+		return f
+	default:
+		s := fmt.Sprintf("%v", v)
+		f, _ := strconv.ParseFloat(s, 64)
+		return f
+	}
 }
 
 type promResult struct {

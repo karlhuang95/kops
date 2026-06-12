@@ -80,6 +80,16 @@ func (tc *TraefikCollector) CollectHealthMetrics(servicePattern string, duration
 		servicePattern, duration.String())
 	metrics.P99Latency = tc.prom.queryScalar(p99Query)
 
+	// 采集 CPU 利用率（用于容量风险检测）
+	cpuUtilQuery := fmt.Sprintf(`avg(rate(container_cpu_usage_seconds_total{namespace="%s", pod=~"%s-.*", container!=""}[5m])) / avg(kube_pod_container_resource_requests{namespace="%s", pod=~"%s-.*", container!="", resource="cpu"})`,
+		namespace, serviceName, namespace, serviceName)
+	metrics.CPUUtilization = tc.prom.queryScalar(cpuUtilQuery)
+
+	// 采集 Pod 重启次数（用于稳定性检测）
+	restartQuery := fmt.Sprintf(`sum(increase(kube_pod_container_status_restarts_total{namespace="%s", pod=~"%s-.*"}[24h]))`,
+		namespace, serviceName)
+	metrics.RestartCount = int(tc.prom.queryScalar(restartQuery))
+
 	return metrics, nil
 }
 

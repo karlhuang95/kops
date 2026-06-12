@@ -30,8 +30,9 @@ type HealthStatus struct {
 	Error4xxRate float64
 	P99Latency   float64
 
-	HealthCode string
-	StatusIcon string
+	HealthCode  string
+	StatusIcon  string
+	HealthScore float64 // 0-100，分数越高越健康
 
 	InvalidSpend     float64
 	WastedSpendTotal float64

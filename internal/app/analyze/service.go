@@ -122,7 +122,7 @@ func collectPromMetrics(cfg *platformconfig.GlobalConfig, namespaces []string) (
 func buildAdviceResults(engine *advisorpkg.Engine, metrics []metricsdomain.ServiceMetrics) []advisordomain.AdviceResult {
 	results := make([]advisordomain.AdviceResult, 0, len(metrics))
 	for _, m := range metrics {
-		if m.CPURequest == 0 && m.CPUUsageMax == 0 {
+		if m.CPURequest <= 0 {
 			continue
 		}
 		results = append(results, engine.Run(m))
@@ -135,7 +135,7 @@ func buildEfficiencyResults(cfg *platformconfig.GlobalConfig, engine *advisorpkg
 	blackHoles := make([]advisordomain.ResourceBlackHole, 0)
 
 	for _, m := range metrics {
-		if m.CPURequest == 0 && m.CPUUsageMax == 0 {
+		if m.CPURequest <= 0 {
 			continue
 		}
 		results = append(results, engine.Analyze(m))
@@ -154,20 +154,40 @@ func buildEfficiencyResults(cfg *platformconfig.GlobalConfig, engine *advisorpkg
 func identifyResourceBlackHole(m metricsdomain.ServiceMetrics, cfg *platformconfig.GlobalConfig) (advisordomain.ResourceBlackHole, bool) {
 	currentCost := platformpricing.PodMonthlyCost(cfg, m.CPURequest, m.MemRequest, m.Replicas).TotalCost
 	actualCost := platformpricing.PodMonthlyCost(cfg, m.CPUUsageAvg, m.MemUsageMax, m.Replicas).TotalCost
+
+	// 成本门槛：必须超过黑洞判定阈值
 	if currentCost <= cfg.Governance.BlackHoleCostThreshold {
 		return advisordomain.ResourceBlackHole{}, false
 	}
-	wasteRatio := actualCost / currentCost
-	if wasteRatio >= 0.1 {
+
+	// 统一黑洞检测：同时检查利用率维度和流量维度
+	isUtilizationBlackHole := actualCost/currentCost < 0.1
+
+	// 流量黑洞检测：有成本但流量极低
+	isTrafficBlackHole := false
+	if m.AvgRPS < 0.001 && currentCost > cfg.Governance.BlackHoleCostThreshold {
+		isTrafficBlackHole = true
+	}
+
+	if !isUtilizationBlackHole && !isTrafficBlackHole {
 		return advisordomain.ResourceBlackHole{}, false
 	}
+
+	wasteAmount := currentCost - actualCost
+	wasteRatio := 1.0 - actualCost/currentCost
+	if isTrafficBlackHole && !isUtilizationBlackHole {
+		// 纯流量黑洞（有成本但无流量）：浪费按全额计算
+		wasteAmount = currentCost
+		wasteRatio = 1.0
+	}
+
 	return advisordomain.ResourceBlackHole{
 		ServiceName: m.Deployment,
 		Namespace:   m.Namespace,
 		CurrentCost: currentCost,
 		ActualCost:  actualCost,
-		WasteRatio:  1 - wasteRatio,
-		WasteAmount: currentCost - actualCost,
+		WasteRatio:  wasteRatio,
+		WasteAmount: wasteAmount,
 	}, true
 }
 

@@ -13,9 +13,10 @@ func TestValidateConfig(t *testing.T) {
 			MemoryGB: 64,
 		},
 		Governance: GovSpec{
-			TargetUtilization: 0.8,
-			CPUStep:           50,
-			MemoryStep:        128,
+			TargetUtilization:       0.8,
+			MemoryTargetUtilization: 0.8,
+			CPUStep:                 50,
+			MemoryStep:              128,
 		},
 		GatewayCost: GatewaySpec{
 			Count: 2,

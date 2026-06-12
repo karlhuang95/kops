@@ -29,8 +29,14 @@ func RecommendCPU(cfg *config.GlobalConfig, cpuP95, cpuRequest float64) int {
 }
 
 // RecommendMemory calculates the recommended memory request in MiB.
+// Uses memory_target_utilization to leave buffer (same logic as CPU recommendation).
 func RecommendMemory(cfg *config.GlobalConfig, memMax float64) int {
-	return Quantize(memMax, cfg.Governance.MemoryStep, cfg.Governance.MinMemory)
+	target := cfg.Governance.MemoryTargetUtilization
+	if target <= 0 || target > 1 {
+		target = 0.8
+	}
+	rawRecMem := memMax / target
+	return Quantize(rawRecMem, cfg.Governance.MemoryStep, cfg.Governance.MinMemory)
 }
 
 // CalculateTotalTrafficRPS sums AvgRPS across all non-task services.

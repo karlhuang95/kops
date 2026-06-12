@@ -25,7 +25,8 @@ governance:
   mem_limit_factor: 1.1  # 内存是不可压缩资源，建议 Limit 贴近 Request
 
   # 目标水位
-  target_utilization: 0.8 # 期望最终达到 80% 的平均利用率
+  target_utilization: 0.8        # 期望最终达到 80% 的平均 CPU 利用率
+  memory_target_utilization: 0.8 # 期望最终达到 80% 的平均内存利用率
 
   # 阈值配置 (新增)
   rps_low_threshold: 0.01        # 僵尸服务 RPS 阈值
@@ -33,7 +34,7 @@ governance:
   throttle_high_threshold: 10.0   # 高风险限流阈值 (秒)
   mem_high_threshold: 0.9         # 高风险内存阈值 (占比)
   p95_low_threshold: 0.4         # 低利用率阈值 (占比)
-  rps_density_threshold: 0.1      # 低效服务 RPS 密度阈值
+  rps_density_threshold: 100.0     # 低效服务 RPS 密度阈值 (RPS/Core)
 
   # 治理优先级配置
   black_hole_cost_threshold: 100.0   # 黑洞判定成本阈值（元/月）

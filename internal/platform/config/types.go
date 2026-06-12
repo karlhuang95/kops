@@ -29,13 +29,14 @@ type ResourceWeight struct {
 }
 
 type GovSpec struct {
-	TargetUtilization float64 `mapstructure:"target_utilization"`
-	CPUStep           int     `mapstructure:"cpu_step"`
-	MemoryStep        int     `mapstructure:"memory_step"`
-	MinCPU            int     `mapstructure:"min_cpu"`
-	MinMemory         int     `mapstructure:"min_memory"`
-	CPULimitFactor    float64 `mapstructure:"cpu_limit_factor"`
-	MemLimitFactor    float64 `mapstructure:"mem_limit_factor"`
+	TargetUtilization       float64 `mapstructure:"target_utilization"`
+	MemoryTargetUtilization float64 `mapstructure:"memory_target_utilization"`
+	CPUStep                 int     `mapstructure:"cpu_step"`
+	MemoryStep              int     `mapstructure:"memory_step"`
+	MinCPU                  int     `mapstructure:"min_cpu"`
+	MinMemory               int     `mapstructure:"min_memory"`
+	CPULimitFactor          float64 `mapstructure:"cpu_limit_factor"`
+	MemLimitFactor          float64 `mapstructure:"mem_limit_factor"`
 
 	RPSLowThreshold       float64 `mapstructure:"rps_low_threshold"`
 	CPULowThreshold       float64 `mapstructure:"cpu_low_threshold"`

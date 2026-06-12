@@ -1,0 +1,105 @@
+{{template "head.html" .}}
+{{template "nav.html" .}}
+
+<div class="container-fluid pt-3 px-3">
+{{if .ErrorMessage}}
+<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>加载失败</strong> — {{.ErrorMessage}}</div>
+{{else}}
+
+<div class="card-page">
+    <div class="px-3 pt-2">
+        <div class="chip-row" id="efficiencyChips">
+            <span class="chip active" data-chip="all" onclick="setChipFilter('efficiency','all',this)">全部 <span class="chip-count">{{len .Results}}</span></span>
+            <span class="chip" data-chip="s-rank" onclick="setChipFilter('efficiency','s-rank',this)">🌟 S 级</span>
+            <span class="chip" data-chip="a-rank" onclick="setChipFilter('efficiency','a-rank',this)">A 级</span>
+            <span class="chip" data-chip="b-rank" onclick="setChipFilter('efficiency','b-rank',this)">B 级</span>
+            <span class="chip" data-chip="c-rank" onclick="setChipFilter('efficiency','c-rank',this)">⚠️ C 级</span>
+            <span class="chip" data-chip="waste" onclick="setChipFilter('efficiency','waste',this)">💸 有浪费</span>
+        </div>
+    </div>
+    <div class="table-toolbar">
+        <div class="d-flex align-items-center gap-2">
+            <input class="form-control form-control-sm search-input" type="text" placeholder="搜索..." oninput="filterTable('efficiencyTable',this.value)">
+            <span class="page-info" id="efficiencyInfo"></span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select class="form-select form-select-sm page-size-select" onchange="changePageSize('efficiencyTable',this.value)">
+                <option value="20">20条</option><option value="50">50条</option><option value="100">100条</option><option value="99999">全部</option>
+            </select>
+            <div class="btn-group btn-group-sm" id="efficiencyPager"></div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="efficiencyTable">
+            <thead><tr>
+                <th data-sort="string" onclick="sortTable('efficiencyTable',0,'string')">服务 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="string" onclick="sortTable('efficiencyTable',1,'string')">命名空间 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('efficiencyTable',2,'number')">当前 CPU <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('efficiencyTable',3,'number')">推荐 CPU <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('efficiencyTable',4,'number')">流量密度 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="string" onclick="sortTable('efficiencyTable',5,'string')">评级 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('efficiencyTable',6,'number')">成本 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('efficiencyTable',7,'number')">浪费 <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th data-sort="number" onclick="sortTable('efficiencyTable',8,'number')">浪费% <span class="sort-icon bi bi-arrow-down-up"></span></th>
+                <th>建议</th>
+            </tr></thead>
+            <tbody>
+                {{range .Results}}
+                <tr data-rank="{{.TrafficDensityRank}}" data-waste="{{.WasteAmount}}" onclick="toggleRowExpand(this)">
+                    <td><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="svc-name" onclick="event.stopPropagation()">{{.ServiceName}}</a></td>
+                    <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
+                    <td class="text-mono">{{.CurrentCPU}} m</td>
+                    <td class="text-mono">{{.RecCPU}} m</td>
+                    <td>{{formatFloat .TrafficDensity}}</td>
+                    <td><span class="badge {{densityRankClass .TrafficDensityRank}}">{{.TrafficDensityRank}}</span></td>
+                    <td>${{formatFloat .CurrentCost}}</td>
+                    <td>${{formatFloat .WasteAmount}}</td>
+                    <td>{{formatPercent .WasteRatio}}</td>
+                    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{.Action}}">{{.Action}}</td>
+                </tr>
+                <tr class="expand-row" style="display:none" onclick="event.stopPropagation()"><td colspan="10">
+                    <div class="expand-panel">
+                        <div class="expand-item"><div class="expand-label">当前内存</div><div class="expand-value">{{.CurrentMem}} MiB</div></div>
+                        <div class="expand-item"><div class="expand-label">推荐内存</div><div class="expand-value">{{.RecMem}} MiB</div></div>
+                        <div class="expand-item"><div class="expand-label">推荐成本</div><div class="expand-value">${{formatFloat .RecCost}}</div></div>
+                        <div class="expand-item"><div class="expand-label">月节省</div><div class="expand-value">${{formatFloat .MonthlySaving}}</div></div>
+                        <div class="expand-item"><div class="expand-label">建议原因</div><div class="expand-value" style="font-size:0.78rem">{{.Reason}}</div></div>
+                        <div style="grid-column:1/-1;display:flex;gap:0.5rem">
+                            <a href="/service/{{.Namespace}}/{{.ServiceName}}" class="btn btn-sm btn-outline-primary">查看详情 →</a>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="copyKubectlPatch('{{.ServiceName}}','{{.Namespace}}','{{.RecCPU}}','{{.RecMem}}')"><i class="bi bi-clipboard me-1"></i>复制 kubectl 命令</button>
+                        </div>
+                    </div>
+                </td></tr>
+                {{else}}
+                <tr><td colspan="10" class="text-center text-muted py-4">暂无数据。请先在总览页点击"同步"刷新数据。</td></tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{if .BlackHoles}}
+    <div class="blackhole-footer">
+        <div class="blackhole-title"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>资源黑洞 Top 5（高成本、近零利用）</div>
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>#</th><th>服务</th><th>命名空间</th><th>当前成本</th><th>实际消耗</th><th>浪费比例</th><th>浪费金额</th></tr></thead>
+            <tbody>
+                {{range $i,$bh := .BlackHoles}}{{if lt $i 5}}
+                <tr><td class="fw-bold text-muted">{{add $i 1}}</td>
+                    <td><a href="/service/{{$bh.Namespace}}/{{$bh.ServiceName}}" class="svc-name">{{$bh.ServiceName}}</a></td>
+                    <td><span class="badge bg-light text-dark">{{$bh.Namespace}}</span></td>
+                    <td>${{formatFloat $bh.CurrentCost}}</td><td>${{formatFloat $bh.ActualCost}}</td>
+                    <td class="waste-high">{{formatPercent $bh.WasteRatio}}</td><td class="waste-high">${{formatFloat $bh.WasteAmount}}</td>
+                </tr>{{end}}{{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+</div>
+
+{{end}}
+<div class="page-footer">kops — 流量效率</div>
+</div>
+
+{{template "scripts.html"}}
+<script>renderTable('efficiencyTable')</script>
+</body>
+</html>

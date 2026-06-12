@@ -65,13 +65,14 @@ func (e *Engine) Run(m model.ServiceMetrics) model.AdviceResult {
 	res.NewMemRequest = e.calculateMemoryRecommendation(m)
 
 	// --- 2. 经济核算 (成本计算模型) ---
+	// 统一成本口径：Pod 成本 + Gateway 分摊（与 Efficiency 引擎一致）
 	currentCost := platformpricing.PodMonthlyCost(e.cfg, float64(res.OldCPURequest), float64(res.OldMemRequest), m.Replicas)
 	recommendedCost := platformpricing.PodMonthlyCost(e.cfg, float64(res.NewCPURequest), float64(res.NewMemRequest), m.Replicas)
 	actualCost := platformpricing.PodMonthlyCost(e.cfg, m.CPUUsageAvg, m.MemUsageMax, m.Replicas)
 
-	res.CurrentCost = currentCost.TotalCost
-	res.RecommendedCost = recommendedCost.TotalCost
-	res.ActualCost = actualCost.TotalCost
+	res.CurrentCost = currentCost.TotalCost + metricsCopy.GwShareCost
+	res.RecommendedCost = recommendedCost.TotalCost + metricsCopy.GwShareCost
+	res.ActualCost = actualCost.TotalCost + metricsCopy.GwShareCost
 
 	// 浪费/节省金额计算
 	res.MonthlySaving = res.CurrentCost - res.RecommendedCost
@@ -113,19 +114,19 @@ func (e *Engine) calculateMemoryRecommendation(m model.ServiceMetrics) int {
 
 // ==================== 流量与效率评估 ====================
 
-// calculateRPSDensity 计算 RPS 密度
-// Score = Avg_RPS / CPU_Usage_Avg
+// calculateRPSDensity 计算 RPS 密度 (RPS per Core，与 Efficiency 引擎统一)
+// Score = Avg_RPS / (CPU_Usage_Avg / 1000)
 func (e *Engine) calculateRPSDensity(m model.ServiceMetrics) float64 {
 	if m.CPUUsageAvg == 0 {
 		return 0
 	}
-	return m.AvgRPS / m.CPUUsageAvg
+	return m.AvgRPS / (m.CPUUsageAvg / 1000.0)
 }
 
 // calculateEfficiency 计算效率分 (0-100)
 func (e *Engine) calculateEfficiency(m model.ServiceMetrics) float64 {
-	if m.CPURequest == 0 {
-		return 100
+	if m.CPURequest <= 0 {
+		return 0 // 未配置 CPU Request，语义上为最差效率
 	}
 	// 基础得分：实际峰值 / 设定值
 	score := (m.CPUUsageMax / m.CPURequest) * 100
@@ -133,9 +134,13 @@ func (e *Engine) calculateEfficiency(m model.ServiceMetrics) float64 {
 		score = 100
 	}
 
-	// 惩罚项：如果发生 Throttling，说明效率虽高但有风险，扣分
-	if m.ThrottleSecond > 10 {
-		score -= 20
+	// 惩罚项：如果发生 Throttling，按比例扣分（每10秒扣5分，上限40分）
+	if m.ThrottleSecond > 0 {
+		penalty := math.Floor(m.ThrottleSecond/10) * 5
+		if penalty > 40 {
+			penalty = 40
+		}
+		score -= penalty
 	}
 	return math.Max(0, score)
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"strings"
+
+	healthdomain "kops/internal/domain/health"
 )
 
 var funcMap = template.FuncMap{
@@ -16,6 +18,49 @@ var funcMap = template.FuncMap{
 	"densityRankClass": densityRankClass,
 	"healthCodeClass":  healthCodeClass,
 	"healthRowClass":   healthRowClass,
+	"cpuDiffPercent":   cpuDiffPercent,
+	"avgHealthScore":   avgHealthScore,
+}
+
+func cpuDiffPercent(oldCPU, newCPU int) float64 {
+	if oldCPU <= 0 {
+		return 0
+	}
+	diff := float64(oldCPU-newCPU) / float64(oldCPU) * 100
+	if diff < 0 {
+		diff = -diff
+	}
+	if diff > 100 {
+		diff = 100
+	}
+	return diff
+}
+
+func avgHealthScore(statuses interface{}) string {
+	type hasHealthScore interface {
+		GetHealthScore() float64
+	}
+	// Use type assertion for slice of health statuses
+	switch s := statuses.(type) {
+	case []healthdomain.HealthStatus:
+		if len(s) == 0 {
+			return "0.0"
+		}
+		var total float64
+		var count int
+		for _, st := range s {
+			if st.HealthCode != "Idle" {
+				total += st.HealthScore
+				count++
+			}
+		}
+		if count == 0 {
+			return "0.0"
+		}
+		return fmt.Sprintf("%.0f", total/float64(count))
+	default:
+		return "0.0"
+	}
 }
 
 func riskBadgeClass(level string) string {
