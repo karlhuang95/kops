@@ -9,6 +9,8 @@ type GlobalConfig struct {
 		Range   string `mapstructure:"range"`
 		Step    string `mapstructure:"step"`
 	} `mapstructure:"prometheus"`
+	Storage     StorageConfig `mapstructure:"storage"`
+	Jaeger      JaegerConfig  `mapstructure:"jaeger"`
 	Cost        CostSpec     `mapstructure:"cost"`
 	Governance  GovSpec      `mapstructure:"governance"`
 	GatewayCost GatewaySpec  `mapstructure:"gateway_cost"`
@@ -113,4 +115,15 @@ type ReportingConfig struct {
 type GatewaySpec struct {
 	Price float64 `mapstructure:"price"`
 	Count int     `mapstructure:"count"`
+}
+
+// StorageConfig holds parameters for local file-based topology storage.
+type StorageConfig struct {
+	Path string `mapstructure:"path"` // directory path for topology data files
+}
+
+// JaegerConfig holds connection parameters for the Jaeger tracing API.
+type JaegerConfig struct {
+	Address string `mapstructure:"address"`
+	Timeout string `mapstructure:"timeout"`
 }

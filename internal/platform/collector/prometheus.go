@@ -245,3 +245,24 @@ type promResult struct {
 	Metric map[string]string
 	Value  string
 }
+
+// InstantResult holds a single Prometheus instant query result.
+type InstantResult struct {
+	Metric map[string]string
+	Value  float64
+}
+
+// QueryInstant executes an instant Prometheus query and returns labelled scalar results.
+func (pc *PromCollector) QueryInstant(queryStr string) ([]InstantResult, error) {
+	u := fmt.Sprintf("%s/api/v1/query?query=%s", pc.Address, url.QueryEscape(queryStr))
+	res, err := pc.doQuery(u)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]InstantResult, 0, len(res))
+	for _, r := range res {
+		val, _ := strconv.ParseFloat(r.Value, 64)
+		out = append(out, InstantResult{Metric: r.Metric, Value: val})
+	}
+	return out, nil
+}

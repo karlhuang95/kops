@@ -1,0 +1,571 @@
+{{define "topology.html"}}
+{{template "head.html" .}}
+<style>
+html,body{height:100%;margin:0;overflow:hidden}
+#topo-app{position:fixed;top:52px;left:0;right:0;bottom:0;display:flex}
+#topo-sidebar{width:280px;background:var(--card-bg);border-right:1px solid var(--border);padding:0.8rem;overflow-y:auto;flex-shrink:0;font-size:0.75rem;display:flex;flex-direction:column;z-index:10}
+#topo-sidebar h6{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin:0.7rem 0 0.3rem}
+#topo-sidebar .stat-row{display:flex;justify-content:space-between;padding:0.12rem 0;font-size:0.7rem}
+#topo-canvas{flex:1;position:relative;background:#f1f5f9;overflow:hidden}
+.chip-row{display:flex;flex-wrap:wrap;gap:0.2rem}
+.chip-row span{padding:0.1rem 0.4rem;border-radius:8px;font-size:0.65rem;cursor:pointer;border:1px solid var(--border);background:var(--chip-bg);color:var(--text)}
+.chip-row span.active{background:var(--chip-active-bg);color:var(--chip-active-text);border-color:transparent}
+.flow-legend{display:flex;align-items:center;gap:0.3rem;padding:0.1rem 0;font-size:0.68rem}
+#topo-tooltip{position:absolute;pointer-events:none;background:#1e293b;color:#f1f5f9;padding:5px 10px;border-radius:6px;font-size:0.72rem;z-index:100;display:none;white-space:nowrap}
+@keyframes flowDash{to{stroke-dashoffset:-16}}
+.edge-calls{animation:flowDash 0.8s linear infinite}
+</style>
+<body>
+{{template "nav.html" .}}
+<div id="topo-app">
+  <div id="topo-sidebar">
+    <h5 style="margin:0 0 0.5rem;font-size:0.88rem;font-weight:600"><i class="bi bi-diagram-3 me-2"></i>服务调用链路</h5>
+    <div style="color:var(--text-muted);font-size:0.68rem;margin-bottom:0.5rem">← 拖动画布 · 滚轮缩放 · 悬停高亮调用链</div>
+    <div id="topoStats" style="margin-bottom:0.5rem">
+      <div class="stat-row"><span>调用链路</span><strong id="statCalls">-</strong></div>
+      <div class="stat-row"><span>服务节点</span><strong id="statSvc">-</strong></div>
+      <div class="stat-row"><span>命名空间</span><strong id="statNS">-</strong></div>
+    </div>
+    <h6>健康筛选</h6>
+    <div class="chip-row" id="healthChips">
+      <span class="active" data-filter="all">全部</span>
+      <span data-filter="Critical" style="color:#d93025">严重</span>
+      <span data-filter="Warning" style="color:#e37400">警告</span>
+      <span data-filter="Healthy" style="color:#1e8e3e">健康</span>
+    </div>
+    <h6>图层</h6>
+    <div class="chip-row" id="layerChips">
+      <span class="active" data-layer="calls">调用关系</span>
+      <span class="active" data-layer="routes">入口路由</span>
+    </div>
+    <h6>图例</h6>
+    <div class="flow-legend"><span style="width:10px;height:10px;border-radius:3px;background:#1e8e3e"></span> 健康</div>
+    <div class="flow-legend"><span style="width:10px;height:10px;border-radius:3px;background:#e37400"></span> 警告</div>
+    <div class="flow-legend"><span style="width:10px;height:10px;border-radius:3px;background:#d93025"></span> 严重</div>
+    <div class="flow-legend"><span style="font-size:0.7rem;color:#f59e0b">→</span> 服务调用</div>
+    <div class="flow-legend"><span style="font-size:0.7rem;color:#6366f1">- - →</span> 入口路由</div>
+    <h6>搜索</h6>
+    <input type="text" id="nodeSearch" class="form-control form-control-sm" placeholder="服务名..." style="font-size:0.72rem">
+    <h6>详情 <span id="detailLabel" style="font-weight:400;font-size:0.65rem"></span></h6>
+    <div id="detailContent" style="flex:1;overflow-y:auto;color:var(--text-muted);font-size:0.7rem"><em>点击服务节点查看</em></div>
+    <div style="border-top:1px solid var(--border);padding-top:0.5rem;margin-top:0.5rem;display:flex;gap:0.25rem">
+      <button class="btn btn-sm btn-outline-primary" onclick="refreshTopo()" style="font-size:0.7rem"><i class="bi bi-arrow-repeat me-1"></i>刷新</button>
+      <button class="btn btn-sm btn-outline-danger" onclick="cleanupTopo()" style="font-size:0.7rem"><i class="bi bi-trash me-1"></i>清理</button>
+    </div>
+  </div>
+  <div id="topo-canvas">
+    <div id="topo-tabs" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:0;background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.1);overflow:hidden">
+      <button id="tab-graph" class="topo-tab active" style="padding:6px 18px;border:none;font-size:0.78rem;font-weight:600;cursor:pointer;background:var(--chip-active-bg);color:var(--chip-active-text);transition:all 0.15s">架构图</button>
+      <button id="tab-matrix" class="topo-tab" style="padding:6px 18px;border:none;font-size:0.78rem;font-weight:600;cursor:pointer;background:#fff;color:var(--text-muted);transition:all 0.15s">依赖查询</button>
+    </div>
+    <svg id="topoSvg"></svg>
+    <div id="topo-tooltip"></div>
+  </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+(function(){
+var svg=d3.select('#topoSvg'),canvas=document.getElementById('topo-canvas'),tip=d3.select('#topo-tooltip');
+var NS_COLORS=['#6366f1','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6'];
+var nsCi=0,nsCm={};
+function nsC(ns){if(!nsCm[ns]){nsCm[ns]=NS_COLORS[nsCi%NS_COLORS.length];nsCi++}return nsCm[ns]}
+function hcC(c){if(c==='Critical')return'#d93025';if(c==='Warning')return'#e37400';if(c==='Healthy')return'#1e8e3e';return'#94a3b8'}
+
+var cFilter='all',cLayers={calls:true,routes:true};
+var gData,gEdges,gNodes,nMap;
+
+function loadGraph(){
+  fetch('/api/topology/graph').then(function(r){return r.json()}).then(function(d){
+    if(d.error){svg.html('<text x="20" y="40" fill="#d93025">'+d.error+'</text>');return}
+    if(!d.nodes||!d.nodes.length){svg.html('<text x="20" y="40" fill="#94a3b8">暂无数据，请点击刷新</text>');return}
+    gData=d;activeTab==='matrix'?renderMatrix():render();
+  }).catch(function(e){svg.html('<text x="20" y="40" fill="#d93025">'+e.message+'</text>')});
+}
+
+// --- Tab switching ---
+var activeTab='graph';
+document.getElementById('tab-graph').onclick=function(){switchTab('graph')};
+document.getElementById('tab-matrix').onclick=function(){switchTab('matrix')};
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.topo-tab').forEach(function(b){b.classList.remove('active');b.style.background='#fff';b.style.color='var(--text-muted)'});
+  var btn=document.getElementById('tab-'+t);
+  btn.classList.add('active');btn.style.background='var(--chip-active-bg)';btn.style.color='var(--chip-active-text)';
+  if(gData) t==='matrix'?renderMatrix():render();
+}
+
+function render(){
+  svg.selectAll('*').remove();
+  var W=Math.max(canvas.clientWidth||1500,1100),H=Math.max(canvas.clientHeight||850,650);
+  svg.attr('width',W).attr('height',H);
+
+  nMap={};gNodes=gData.nodes;gEdges=gData.edges;
+  gNodes.forEach(function(n){nMap[n.id]=n});
+
+  var ext=[],eps=[],nss=[],deps=[],k8s=[],jsvcs=[];
+  gNodes.forEach(function(n){
+    if(n.group==='External')ext.push(n);else if(n.group==='Entrypoint')eps.push(n);
+    else if(n.group==='Namespace')nss.push(n);else if(n.group==='K8sService')k8s.push(n);
+    else if(n.group==='JaegerService')jsvcs.push(n);else if(n.group==='Deployment')deps.push(n);
+  });
+
+  var nsGrp={};nss.forEach(function(ns){nsGrp[ns.id]=[]});
+  deps.forEach(function(d){var ns=(d.properties&&d.properties.namespace)||'';if(nsGrp[ns]==null)nsGrp[ns]=[];nsGrp[ns].push(d)});
+  var nsKeys=Object.keys(nsGrp).filter(function(k){return nsGrp[k].length>0});
+
+  var cEdges=gEdges.filter(function(e){return e.type==='CALLS'});
+  document.getElementById('statCalls').textContent=cEdges.length;
+  document.getElementById('statSvc').textContent=deps.length;
+  document.getElementById('statNS').textContent=nsKeys.length;
+
+  // --- Layout ---
+  var M={t:50,r:30,b:30,l:30},colG=60,nodeH=30,nodeGap=8,nsP={t:38,r:18,b:18,l:18};
+  var epW=110,nsW=Math.min(220,Math.max(170,(W-M.l-M.r-colG*2)/Math.max(nsKeys.length,1)));
+
+  // Column positions
+  var cols=[];cols.push({x:M.l+epW/2,w:epW,id:'edge'}); // left: external + entrypoints
+  nsKeys.forEach(function(k,i){cols.push({x:M.l+epW+colG+nsW/2+i*(nsW+colG),w:nsW,id:k})});
+
+  var nPos={};
+
+  // External + Entrypoints
+  ext.forEach(function(n,i){nPos[n.id]={x:cols[0].x,y:M.t+20,r:14,grp:'External',fx:true}});
+  eps.forEach(function(n,i){nPos[n.id]={x:cols[0].x,y:M.t+75+i*50,r:11,grp:'Entrypoint'}});
+
+  // Namespace columns
+  nsKeys.forEach(function(k,ci){
+    var col=cols[1+ci],mems=nsGrp[k]||[],nM=Math.max(mems.length,1);
+    var cw=col.w-nsP.l-nsP.r,ch=nM*(nodeH+nodeGap)-nodeGap;
+    col.nsX=col.x;col.nsY=M.t+20;col.nsW=col.w;col.nsH=nsP.t+ch+nsP.b;
+    mems.forEach(function(d,i){
+      nPos[d.id]={x:col.x,y:col.nsY+nsP.t+i*(nodeH+nodeGap)+nodeH/2,w:cw-6,h:nodeH,grp:'Deployment',ns:k};
+    });
+  });
+
+  // --- SVG Setup ---
+  var g=svg.append('g');
+  svg.call(d3.zoom().scaleExtent([0.2,4]).on('zoom',function(e){g.attr('transform',e.transform)}));
+
+  var defs=svg.append('defs');
+
+  // Arrow markers — larger and filled triangles
+  defs.append('marker').attr('id','ma-calls').attr('viewBox','0 -6 12 12').attr('refX',10).attr('refY',0)
+    .attr('markerWidth',7).attr('markerHeight',7).attr('orient','auto')
+    .append('path').attr('d','M0,-5L10,0L0,5Z').attr('fill','#f59e0b');
+  defs.append('marker').attr('id','ma-calls-hl').attr('viewBox','0 -6 12 12').attr('refX',10).attr('refY',0)
+    .attr('markerWidth',7).attr('markerHeight',7).attr('orient','auto')
+    .append('path').attr('d','M0,-5L10,0L0,5Z').attr('fill','#ea580c');
+  defs.append('marker').attr('id','ma-route').attr('viewBox','0 -4 10 8').attr('refX',9).attr('refY',0)
+    .attr('markerWidth',5).attr('markerHeight',5).attr('orient','auto')
+    .append('path').attr('d','M0,-3L8,0L0,3Z').attr('fill','#6366f1');
+
+  // Shadow filter
+  defs.append('filter').attr('id','sh').html('<feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.06"/>');
+  // Glow filter for hover
+  defs.append('filter').attr('id','glow').html('<feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#f59e0b" flood-opacity="0.4"/>');
+
+  // --- Left column label ---
+  g.append('text').attr('x',cols[0].x).attr('y',M.t).attr('text-anchor','middle')
+    .style('font-size','9px').style('fill','#94a3b8').style('font-weight','600').text('Traefik 入口');
+
+  // --- Draw containers ---
+  nsKeys.forEach(function(k,ci){
+    var col=cols[1+ci],color=nsC(k);
+    var cg=g.append('g').attr('class','ns-box');
+    // background
+    cg.append('rect').attr('x',col.nsX-col.nsW/2).attr('y',col.nsY).attr('width',col.nsW).attr('height',col.nsH)
+      .attr('rx',8).attr('fill','#fff').attr('stroke',color).attr('stroke-width',1.5).attr('filter','url(#sh)');
+    // header strip
+    cg.append('rect').attr('x',col.nsX-col.nsW/2).attr('y',col.nsY).attr('width',col.nsW).attr('height',28)
+      .attr('rx',8).attr('fill',color).attr('opacity',0.1);
+    cg.append('rect').attr('x',col.nsX-col.nsW/2).attr('y',col.nsY+20).attr('width',col.nsW).attr('height',8)
+      .attr('fill',color).attr('opacity',0.1);
+    cg.append('text').attr('x',col.nsX).attr('y',col.nsY+20).attr('text-anchor','middle')
+      .style('font-size','11px').style('font-weight','700').style('fill',color).text(k);
+  });
+
+  // --- Draw edges ---
+  var eG=g.append('g').attr('class','edges');
+  var edgeEls=[];
+  gEdges.forEach(function(e){
+    var s=nPos[e.source],t=nPos[e.target];
+    if(!s||!t)return;
+    var isCall=e.type==='CALLS',isRoute=e.type==='ROUTES_TO';
+    if(!isCall&&!isRoute)return;
+    var cc=e.properties&&e.properties.callCount?e.properties.callCount:0;
+    var sw=isCall?Math.max(1.5,Math.min(Math.log10(cc+1)*2.5,6)):1.2;
+    var color=isCall?'#f59e0b':'#6366f1';
+    var pathD=makePath(s,t,isCall?0.7:0.15);
+
+    var eg=eG.append('g').attr('class','edge').attr('data-s',e.source).attr('data-t',e.target).attr('data-type',e.type);
+
+    // Shadow underline for CALLS edges
+    if(isCall){
+      eg.append('path').attr('d',shiftPath(pathD,2)).attr('fill','none').attr('stroke','#f59e0b')
+        .attr('stroke-width',sw+3).attr('stroke-opacity',0.08).attr('pointer-events','none');
+    }
+
+    // Main edge
+    eg.append('path').attr('d',pathD).attr('fill','none').attr('stroke',color).attr('stroke-width',sw)
+      .attr('stroke-dasharray',isRoute?'6,3':null)
+      .attr('stroke-opacity',isCall?0.7:0.45)
+      .attr('marker-end',isCall?'url(#ma-calls)':'url(#ma-route)')
+      .attr('pointer-events','stroke').attr('stroke-linecap','round');
+
+    // Label — always show call count
+    if(isCall){
+      var mx=(s.x+t.x)/2,my=(s.y+t.y)/2-7;
+      var lbl=cc>999?(cc/1000).toFixed(1)+'k':cc>0?''+cc:'';
+      if(lbl){
+        var tw=lbl.length*5+10;
+        eg.append('rect').attr('x',mx-tw/2).attr('y',my-7).attr('width',tw).attr('height',14).attr('rx',4)
+          .attr('fill','#fff8f0').attr('stroke','#f59e0b').attr('stroke-width',0.8);
+        eg.append('text').attr('x',mx).attr('y',my+4).attr('text-anchor','middle')
+          .style('font-size','8px').style('fill','#b45309').style('font-weight','700')
+          .text(lbl);
+      }
+    }
+    edgeEls.push(eg);
+  });
+
+  // --- Draw nodes ---
+  var nG=g.append('g').attr('class','nodes');
+  var nodeEls=[];
+  Object.keys(nPos).forEach(function(id){
+    var p=nPos[id],n=nMap[id];if(!n)return;
+    var el=nG.append('g').attr('class','node').attr('data-id',id).attr('cursor','pointer');
+    var bw=p.w||90,bh=p.h||nodeH;
+
+    if(n.group==='Entrypoint'){
+      var r=p.r||10;
+      el.append('polygon').attr('points',[0,-r,r,0,0,r,-r,0].join(' ')).attr('fill','#ef4444').attr('stroke','#fff').attr('stroke-width',2);
+      // Label beside the diamond
+      var epName=id.replace('traefik-','').replace('-entrypoint','');
+      el.append('text').attr('x',r+6).attr('y',4).style('font-size','9px').style('fill','#64748b').style('font-weight','600').text(epName);
+    }else if(n.group==='External'){
+      el.append('circle').attr('r',p.r||14).attr('fill','#64748b').attr('stroke','#fff').attr('stroke-width',2);
+      el.append('text').attr('x',18).attr('y',4).style('font-size','9px').style('fill','#64748b').style('font-weight','500').text('外部流量');
+    }else{
+      // Rounded rect node
+      var hcv=n.properties&&n.properties.healthCode;
+      var fillC=hcv?hcC(hcv):'#3b82f6';
+      el.append('rect').attr('x',-bw/2).attr('y',-bh/2).attr('width',bw).attr('height',bh).attr('rx',6)
+        .attr('fill','#fff').attr('stroke',fillC).attr('stroke-width',2).attr('filter','url(#sh)');
+      // Left color bar
+      el.append('rect').attr('x',-bw/2).attr('y',-bh/2).attr('width',4).attr('height',bh).attr('rx',2).attr('fill',fillC);
+      // Health dot
+      el.append('circle').attr('cx',-bw/2+14).attr('cy',0).attr('r',5).attr('fill',fillC);
+      // Inbound/outbound arrows indicator
+      var callsIn=n.properties&&n.properties.callInbound||0;
+      var callsOut=n.properties&&n.properties.callOutbound||0;
+      if(callsIn>0){
+        el.append('text').attr('x',bw/2-18).attr('y',-2).style('font-size','9px').style('fill','#b45309').text('↓'+fmt(callsIn));
+      }
+      if(callsOut>0){
+        el.append('text').attr('x',bw/2-18).attr('y',10).style('font-size','9px').style('fill','#b45309').text('↑'+fmt(callsOut));
+      }
+      // Label
+      var lb=(id||'');if(lb.indexOf('/')>=0)lb=lb.split('/')[1];if(lb.length>18)lb=lb.slice(0,16)+'..';
+      el.append('text').attr('x',-bw/2+24).attr('y',4.5).style('font-size','8.5px').style('fill','#1e293b').style('font-weight','500').text(lb);
+    }
+    el.attr('transform','translate('+p.x+','+p.y+')');
+    nodeEls.push(el);
+  });
+
+  // --- Interactions ---
+  nodeEls.forEach(function(el){
+    el.on('mouseenter',function(e,d){
+      var id=el.attr('data-id'),conn=new Set();conn.add(id);
+      gEdges.forEach(function(e){if(e.source===id&&e.type==='CALLS')conn.add(e.target);if(e.target===id&&e.type==='CALLS')conn.add(e.source)});
+      nodeEls.forEach(function(n){n.attr('opacity',conn.has(n.attr('data-id'))?1:0.08)});
+      edgeEls.forEach(function(eg){
+        var s=eg.attr('data-s'),t=eg.attr('data-t'),tp=eg.attr('data-type');
+        var hit=(s===id||t===id)&&tp==='CALLS';
+        eg.attr('opacity',hit?1:0.03);
+        if(hit)eg.select('path[marker-end]').attr('marker-end','url(#ma-calls-hl)');
+      });
+    }).on('mousemove',function(e){
+      // Build tooltip: show who this service calls and who calls it
+      var id=el.attr('data-id'),n=nMap[id];if(!n||n.group!=='Deployment'){tip.style('display','block').style('left',(e.clientX-260)+'px').style('top',(e.clientY-40)+'px');return}
+      var callsOut=[],callsIn=[];
+      gEdges.forEach(function(ed){if(ed.type!=='CALLS')return;
+        if(ed.source===id)callsOut.push({name:ed.target.split('/')[1],cc:ed.properties&&ed.properties.callCount||0});
+        if(ed.target===id)callsIn.push({name:ed.source.split('/')[1],cc:ed.properties&&ed.properties.callCount||0});
+      });
+      var h='<b>'+id.split('/')[1]+'</b>';
+      if(callsOut.length){h+='<br><span style="color:#f59e0b">调用 →</span> '+callsOut.map(function(x){return x.name}).join(', ')}
+      if(callsIn.length){h+='<br><span style="color:#f59e0b">被调用 ←</span> '+callsIn.map(function(x){return x.name}).join(', ')}
+      tip.html(h).style('display','block').style('left',(e.clientX-260)+'px').style('top',(e.clientY-60)+'px');
+    }).on('mouseleave',function(){
+      nodeEls.forEach(function(n){n.attr('opacity',1)});
+      edgeEls.forEach(function(eg){eg.attr('opacity',1);eg.select('path[marker-end]').attr('marker-end',function(){
+        return eg.attr('data-type')==='CALLS'?'url(#ma-calls)':'url(#ma-route)';
+      })});
+      tip.style('display','none');
+    }).on('click',function(){showDetail(nMap[el.attr('data-id')])});
+  });
+
+  // Edge hover
+  edgeEls.forEach(function(eg){
+    eg.on('mouseenter',function(){
+      var s=eg.attr('data-s'),t=eg.attr('data-t'),tp=eg.attr('data-type');
+      if(tp!=='CALLS')return;
+      tip.style('display','block');
+      eg.select('path[marker-end]').attr('marker-end','url(#ma-calls-hl)');
+    }).on('mousemove',function(e){
+      var s=nMap[eg.attr('data-s')],t=nMap[eg.attr('data-t')];
+      var src=s?s.id.split('/')[1]:eg.attr('data-s');
+      var dst=t?t.id.split('/')[1]:eg.attr('data-t');
+      tip.html(src+' <span style="color:#f59e0b">→</span> '+dst);
+    }).on('mouseleave',function(){
+      eg.select('path[marker-end]').attr('marker-end','url(#ma-calls)');
+      tip.style('display','none');
+    });
+  });
+
+  // --- Filters ---
+  document.querySelectorAll('#layerChips span').forEach(function(c){
+    c.onclick=function(){
+      var ly=this.dataset.layer;cLayers[ly]=!cLayers[ly];
+      if(cLayers[ly])this.classList.add('active');else this.classList.remove('active');
+      edgeEls.forEach(function(eg){
+        var t=eg.attr('data-type');
+        var hide=(t==='CALLS'&&!cLayers.calls)||(t==='ROUTES_TO'&&!cLayers.routes);
+        eg.attr('display',hide?'none':null);
+      });
+    }
+  });
+
+  document.querySelectorAll('#healthChips span').forEach(function(c){
+    c.onclick=function(){
+      document.querySelectorAll('#healthChips span').forEach(function(x){x.classList.remove('active')});
+      this.classList.add('active');cFilter=this.dataset.filter;
+      nodeEls.forEach(function(el){
+        if(cFilter==='all'){el.attr('opacity',1);return}
+        var n=nMap[el.attr('data-id')];
+        if(!n||(n.group!=='Deployment'&&n.group!=='K8sService')){el.attr('opacity',0.05);return}
+        el.attr('opacity',((n.properties&&n.properties.healthCode)||'')===cFilter?1:0.05);
+      });
+    }
+  });
+
+  document.getElementById('nodeSearch').oninput=function(){
+    var q=this.value.toLowerCase();
+    if(activeTab==='matrix'){
+      // In matrix mode, search triggers dependency lookup
+      var found=null;
+      var deps=(gData.nodes||[]).filter(function(n){return n.group==='Deployment'});
+      deps.forEach(function(d){if(d.id.toLowerCase().indexOf(q)>=0||(d.id.split('/')[1]||'').toLowerCase().indexOf(q)>=0)found=d.id});
+      if(found&&q.length>=2){lookupSvc=found;renderMatrix()}
+      return;
+    }
+    if(nodeEls)nodeEls.forEach(function(el){el.attr('opacity',q?((el.attr('data-id')||'').toLowerCase().indexOf(q)>=0?1:0.04):1)});
+  }
+}
+
+// ====== Dependency Lookup ======
+var lookupSvc=null; // currently focused service ID
+
+function renderMatrix(){
+  svg.selectAll('*').remove();
+  var W=Math.max(canvas.clientWidth||1500,1100),H=Math.max(canvas.clientHeight||850,650);
+  svg.attr('width',W).attr('height',H);
+  nMap={};gNodes=gData.nodes;gEdges=gData.edges;
+  gNodes.forEach(function(n){nMap[n.id]=n});
+
+  var deps=gNodes.filter(function(n){return n.group==='Deployment'});
+  if(deps.length===0){svg.html('<text x="20" y="40" fill="#94a3b8">暂无服务数据</text>');return}
+
+  // Build call graph: service → {upstream: {caller→count}, downstream: {callee→count}}
+  var graph={};
+  deps.forEach(function(d){graph[d.id]={up:{},down:{}}});
+  gEdges.forEach(function(e){
+    if(e.type!=='CALLS')return;
+    var cc=e.properties&&e.properties.callCount||1;
+    if(graph[e.source]&&graph[e.target]){
+      graph[e.source].down[e.target]=(graph[e.source].down[e.target]||0)+cc;
+      graph[e.target].up[e.source]=(graph[e.target].up[e.source]||0)+cc;
+    }
+  });
+
+  // Sort service list
+  var svcList=deps.map(function(d){return d.id}).sort();
+  function short(id){var n=id.split('/')[1]||id;return n.length>18?n.slice(0,16)+'..':n}
+
+  var g=svg.append('g');
+  svg.call(d3.zoom().scaleExtent([0.2,4]).on('zoom',function(e){g.attr('transform',e.transform)}));
+
+  // --- Draw lookup result ---
+  if(lookupSvc&&graph[lookupSvc]){
+    renderLookup(graph,svcList,W,H,short);
+    return;
+  }
+
+  // Service list view
+  var hasCall=svcList.filter(function(s){return Object.keys(graph[s].up).length>0||Object.keys(graph[s].down).length>0});
+  var noCall=svcList.filter(function(s){return Object.keys(graph[s].up).length===0&&Object.keys(graph[s].down).length===0});
+
+  document.getElementById('statCalls').textContent=gEdges.filter(function(e){return e.type==='CALLS'}).length;
+  document.getElementById('statSvc').textContent=hasCall.length;
+  document.getElementById('statNS').textContent='-';
+
+  g.append('text').attr('x',W/2).attr('y',30).attr('text-anchor','middle').style('font-size','13px').style('fill','#1e293b').style('font-weight','600')
+    .text('点击服务查看其上下游依赖（可在左侧搜索框筛选）');
+
+  var colW2=(W-80)/4,itemsPerCol=Math.ceil(hasCall.length/4);
+  var svcClick=function(sid){return function(){lookupSvc=sid;renderMatrix()}};
+
+  hasCall.forEach(function(s,i){
+    var col=Math.floor(i/itemsPerCol),row=i%itemsPerCol;
+    var sx=40+col*colW2+colW2/2,sy=60+row*18;
+    var upN=Object.keys(graph[s].up).length,downN=Object.keys(graph[s].down).length;
+
+    var sname=s.split('/')[1]||s;if(sname.length>20)sname=sname.slice(0,18)+'..';
+    var n=nMap[s],hcv=n&&n.properties&&n.properties.healthCode,dotColor=hcv?hcC(hcv):'#cbd5e1';
+
+    var tg=g.append('g').attr('cursor','pointer').on('click',svcClick(s));
+    tg.append('circle').attr('cx',sx-55).attr('cy',sy-4).attr('r',3).attr('fill',dotColor);
+    tg.append('text').attr('x',sx-48).attr('y',sy).style('font-size','8.5px').style('fill','#475569').style('font-weight','500').text(sname);
+    tg.append('text').attr('x',sx+80).attr('y',sy).style('font-size','7.5px').style('fill','#94a3b8')
+      .text('←'+upN+'/'+downN+'→');
+  });
+
+  if(noCall.length>0){
+    g.append('text').attr('x',W/2).attr('y',H-30).attr('text-anchor','middle').style('font-size','9px').style('fill','#cbd5e1')
+      .text('+ '+noCall.length+' 个服务暂无调用数据');
+  }
+}
+
+function renderLookup(graph,svcList,W,H,short){
+  svg.selectAll('*').remove();
+  nMap={};gNodes.forEach(function(n){nMap[n.id]=n});
+  var g=svg.append('g');
+  svg.call(d3.zoom().scaleExtent([0.2,4]).on('zoom',function(e){g.attr('transform',e.transform)}));
+
+  // Back button
+  g.append('text').attr('x',W/2+240).attr('y',30).style('font-size','13px').style('fill','#6366f1').style('cursor','pointer').style('font-weight','600')
+    .text('← 返回列表').on('click',function(){lookupSvc=null;renderMatrix()});
+
+  var gData=graph[lookupSvc];
+  var ups=Object.keys(gData.up).sort(function(a,b){return gData.up[b]-gData.up[a]});
+  var downs=Object.keys(gData.down).sort(function(a,b){return gData.down[b]-gData.down[a]});
+
+  // --- Center: selected service ---
+  var cx=W/2,cy=H/2,nodeW=200,nodeH=36;
+  // Shadow
+  g.append('rect').attr('x',cx-nodeW/2+2).attr('y',cy-nodeH/2+2).attr('width',nodeW).attr('height',nodeH).attr('rx',8)
+    .attr('fill','rgba(0,0,0,0.08)');
+  var nc=nMap[lookupSvc],hcv=nc&&nc.properties&&nc.properties.healthCode,color=hcv?hcC(hcv):'#3b82f6';
+  g.append('rect').attr('x',cx-nodeW/2).attr('y',cy-nodeH/2).attr('width',nodeW).attr('height',nodeH).attr('rx',8)
+    .attr('fill','#fff').attr('stroke',color).attr('stroke-width',2.5);
+  g.append('rect').attr('x',cx-nodeW/2).attr('y',cy-nodeH/2).attr('width',4).attr('height',nodeH).attr('rx',2).attr('fill',color);
+  g.append('text').attr('x',cx).attr('y',cy+5).attr('text-anchor','middle').style('font-size','13px').style('font-weight','700').style('fill','#1e293b').text(short(lookupSvc));
+  g.append('text').attr('x',cx).attr('y',cy-nodeH/2-8).attr('text-anchor','middle').style('font-size','9px').style('fill','#94a3b8').text('← '+ups.length+' 上游 &nbsp; '+downs.length+' 下游 →');
+
+  // --- Upstream (left column) ---
+  if(ups.length>0){
+    g.append('text').attr('x',cx-280).attr('y',65).attr('text-anchor','middle').style('font-size','10px').style('fill','#94a3b8').style('font-weight','600').text('上游（调用方）');
+    ups.forEach(function(sid,i){
+      var ux=cx-280,uy=85+i*40;
+      drawDepNode(g,ux,uy,160,30,sid,'#6366f1');
+      // Edge: upstream → center
+      var cc=gData.up[sid];
+      drawCallEdge(g,ux+80,uy,cx-nodeW/2,cy,cc,false);
+    });
+  }
+
+  // --- Downstream (right column) ---
+  if(downs.length>0){
+    g.append('text').attr('x',cx+280).attr('y',65).attr('text-anchor','middle').style('font-size','10px').style('fill','#94a3b8').style('font-weight','600').text('下游（被调用方）');
+    downs.forEach(function(sid,i){
+      var dx=cx+280,dy=85+i*40;
+      drawDepNode(g,dx,dy,160,30,sid,'#10b981');
+      // Edge: center → downstream
+      var cc=gData.down[sid];
+      drawCallEdge(g,cx+nodeW/2,cy,dx-80,dy,cc,false);
+    });
+  }
+
+  // Click center node for detail
+  g.append('rect').attr('x',cx-nodeW/2).attr('y',cy-nodeH/2).attr('width',nodeW).attr('height',nodeH).attr('fill','transparent').attr('cursor','pointer')
+    .on('click',function(){showDetail(nMap[lookupSvc])});
+}
+
+function drawDepNode(g,x,y,w,h,sid,accentColor){
+  var n=nMap[sid];if(!n)return;
+  var hcv=n&&n.properties&&n.properties.healthCode,color=hcv?hcC(hcv):accentColor;
+  g.append('rect').attr('x',x-w/2).attr('y',y-h/2).attr('width',w).attr('height',h).attr('rx',6)
+    .attr('fill','#fff').attr('stroke',color).attr('stroke-width',1.5).attr('cursor','pointer')
+    .on('click',function(){lookupSvc=sid;renderMatrix()}); // navigate to this service
+  g.append('rect').attr('x',x-w/2).attr('y',y-h/2).attr('width',3).attr('height',h).attr('rx',2).attr('fill',color);
+  var lbl=sid.split('/')[1]||sid;if(lbl.length>18)lbl=lbl.slice(0,16)+'..';
+  g.append('text').attr('x',x-w/2+10).attr('y',y+4).style('font-size','9px').style('fill','#334155').style('font-weight','500').text(lbl);
+}
+
+function drawCallEdge(g,x1,y1,x2,y2,count,highlight){
+  var mx=(x1+x2)/2,my=(y1+y2)/2;
+  var sw=Math.max(1.5,Math.min(Math.log10(count+1)*2.5,5));
+  g.append('path').attr('d','M'+x1+','+y1+' Q'+mx+','+my+' '+x2+','+y2)
+    .attr('fill','none').attr('stroke','#f59e0b').attr('stroke-width',sw)
+    .attr('marker-end','url(#ma-calls)');
+  if(count>0){
+    var lbl=count>999?(count/1000).toFixed(1)+'k':''+count;
+    g.append('rect').attr('x',mx-12).attr('y',my-10).attr('width',24).attr('height',13).attr('rx',3)
+      .attr('fill','#fff8f0').attr('stroke','#f59e0b').attr('stroke-width',0.6);
+    g.append('text').attr('x',mx).attr('y',my).attr('text-anchor','middle')
+      .style('font-size','7px').style('fill','#b45309').style('font-weight','700').text(lbl);
+  }
+}
+
+function makePath(s,t,curv){
+  var sx=s.x,sy=s.y,tx=t.x,ty=t.y;
+  if(curv<0.2)return'M'+sx+','+sy+' L'+tx+','+ty;
+  var mx=(sx+tx)/2,my=(sy+ty)/2;
+  return'M'+sx+','+sy+' Q'+mx+','+my+' '+tx+','+ty;
+}
+
+function shiftPath(d,off){return d.replace(/(-?\d+\.?\d*),(-?\d+\.?\d*)/g,function(_,x,y){return (+x)+','+((+y)+off)})}
+
+function fmt(n){if(n>=1000)return(n/1000).toFixed(1)+'k';return''+n}
+
+function showDetail(d){
+  var p=d.properties||{},c=document.getElementById('detailContent');
+  document.getElementById('detailLabel').textContent='('+d.group+')';
+  var h='<div style="font-weight:600">'+d.id+'</div>';
+  if(d.group==='Deployment'){
+    var hcv=p.healthCode||'-';h+='<div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+hcC(hcv)+';margin-right:4px"></span>'+hcv+' | '+(p.riskLevel||'-')+'</div>';
+    h+='<div style="margin:4px 0;padding:4px 6px;background:#fffbeb;border-radius:4px;font-size:0.68rem">';
+    h+='<span style="color:#b45309">↓'+fmt(p.callInbound||0)+' 入站</span> &nbsp; <span style="color:#b45309">↑'+fmt(p.callOutbound||0)+' 出站</span> &nbsp; '+fmt(p.callPeerCount||0)+' 关联</div>';
+    if(p.currentCost!==undefined)h+='<div class="stat-row"><span>月成本</span><strong>¥'+p.currentCost.toFixed(2)+'</strong></div>';
+    if(p.monthlySaving>0)h+='<div class="stat-row"><span>可节省</span><strong style="color:#1e8e3e">¥'+p.monthlySaving.toFixed(2)+'</strong></div>';
+    if(p.avgRPS!==undefined)h+='<div class="stat-row"><span>RPS</span><span>'+p.avgRPS.toFixed(1)+'</span></div>';
+    if(p.cpuUsageAvg!==undefined)h+='<div class="stat-row"><span>CPU均值</span><span>'+p.cpuUsageAvg.toFixed(0)+'m</span></div>';
+    if(p.reason)h+='<div style="margin-top:4px;font-size:0.68rem">'+p.reason+'</div>';
+  }
+  c.innerHTML=h||'<em>-</em>';
+}
+
+window.refreshTopo=function(){
+  var btn=event&&event.target;if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>'}
+  fetch('/api/topology/refresh',{method:'POST'}).then(function(r){return r.json()}).then(function(d){
+    if(d.error)alert(d.error);else loadGraph();
+  }).catch(function(e){alert(e.message)}).finally(function(){
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="bi bi-arrow-repeat me-1"></i>刷新'}
+  });
+};
+
+window.cleanupTopo=function(){
+  if(!confirm('确定清除？'))return;
+  fetch('/api/topology/cleanup',{method:'DELETE'}).then(function(r){return r.json()}).then(function(d){
+    if(d.error)alert(d.error);else{svg.selectAll('*').remove();svg.html('<text x="20" y="40" fill="#94a3b8">已清理，点击刷新</text>')}
+  }).catch(function(e){alert(e.message)});
+};
+
+loadGraph();
+})();
+</script>
+{{template "scripts.html"}}
+</body>
+</html>
+{{end}}

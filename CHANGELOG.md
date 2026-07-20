@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.1 — 业务拓扑 & 服务调用链 (2026-07)
+
+### 新增：业务拓扑
+
+- **服务调用链路图**：命名空间容器 + 服务节点 + 调用边，左到右分层架构图
+- **依赖查询**：点击服务查看其上下游（谁调用了它 / 它调用了谁），带调用次数
+- **Jaeger 集成**：优先使用 `/api/dependencies`，不可用时自动从 traces 提取 span 父子关系
+- **图层控制**：调用关系 / 入口路由 独立切换
+- **健康筛选**：按 Critical / Warning / Healthy 筛选服务节点
+- **本地存储**：拓扑数据持久化到 JSON 文件
+
+### 新增/修改
+
+| 文件 | 说明 |
+|------|------|
+| `internal/platform/collector/jaeger.go` | Jaeger 采集器：services / dependencies / traces |
+| `internal/platform/storage/topology.go` | 拓扑图构建 + 本地 JSON 存储 |
+| `internal/app/serve/topology_handlers.go` | 拓扑 API（graph / refresh / cleanup） |
+| `internal/app/serve/templates/topology.html` | 架构图 + 依赖查询 D3 可视化 |
+| `internal/platform/config/types.go` | 新增 `StorageConfig`, `JaegerConfig` |
+| `internal/app/serve/server.go` | 注册拓扑路由 + 初始化 TopologyStore |
+| `config.yaml` | 新增 `storage`, `jaeger` 配置段 |
+
 ## v2.0 — Dashboard 重构 & 功能增强 (2026-06-12)
 
 ### 🏗️ 架构变更

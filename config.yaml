@@ -53,3 +53,12 @@ cost:
 gateway_cost:
   price: 478.47 # 单台 traefik价格
   count: 3 # 节点数
+
+# 本地文本存储（拓扑图数据持久化）
+storage:
+  path: "./data"
+
+# 分布式链路追踪
+jaeger:
+  address: "http://jaeger.example.com"
+  timeout: 30s

@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	platformconfig "kops/internal/platform/config"
+	topostore "kops/internal/platform/storage"
 )
 
 //go:embed templates/*
@@ -17,10 +18,11 @@ var templateFS embed.FS
 
 // Server wraps the Gin router and HTTP server.
 type Server struct {
-	router   *gin.Engine
-	srv      *http.Server
-	cfg      *platformconfig.GlobalConfig
-	cacheDir string
+	router    *gin.Engine
+	srv       *http.Server
+	cfg       *platformconfig.GlobalConfig
+	cacheDir  string
+	topoStore *topostore.TopologyStore
 }
 
 // New creates a Gin router, loads embedded templates, registers routes.
@@ -47,6 +49,14 @@ func New(cfg *platformconfig.GlobalConfig, port int, cacheDir string) *Server {
 		},
 	}
 
+	// Initialize local topology store (non-fatal if unavailable).
+	topoStore, err := topostore.NewTopologyStore(context.Background(), cfg)
+	if err != nil {
+		slog.Warn("topology store unavailable, topology features disabled", "err", err)
+	} else {
+		s.topoStore = topoStore
+	}
+
 	s.registerRoutes()
 	return s
 }
@@ -59,6 +69,12 @@ func (s *Server) registerRoutes() {
 	s.router.GET("/health", s.handleHealthPage)
 	s.router.GET("/cluster", s.handleClusterPage)
 	s.router.GET("/service/:namespace/:name", s.handleServiceDetail)
+
+	// Topology
+	s.router.GET("/topology", s.handleTopologyPage)
+	s.router.GET("/api/topology/graph", s.handleTopologyGraph)
+	s.router.POST("/api/topology/refresh", s.handleTopologyRefresh)
+	s.router.DELETE("/api/topology/cleanup", s.handleTopologyCleanup)
 
 	// API
 	s.router.GET("/healthz", s.handleHealthz)

@@ -1,0 +1,2924 @@
+{
+  "nodes": [
+    {
+      "id": "zhike-prod",
+      "label": "Namespace",
+      "group": "Namespace",
+      "properties": {
+        "name": "zhike-prod"
+      }
+    },
+    {
+      "id": "web-prod",
+      "label": "Namespace",
+      "group": "Namespace",
+      "properties": {
+        "name": "web-prod"
+      }
+    },
+    {
+      "id": "zhike-prod/mpprojectapi",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "运行稳健",
+        "error5xxRate": 0,
+        "healthCode": "Healthy",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpprojectapi",
+        "namespace": "zhike-prod",
+        "p99Latency": 0.8130000000000002
+      }
+    },
+    {
+      "id": "zhike-prod/adminx",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/adminx",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkconfig-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkconfig",
+        "avgRPS": 0,
+        "cpuUsageAvg": 1.2045420052072422,
+        "cpuUsageMax": 2.184641694817895,
+        "currentCost": 11.225812500000002,
+        "efficiency": 4.36928338963579,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 156.66015625,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/zkconfig-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.955373246023392,
+        "wasteRatio": 0.9759091598958551
+      }
+    },
+    {
+      "id": "zhike-prod/zkuser-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkuser",
+        "avgRPS": 0,
+        "cpuUsageAvg": 4.8953046006366785,
+        "cpuUsageMax": 9.528332948177194,
+        "currentCost": 22.451625000000003,
+        "efficiency": 9.528332948177194,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 326.02734375,
+        "monthlySaving": 0,
+        "name": "zhike-prod/zkuser-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 512,
+        "oldCPURequest": 100,
+        "oldMemRequest": 128,
+        "priorityScore": 22.451625000000003,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 21.35254956845731,
+        "wasteRatio": 0.9510469539936333
+      }
+    },
+    {
+      "id": "web-prod/tools",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/tools",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkshareh5-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkshareh5",
+        "avgRPS": 0.01123890131464106,
+        "cpuUsageAvg": 0.11258867270272269,
+        "cpuUsageMax": 0.2571653815397356,
+        "currentCost": 2.3742357474515354,
+        "efficiency": 2.571653815397356,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 864.75,
+        "monthlySaving": -20.206462500000004,
+        "name": "web-prod/zkshareh5-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 0.814903911613601,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.58069824745154,
+        "riskLevel": "低",
+        "rpsDensity": 99.8226646149038,
+        "trafficDensity": 99.8226646149038,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 2.3489577608638426,
+        "wasteRatio": 0.9893532111902428
+      }
+    },
+    {
+      "id": "zhike-prod/zkresource-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkresource",
+        "avgRPS": 0,
+        "cpuUsageAvg": 2.3772651825481748,
+        "cpuUsageMax": 2.455060816950489,
+        "currentCost": 11.225812500000002,
+        "efficiency": 4.910121633900978,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 146.4453125,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/zkresource-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.69207783595872,
+        "wasteRatio": 0.9524546963490366
+      }
+    },
+    {
+      "id": "web-prod/zkmeeting",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkmeeting",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkwww",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkwww",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkconfig",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkconfig",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpuser-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpuser",
+        "avgRPS": 0,
+        "cpuUsageAvg": 0.38866100163808115,
+        "cpuUsageMax": 0.45920409627591047,
+        "currentCost": 11.225812500000002,
+        "efficiency": 0.9184081925518209,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 87.375,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/mpuser-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 128,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 11.138551789390975,
+        "wasteRatio": 0.9922267799672384
+      }
+    },
+    {
+      "id": "zhike-prod/zkinstitution-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkinstitution",
+        "avgRPS": 0,
+        "callInbound": 8,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "cpuUsageAvg": 3.134309741697067,
+        "cpuUsageMax": 3.4558489122108287,
+        "currentCost": 11.225812500000002,
+        "efficiency": 6.911697824421657,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 275.1796875,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/zkinstitution-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 384,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.522109030455708,
+        "wasteRatio": 0.9373138051660587
+      }
+    },
+    {
+      "id": "zhike-prod/mpcontent",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "callInbound": 1,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpcontent",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpprojectapi-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "保持 (Keep)",
+        "appGroup": "mpprojectapi",
+        "avgRPS": 80.23841179093858,
+        "cpuUsageAvg": 113.91225927735285,
+        "cpuUsageMax": 201.34723045532053,
+        "currentCost": 932.7244617245724,
+        "efficiency": 100,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 363.80078125,
+        "monthlySaving": -56.12906250000003,
+        "name": "zhike-prod/mpprojectapi-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 300,
+        "newMemRequest": 512,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 0.0016609692912234347,
+        "reason": "核心流量服务（流量权重 96.3%），配置合理",
+        "recommendedCost": 988.8535242245724,
+        "riskLevel": "中",
+        "rpsDensity": 704.3878534229982,
+        "trafficDensity": 704.3878534229982,
+        "trafficDensityRank": "A (正常)",
+        "wasteAmount": 907.1493084425935,
+        "wasteRatio": 0.9725801623829062
+      }
+    },
+    {
+      "id": "web-prod/zkmeeting-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkmeeting",
+        "avgRPS": 0.00020177562550443908,
+        "cpuUsageAvg": 0.07244932382800169,
+        "cpuUsageMax": 0.07712916320464232,
+        "currentCost": 2.247479793702588,
+        "efficiency": 0.7712916320464231,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 861.94921875,
+        "monthlySaving": -20.206462500000004,
+        "name": "web-prod/zkmeeting-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 42.972541994403436,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.453942293702593,
+        "riskLevel": "低",
+        "rpsDensity": 2.7850587809965552,
+        "trafficDensity": 2.7850587809965552,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 2.2312137432016894,
+        "wasteRatio": 0.9927625376003487
+      }
+    },
+    {
+      "id": "web-prod/zkprojecthtml-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkprojecthtml",
+        "avgRPS": 0,
+        "cpuUsageAvg": 0.0663127165019377,
+        "cpuUsageMax": 0.0700968680072884,
+        "currentCost": 2.2451625,
+        "efficiency": 0.700968680072884,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 863.484375,
+        "monthlySaving": -20.206462500000004,
+        "name": "web-prod/zkprojecthtml-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 2.2451625,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 2.230274217563672,
+        "wasteRatio": 0.9933687283498063
+      }
+    },
+    {
+      "id": "zhike-prod/mpprojectcms",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpprojectcms",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpbasecms",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpbasecms",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkjsinject-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkjsinject",
+        "avgRPS": 0.00006053391886220225,
+        "cpuUsageAvg": 0.07311020017203147,
+        "cpuUsageMax": 0.07714498977005793,
+        "currentCost": 2.245857702250627,
+        "efficiency": 0.7714498977005794,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 860.1171875,
+        "monthlySaving": -20.2064625,
+        "name": "web-prod/zkjsinject-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 143.1357549079663,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.45232020225063,
+        "riskLevel": "低",
+        "rpsDensity": 0.8279818509559996,
+        "trafficDensity": 0.8279818509559996,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 2.229443274271253,
+        "wasteRatio": 0.9926912430992736
+      }
+    },
+    {
+      "id": "zhike-prod/mpmarketing-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpmarketing",
+        "avgRPS": 0,
+        "cpuUsageAvg": 1.5857356892028749,
+        "cpuUsageMax": 2.034893450024963,
+        "currentCost": 7.483875000000001,
+        "efficiency": 4.069786900049926,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 116.43359375,
+        "monthlySaving": -7.483875000000001,
+        "name": "zhike-prod/mpmarketing-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 128,
+        "priorityScore": 7.483875000000001,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 14.967750000000002,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 7.246526046379338,
+        "wasteRatio": 0.9682852862159425
+      }
+    },
+    {
+      "id": "zhike-prod/zkcms-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "立即扩容 (Immediate Scale Up)",
+        "appGroup": "zkcms",
+        "avgRPS": 0.023829753903754757,
+        "cpuUsageAvg": 3.0422435231119658,
+        "cpuUsageMax": 3.285608148576076,
+        "currentCost": 22.7252979895761,
+        "efficiency": 3.285608148576076,
+        "isBlackHole": false,
+        "isHighRisk": true,
+        "isInefficient": false,
+        "memUsageMax": 1914.43359375,
+        "monthlySaving": 0,
+        "name": "zhike-prod/zkcms-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 2432,
+        "oldCPURequest": 100,
+        "oldMemRequest": 256,
+        "priorityScore": 3.6781616470071765,
+        "reason": "高风险服务：内存使用率接近 Limit，存在 OOM 风险",
+        "recommendedCost": 22.7252979895761,
+        "riskLevel": "高",
+        "rpsDensity": 7.832954108610895,
+        "trafficDensity": 7.832954108610895,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 22.042264882180213,
+        "wasteRatio": 0.9699439317491375
+      }
+    },
+    {
+      "id": "zhike-prod/zkunifyapi-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkunifyapi",
+        "avgRPS": 0.00006053268765133172,
+        "cpuUsageAvg": 2.015290592356351,
+        "cpuUsageMax": 2.1906933213142916,
+        "currentCost": 11.226507688110779,
+        "efficiency": 4.381386642628583,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 109.734375,
+        "monthlySaving": -11.2258125,
+        "name": "zhike-prod/zkunifyapi-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 715.51609674034,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.45232018811078,
+        "riskLevel": "低",
+        "rpsDensity": 0.030036704324885824,
+        "trafficDensity": 0.030036704324885824,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.774042201654652,
+        "wasteRatio": 0.9596966840422422
+      }
+    },
+    {
+      "id": "zhike-prod/mpmarketing",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpmarketing",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpactivity-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpactivity",
+        "avgRPS": 0,
+        "cpuUsageAvg": 1.397186291671615,
+        "cpuUsageMax": 1.5743187538146985,
+        "currentCost": 7.483875000000001,
+        "efficiency": 3.1486375076293966,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 65.34375,
+        "monthlySaving": -7.483875000000001,
+        "name": "zhike-prod/mpactivity-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 128,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 7.483875000000001,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 14.967750000000002,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 7.274747648828323,
+        "wasteRatio": 0.9720562741665677
+      }
+    },
+    {
+      "id": "zhike-prod/mpactivity",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpactivity",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkwww-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkwww",
+        "avgRPS": 0.03448345576673185,
+        "cpuUsageAvg": 0.10461290578813279,
+        "cpuUsageMax": 0.14945031093337652,
+        "currentCost": 2.6411880094833178,
+        "efficiency": 1.494503109333765,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 861.65625,
+        "monthlySaving": -20.206462500000004,
+        "name": "web-prod/zkwww-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 0.2953750236649641,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.847650509483323,
+        "riskLevel": "低",
+        "rpsDensity": 329.629078811456,
+        "trafficDensity": 329.629078811456,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 2.617700712174163,
+        "wasteRatio": 0.9911072982215493
+      }
+    },
+    {
+      "id": "zhike-prod/zkpaycenter-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkpaycenter",
+        "avgRPS": 0.004459241323648104,
+        "cpuUsageAvg": 2.7944315475729824,
+        "cpuUsageMax": 2.9805581230682714,
+        "currentCost": 2.2963746908271894,
+        "efficiency": 29.805581230682716,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 1310.7890625,
+        "monthlySaving": -20.206462500000004,
+        "name": "zhike-prod/zkpaycenter-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1664,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 1.9866599463836063,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.502837190827194,
+        "riskLevel": "低",
+        "rpsDensity": 1.5957597270618564,
+        "trafficDensity": 1.5957597270618564,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 1.6689793988844066,
+        "wasteRatio": 0.7267887969463793
+      }
+    },
+    {
+      "id": "zhike-prod/zkproject-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkproject",
+        "avgRPS": 0,
+        "callInbound": 12,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "cpuUsageAvg": 2.28520744729477,
+        "cpuUsageMax": 2.6065486454033353,
+        "currentCost": 11.225812500000002,
+        "efficiency": 5.213097290806671,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 132.98046875,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/zkproject-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.712746293461308,
+        "wasteRatio": 0.9542958510541046
+      }
+    },
+    {
+      "id": "zhike-prod/zkmoments-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkmoments",
+        "avgRPS": 0.000100888428345134,
+        "cpuUsageAvg": 3.066083573002759,
+        "cpuUsageMax": 3.2979453499070885,
+        "currentCost": 11.226971153921077,
+        "efficiency": 6.595890699814177,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 261.91015625,
+        "monthlySaving": -11.2258125,
+        "name": "zhike-prod/zkmoments-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 384,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 429.32455374086436,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.452783653921077,
+        "riskLevel": "低",
+        "rpsDensity": 0.03290465701374514,
+        "trafficDensity": 0.03290465701374514,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.538585567923898,
+        "wasteRatio": 0.9386846571030194
+      }
+    },
+    {
+      "id": "zhike-prod/zkincome",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkincome",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkdesk-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkdesk",
+        "avgRPS": 0.0022970541586865966,
+        "cpuUsageAvg": 0.0277037364812438,
+        "cpuUsageMax": 0.027874197322690603,
+        "currentCost": 7.510255535920136,
+        "efficiency": 0.0278741973226906,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 430.19140625,
+        "monthlySaving": 0,
+        "name": "web-prod/zkdesk-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 640,
+        "oldCPURequest": 100,
+        "oldMemRequest": 256,
+        "priorityScore": 12.61352607737321,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 7.510255535920136,
+        "riskLevel": "低",
+        "rpsDensity": 82.91495842958822,
+        "trafficDensity": 82.91495842958822,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 7.50818222291155,
+        "wasteRatio": 0.9997239357570898
+      }
+    },
+    {
+      "id": "zhike-prod/mpbase-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpbase",
+        "avgRPS": 0.16563763922565944,
+        "cpuUsageAvg": 2.220429789687857,
+        "cpuUsageMax": 3.3747511527096594,
+        "currentCost": 9.386141724880883,
+        "efficiency": 6.74950230541932,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 255.9921875,
+        "monthlySaving": -7.483875000000001,
+        "name": "zhike-prod/mpbase-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 384,
+        "oldCPURequest": 50,
+        "oldMemRequest": 256,
+        "priorityScore": 0.2181870149192113,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 16.870016724880884,
+        "riskLevel": "低",
+        "rpsDensity": 74.5971072784717,
+        "trafficDensity": 74.5971072784717,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 9.053793345034878,
+        "wasteRatio": 0.9645915873009874
+      }
+    },
+    {
+      "id": "zhike-prod/zkincome-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkincome",
+        "avgRPS": 0.00032284100080710247,
+        "callInbound": 2,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "cpuUsageAvg": 0.8476534050763767,
+        "cpuUsageMax": 1.325854089406992,
+        "currentCost": 14.971457669924142,
+        "efficiency": 1.325854089406992,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 168.7890625,
+        "monthlySaving": 0,
+        "name": "zhike-prod/zkincome-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 100,
+        "oldMemRequest": 100,
+        "priorityScore": 178.91169157365812,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 14.971457669924142,
+        "riskLevel": "低",
+        "rpsDensity": 0.3808643944254708,
+        "trafficDensity": 0.3808643944254708,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 14.844583027385823,
+        "wasteRatio": 0.9915255651563445
+      }
+    },
+    {
+      "id": "zhike-prod/zkcms",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkcms",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkfinance-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkfinance",
+        "avgRPS": 0,
+        "cpuUsageAvg": 2.0871979652610078,
+        "cpuUsageMax": 2.3511379571757085,
+        "currentCost": 11.225812500000002,
+        "efficiency": 4.702275914351417,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 102.140625,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/zkfinance-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 128,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.75720263983197,
+        "wasteRatio": 0.9582560406947799
+      }
+    },
+    {
+      "id": "zhike-prod/mpprojectcms-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "立即扩容 (Immediate Scale Up)",
+        "appGroup": "mpprojectcms",
+        "avgRPS": 0.0021589991928974974,
+        "cpuUsageAvg": 2.883362753431713,
+        "cpuUsageMax": 3.0657774552245285,
+        "currentCost": 22.476420042617693,
+        "efficiency": 3.0657774552245285,
+        "isBlackHole": false,
+        "isHighRisk": true,
+        "isInefficient": false,
+        "memUsageMax": 1881.60546875,
+        "monthlySaving": 0,
+        "name": "zhike-prod/mpprojectcms-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 2432,
+        "oldCPURequest": 100,
+        "oldMemRequest": 256,
+        "priorityScore": 40.163209389913796,
+        "reason": "高风险服务：内存使用率接近 Limit，存在 OOM 风险",
+        "recommendedCost": 22.476420042617693,
+        "riskLevel": "高",
+        "rpsDensity": 0.7487782070875076,
+        "trafficDensity": 0.7487782070875076,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 21.82905824982753,
+        "wasteRatio": 0.971198180512613
+      }
+    },
+    {
+      "id": "zhike-prod/mpcontent-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpcontent",
+        "avgRPS": 0.00022195318805488283,
+        "cpuUsageAvg": 0.5651849858222932,
+        "cpuUsageMax": 0.6890332772464131,
+        "currentCost": 11.228361523072849,
+        "efficiency": 1.3780665544928261,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 190.57421875,
+        "monthlySaving": -11.2258125,
+        "name": "zhike-prod/mpcontent-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 195.17259917975764,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.45417402307285,
+        "riskLevel": "低",
+        "rpsDensity": 0.3927089247283541,
+        "trafficDensity": 0.3927089247283541,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 11.101468309499724,
+        "wasteRatio": 0.9886988664096382
+      }
+    },
+    {
+      "id": "zhike-prod/zkpaycenter",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkpaycenter",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkmoments",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "callInbound": 14,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkmoments",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpsearch-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpsearch",
+        "avgRPS": 0.00006053268765133172,
+        "cpuUsageAvg": 1.2644878945889346,
+        "cpuUsageMax": 1.3928330685283892,
+        "currentCost": 14.96844518811078,
+        "efficiency": 1.3928330685283892,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 108.23828125,
+        "monthlySaving": 0,
+        "name": "zhike-prod/mpsearch-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 100,
+        "oldMemRequest": 256,
+        "priorityScore": 954.0066931598993,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 14.96844518811078,
+        "riskLevel": "低",
+        "rpsDensity": 0.047871306566370855,
+        "trafficDensity": 0.047871306566370855,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 14.779179801268445,
+        "wasteRatio": 0.9873557083274977
+      }
+    },
+    {
+      "id": "web-prod/zkdesk",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkdesk",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/unicoreapi",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/unicoreapi",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkprojecthtml",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkprojecthtml",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkunifyapi",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkunifyapi",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkbuilting-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "立即扩容 (Immediate Scale Up)",
+        "appGroup": "zkbuilting",
+        "avgRPS": 0.00006053289284896982,
+        "cpuUsageAvg": 0.07410818421572535,
+        "cpuUsageMax": 0.07764496746823188,
+        "currentCost": 2.2458576904673704,
+        "efficiency": 0.7764496746823187,
+        "isBlackHole": false,
+        "isHighRisk": true,
+        "isInefficient": false,
+        "memUsageMax": 1288.59765625,
+        "monthlySaving": -20.2064625,
+        "name": "web-prod/zkbuilting-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1664,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 143.13818026413693,
+        "reason": "高风险服务：内存使用率接近 Limit，存在 OOM 风险",
+        "recommendedCost": 22.452320190467372,
+        "riskLevel": "高",
+        "rpsDensity": 0.8168179194994374,
+        "trafficDensity": 0.8168179194994374,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 2.2292191988529466,
+        "wasteRatio": 0.9925914755484969
+      }
+    },
+    {
+      "id": "web-prod/tools-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "tools",
+        "avgRPS": 0.0003026634382566587,
+        "cpuUsageAvg": 0.07419254425305902,
+        "cpuUsageMax": 0.07949398456417277,
+        "currentCost": 2.248638440553882,
+        "efficiency": 0.7949398456417277,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 885.30859375,
+        "monthlySaving": -20.2064625,
+        "name": "web-prod/tools-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 28.66309576020107,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.455100940553884,
+        "riskLevel": "低",
+        "rpsDensity": 4.079431987455798,
+        "trafficDensity": 4.079431987455798,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 2.231981008740226,
+        "wasteRatio": 0.9925922142425205
+      }
+    },
+    {
+      "id": "web-prod/zkjsinject",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkjsinject",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpinteractive",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpinteractive",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/mpsearch",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpsearch",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/adminx-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "adminx",
+        "avgRPS": 0.015274414850686046,
+        "cpuUsageAvg": 2.059512689133423,
+        "cpuUsageMax": 2.211699919072083,
+        "currentCost": 7.6592941332858935,
+        "efficiency": 4.423399838144166,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 872.42578125,
+        "monthlySaving": -7.483875000000001,
+        "name": "zhike-prod/adminx-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 1.9342363902944515,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 15.143169133285895,
+        "riskLevel": "低",
+        "rpsDensity": 7.416518932501956,
+        "trafficDensity": 7.416518932501956,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 7.351031422758125,
+        "wasteRatio": 0.9597531175636519
+      }
+    },
+    {
+      "id": "zhike-prod/zkuser",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "callInbound": 26,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkuser",
+        "namespace": "zhike-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkopenapi-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "保持 (Keep)",
+        "appGroup": "zkopenapi",
+        "avgRPS": 0.09257465534009666,
+        "cpuUsageAvg": 24.287173190509172,
+        "cpuUsageMax": 42.82470121828098,
+        "currentCost": 38.482549331897275,
+        "efficiency": 42.82470121828098,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 1027.42578125,
+        "monthlySaving": 0,
+        "name": "zhike-prod/zkopenapi-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1408,
+        "oldCPURequest": 100,
+        "oldMemRequest": 128,
+        "priorityScore": 1.6019684477602847,
+        "reason": "Web 服务：当前配置符合目标利用率要求",
+        "recommendedCost": 38.482549331897275,
+        "riskLevel": "低",
+        "rpsDensity": 3.811668596173743,
+        "trafficDensity": 3.811668596173743,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 29.394440918841184,
+        "wasteRatio": 0.7638381923537697
+      }
+    },
+    {
+      "id": "web-prod/zkos-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkos",
+        "avgRPS": 0.0015738498789346245,
+        "cpuUsageAvg": 0.07526612235684876,
+        "cpuUsageMax": 0.07913918212146584,
+        "currentCost": 2.2632373908801844,
+        "efficiency": 0.7913918212146585,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 867.9296875,
+        "monthlySaving": -20.206462500000004,
+        "name": "web-prod/zkos-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 5.54783586950791,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.46969989088019,
+        "riskLevel": "低",
+        "rpsDensity": 20.91046847707591,
+        "trafficDensity": 20.91046847707591,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 2.2463389233365834,
+        "wasteRatio": 0.9925334975413123
+      }
+    },
+    {
+      "id": "zhike-prod/unicoreapi-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "unicoreapi",
+        "avgRPS": 0.03292978789691138,
+        "cpuUsageAvg": 0.6016278223446047,
+        "cpuUsageMax": 0.8104626128468662,
+        "currentCost": 2.623344899039987,
+        "efficiency": 8.104626128468661,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 673.78125,
+        "monthlySaving": -20.2064625,
+        "name": "zhike-prod/unicoreapi-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 896,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 0.30722729335140236,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.82980739903999,
+        "riskLevel": "低",
+        "rpsDensity": 54.734483137067464,
+        "trafficDensity": 54.734483137067464,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 2.4882696764715098,
+        "wasteRatio": 0.9485103073492519
+      }
+    },
+    {
+      "id": "zhike-prod/mpbasecms-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "立即扩容 (Immediate Scale Up)",
+        "appGroup": "mpbasecms",
+        "avgRPS": 0,
+        "cpuUsageAvg": 2.7146373175610674,
+        "cpuUsageMax": 2.9068489203322136,
+        "currentCost": 22.451625000000003,
+        "efficiency": 2.9068489203322136,
+        "isBlackHole": false,
+        "isHighRisk": true,
+        "isInefficient": true,
+        "memUsageMax": 1152.07421875,
+        "monthlySaving": 0,
+        "name": "zhike-prod/mpbasecms-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1536,
+        "oldCPURequest": 100,
+        "oldMemRequest": 256,
+        "priorityScore": 22.451625000000003,
+        "reason": "高风险服务：内存使用率接近 Limit，存在 OOM 风险",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "高",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 21.842144809351133,
+        "wasteRatio": 0.9728536268243894
+      }
+    },
+    {
+      "id": "zhike-prod/mpmessage-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpmessage",
+        "avgRPS": 0,
+        "callInbound": 4,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "cpuUsageAvg": 5.625909024360219,
+        "cpuUsageMax": 10.893145972683078,
+        "currentCost": 11.225812500000002,
+        "efficiency": 21.786291945366155,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 328.40234375,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/mpmessage-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 512,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 9.962704503009487,
+        "wasteRatio": 0.8874818195127956
+      }
+    },
+    {
+      "id": "zhike-prod/mpbase",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "P99 延迟 5.00s 超过 2s，影响用户体验",
+        "error5xxRate": 0,
+        "healthCode": "Critical",
+        "healthScore": 20,
+        "invalidSpend": 0,
+        "name": "zhike-prod/mpbase",
+        "namespace": "zhike-prod",
+        "p99Latency": 5
+      }
+    },
+    {
+      "id": "web-prod/zkos",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkos",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/zkbuilting",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkbuilting",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "zhike-prod/zkapi",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "callInbound": 0,
+        "callOutbound": 66,
+        "callPeerCount": 7,
+        "diagnosis": "运行稳健",
+        "error5xxRate": 0,
+        "healthCode": "Healthy",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkapi",
+        "namespace": "zhike-prod",
+        "p99Latency": 0.292
+      }
+    },
+    {
+      "id": "web-prod/zkshareh5",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/zkshareh5",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/dtmeditor",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "无流量",
+        "error5xxRate": 0,
+        "healthCode": "Idle",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "web-prod/dtmeditor",
+        "namespace": "web-prod",
+        "p99Latency": 0
+      }
+    },
+    {
+      "id": "web-prod/dtmeditor-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "立即扩容 (Immediate Scale Up)",
+        "appGroup": "dtmeditor",
+        "avgRPS": 0.006880552112859872,
+        "cpuUsageAvg": 0.09660017992386687,
+        "cpuUsageMax": 0.24819405258715851,
+        "currentCost": 2.3241822529637006,
+        "efficiency": 2.481940525871585,
+        "isBlackHole": false,
+        "isHighRisk": true,
+        "isInefficient": false,
+        "memUsageMax": 1288.3046875,
+        "monthlySaving": -20.2064625,
+        "name": "web-prod/dtmeditor-prod",
+        "namespace": "web-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1664,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 1.3030948590231428,
+        "reason": "高风险服务：内存使用率接近 Limit，存在 OOM 风险",
+        "recommendedCost": 22.530644752963703,
+        "riskLevel": "高",
+        "rpsDensity": 71.22711487993725,
+        "trafficDensity": 71.22711487993725,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 2.302493942817869,
+        "wasteRatio": 0.9906684124628454
+      }
+    },
+    {
+      "id": "zhike-prod/unicorecms-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "立即扩容 (Immediate Scale Up)",
+        "appGroup": "unicorecms",
+        "avgRPS": 0,
+        "cpuUsageAvg": 2.8411506731331406,
+        "cpuUsageMax": 2.9952643686673217,
+        "currentCost": 2.2451625,
+        "efficiency": 29.95264368667322,
+        "isBlackHole": false,
+        "isHighRisk": true,
+        "isInefficient": true,
+        "memUsageMax": 1141.1015625,
+        "monthlySaving": -20.206462500000004,
+        "name": "zhike-prod/unicorecms-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1536,
+        "oldCPURequest": 10,
+        "oldMemRequest": 128,
+        "priorityScore": 2.2451625,
+        "reason": "高风险服务：内存使用率接近 Limit，存在 OOM 风险",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "高",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 1.6072780051831717,
+        "wasteRatio": 0.715884932686686
+      }
+    },
+    {
+      "id": "zhike-prod/zkapi-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "zkapi",
+        "avgRPS": 2.6912834036816284,
+        "callInbound": 0,
+        "callOutbound": 2,
+        "callPeerCount": 1,
+        "cpuUsageAvg": 6.262778555954429,
+        "cpuUsageMax": 13.08194343496564,
+        "currentCost": 53.35968967648954,
+        "efficiency": 13.08194343496564,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": false,
+        "memUsageMax": 820.48828125,
+        "monthlySaving": 0,
+        "name": "zhike-prod/zkapi-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 1152,
+        "oldCPURequest": 100,
+        "oldMemRequest": 256,
+        "priorityScore": 0.0740218815960582,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 53.35968967648954,
+        "riskLevel": "低",
+        "rpsDensity": 429.72673864108623,
+        "trafficDensity": 429.72673864108623,
+        "trafficDensityRank": "B (低效)",
+        "wasteAmount": 51.95359412052623,
+        "wasteRatio": 0.9736487306337759
+      }
+    },
+    {
+      "id": "zhike-prod/mpinteractive-prod",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "action": "低频运行 (Cold Start)",
+        "appGroup": "mpinteractive",
+        "avgRPS": 0,
+        "callInbound": 1,
+        "callOutbound": 0,
+        "callPeerCount": 1,
+        "cpuUsageAvg": 3.9400520115237145,
+        "cpuUsageMax": 4.30722229009151,
+        "currentCost": 11.225812500000002,
+        "efficiency": 8.61444458018302,
+        "isBlackHole": false,
+        "isHighRisk": false,
+        "isInefficient": true,
+        "memUsageMax": 126.69921875,
+        "monthlySaving": -11.225812500000002,
+        "name": "zhike-prod/mpinteractive-prod",
+        "namespace": "zhike-prod",
+        "newCPURequest": 100,
+        "newMemRequest": 256,
+        "oldCPURequest": 50,
+        "oldMemRequest": 100,
+        "priorityScore": 11.225812500000002,
+        "reason": "检测到低频运行服务：CPU 使用率极低，可能处于冷启动阶段",
+        "recommendedCost": 22.451625000000003,
+        "riskLevel": "低",
+        "rpsDensity": 0,
+        "trafficDensity": 0,
+        "trafficDensityRank": "C (极低/空转)",
+        "wasteAmount": 10.341206797567741,
+        "wasteRatio": 0.9211989597695257
+      }
+    },
+    {
+      "id": "zhike-prod/zkopenapi",
+      "label": "Deployment",
+      "group": "Deployment",
+      "properties": {
+        "diagnosis": "运行稳健",
+        "error5xxRate": 0,
+        "healthCode": "Healthy",
+        "healthScore": 100,
+        "invalidSpend": 0,
+        "name": "zhike-prod/zkopenapi",
+        "namespace": "zhike-prod",
+        "p99Latency": 0.298
+      }
+    },
+    {
+      "id": "unknown_service:app",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "unknown_service:app"
+      }
+    },
+    {
+      "id": "mpprojectapi_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "mpprojectapi_fat"
+      }
+    },
+    {
+      "id": "zkapi_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkapi_fat"
+      }
+    },
+    {
+      "id": "mpbase_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "mpbase_fat"
+      }
+    },
+    {
+      "id": "mpcontent_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "mpcontent_fat"
+      }
+    },
+    {
+      "id": "mpinteractive_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "mpinteractive_fat"
+      }
+    },
+    {
+      "id": "zkincome_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkincome_fat"
+      }
+    },
+    {
+      "id": "zkproject_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkproject_fat"
+      }
+    },
+    {
+      "id": "zkinstitution_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkinstitution_fat"
+      }
+    },
+    {
+      "id": "zkmoments_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkmoments_fat"
+      }
+    },
+    {
+      "id": "mpbase_prod",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "matchedDeployment": "zhike-prod/mpbase",
+        "name": "mpbase_prod"
+      }
+    },
+    {
+      "id": "mpmessage_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "mpmessage_fat"
+      }
+    },
+    {
+      "id": "zkuser_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkuser_fat"
+      }
+    },
+    {
+      "id": "mpprojectapi_prod",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "matchedDeployment": "zhike-prod/mpprojectapi-prod",
+        "name": "mpprojectapi_prod"
+      }
+    },
+    {
+      "id": "zkconfig_fat",
+      "label": "JaegerService",
+      "group": "JaegerService",
+      "properties": {
+        "name": "zkconfig_fat"
+      }
+    },
+    {
+      "id": "Internet",
+      "label": "External",
+      "group": "External",
+      "properties": {
+        "name": "Internet"
+      }
+    },
+    {
+      "id": "web",
+      "label": "Entrypoint",
+      "group": "Entrypoint",
+      "properties": {
+        "name": "web"
+      }
+    },
+    {
+      "id": "websecure",
+      "label": "Entrypoint",
+      "group": "Entrypoint",
+      "properties": {
+        "name": "websecure"
+      }
+    },
+    {
+      "id": "traefik",
+      "label": "Entrypoint",
+      "group": "Entrypoint",
+      "properties": {
+        "name": "traefik"
+      }
+    },
+    {
+      "id": "zhike-prod/mpprojectapi-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/mpprojectapi-prod",
+        "namespace": "zhike-prod",
+        "rps": 75.73805197060014
+      }
+    },
+    {
+      "id": "zhike-prod/zkapi-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/zkapi-prod",
+        "namespace": "zhike-prod",
+        "rps": 3.396782221193357
+      }
+    },
+    {
+      "id": "zhike-prod/mpbase-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/mpbase-prod",
+        "namespace": "zhike-prod",
+        "rps": 0.18121419063603217
+      }
+    },
+    {
+      "id": "zhike-prod/zkopenapi-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/zkopenapi-prod",
+        "namespace": "zhike-prod",
+        "rps": 0.08149777186179756
+      }
+    },
+    {
+      "id": "zhike-prod/unicoreapi-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/unicoreapi-prod",
+        "namespace": "zhike-prod",
+        "rps": 0.04168065281555646
+      }
+    },
+    {
+      "id": "web-prod/zkwww-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "web-prod/zkwww-prod",
+        "namespace": "web-prod",
+        "rps": 0.015764801203773368
+      }
+    },
+    {
+      "id": "web-prod/zkwww-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "web-prod/zkwww-prod",
+        "namespace": "web-prod",
+        "rps": 0.013600324092829448
+      }
+    },
+    {
+      "id": "zhike-prod/zkcms-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/zkcms-prod",
+        "namespace": "zhike-prod",
+        "rps": 0.01166734186006135
+      }
+    },
+    {
+      "id": "web-prod/zkshareh5-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "web-prod/zkshareh5-prod",
+        "namespace": "web-prod",
+        "rps": 0.01110017940853059
+      }
+    },
+    {
+      "id": "zhike-prod/adminx-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/adminx-prod",
+        "namespace": "zhike-prod",
+        "rps": 0.009560738468661383
+      }
+    },
+    {
+      "id": "web-prod/dtmeditor-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "web-prod/dtmeditor-prod",
+        "namespace": "web-prod",
+        "rps": 0.006018866832571331
+      }
+    },
+    {
+      "id": "zhike-prod/mpprojectcms-prod",
+      "label": "K8sService",
+      "group": "K8sService",
+      "properties": {
+        "name": "zhike-prod/mpprojectcms-prod",
+        "namespace": "zhike-prod",
+        "rps": 0.0013310955495109671
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpprojectapi",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/adminx",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkconfig-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkuser-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/tools",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkshareh5-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkresource-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkmeeting",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkwww",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkconfig",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpuser-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkinstitution-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpcontent",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpprojectapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkmeeting-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkprojecthtml-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpprojectcms",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpbasecms",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkjsinject-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpmarketing-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkcms-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkunifyapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpmarketing",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpactivity-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpactivity",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkwww-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkpaycenter-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkproject-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkmoments-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkincome",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkdesk-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpbase-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkincome-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkcms",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkfinance-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpprojectcms-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpcontent-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkpaycenter",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkmoments",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpsearch-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkdesk",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/unicoreapi",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkprojecthtml",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkunifyapi",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkbuilting-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/tools-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkjsinject",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpinteractive",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpsearch",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/adminx-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkuser",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkopenapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkos-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/unicoreapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpbasecms-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpmessage-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpbase",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkos",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkbuilting",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkapi",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkshareh5",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/dtmeditor",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/dtmeditor-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/unicorecms-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpinteractive-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkopenapi",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/mpmessage-prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 4
+      }
+    },
+    {
+      "source": "unknown_service:app",
+      "target": "mpprojectapi_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 10
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/zkuser",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 26
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/zkinstitution-prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 8
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "mpbase_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 3
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "mpcontent_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 6
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "mpinteractive_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 12
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "zkincome_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 6
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/mpcontent",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 1
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/mpinteractive-prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 1
+      }
+    },
+    {
+      "source": "unknown_service:app",
+      "target": "mpbase_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 2
+      }
+    },
+    {
+      "source": "unknown_service:app",
+      "target": "zkproject_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 4
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "zkinstitution_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 4
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/zkproject-prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 12
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "zkmoments_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 18
+      }
+    },
+    {
+      "source": "unknown_service:app",
+      "target": "mpbase_prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 3
+      }
+    },
+    {
+      "source": "mpmessage_fat",
+      "target": "zkuser_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 1
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi-prod",
+      "target": "zhike-prod/zkincome-prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 2
+      }
+    },
+    {
+      "source": "unknown_service:app",
+      "target": "mpprojectapi_prod",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 10
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "zkproject_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 4
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "zkuser_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 55
+      }
+    },
+    {
+      "source": "zkmoments_fat",
+      "target": "mpcontent_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 6
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "mpmessage_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 13
+      }
+    },
+    {
+      "source": "zkapi_fat",
+      "target": "zkconfig_fat",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 6
+      }
+    },
+    {
+      "source": "zhike-prod/zkapi",
+      "target": "zhike-prod/zkmoments",
+      "type": "CALLS",
+      "properties": {
+        "callCount": 14
+      }
+    },
+    {
+      "source": "Internet",
+      "target": "web",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 150.18579778922407
+      }
+    },
+    {
+      "source": "Internet",
+      "target": "websecure",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.001388969269054922
+      }
+    },
+    {
+      "source": "Internet",
+      "target": "traefik",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 26.391399965275774
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpprojectapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/mpprojectapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 75.73805197060014
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/mpprojectapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 75.73805197060014
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/zkapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 3.396782221193357
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/zkapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 3.396782221193357
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpbase-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/mpbase-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.18121419063603217
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/mpbase-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.18121419063603217
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkopenapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/zkopenapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.08149777186179756
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/zkopenapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.08149777186179756
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/unicoreapi-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/unicoreapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.04168065281555646
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/unicoreapi-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.04168065281555646
+      }
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkwww-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "web-prod/zkwww-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.015764801203773368
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "web-prod/zkwww-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.015764801203773368
+      }
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkwww-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "web-prod/zkwww-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.013600324092829448
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "web-prod/zkwww-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.013600324092829448
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/zkcms-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/zkcms-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.01166734186006135
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/zkcms-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.01166734186006135
+      }
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/zkshareh5-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "web-prod/zkshareh5-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.01110017940853059
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "web-prod/zkshareh5-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.01110017940853059
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/adminx-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/adminx-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.009560738468661383
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/adminx-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.009560738468661383
+      }
+    },
+    {
+      "source": "web-prod",
+      "target": "web-prod/dtmeditor-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "web-prod/dtmeditor-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.006018866832571331
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "web-prod/dtmeditor-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.006018866832571331
+      }
+    },
+    {
+      "source": "zhike-prod",
+      "target": "zhike-prod/mpprojectcms-prod",
+      "type": "CONTAINS",
+      "properties": null
+    },
+    {
+      "source": "web",
+      "target": "zhike-prod/mpprojectcms-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.0013310955495109671
+      }
+    },
+    {
+      "source": "websecure",
+      "target": "zhike-prod/mpprojectcms-prod",
+      "type": "ROUTES_TO",
+      "properties": {
+        "rps": 0.0013310955495109671
+      }
+    }
+  ]
+}

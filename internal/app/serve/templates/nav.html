@@ -7,6 +7,7 @@
         <li class="nav-item"><a class="nav-link {{if eq .Active "efficiency"}}active{{end}}" href="/efficiency"><i class="bi bi-speedometer me-1"></i>流量效率</a></li>
         <li class="nav-item"><a class="nav-link {{if eq .Active "health"}}active{{end}}" href="/health"><i class="bi bi-heart-pulse me-1"></i>健康状态</a></li>
         <li class="nav-item"><a class="nav-link {{if eq .Active "cluster"}}active{{end}}" href="/cluster"><i class="bi bi-diagram-3 me-1"></i>集群分析</a></li>
+	        <li class="nav-item"><a class="nav-link {{if eq .Active "topology"}}active{{end}}" href="/topology"><i class="bi bi-share me-1"></i>业务拓扑</a></li>
     </ul>
     <span class="navbar-meta d-flex align-items-center gap-2">
         <span class="d-flex align-items-center gap-1" id="promStatus" title="Prometheus 连接状态">
