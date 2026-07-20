@@ -4,3 +4,6 @@ cache
 config-local.yaml
 config-dtm.yaml
 .idea
+.mimocode/
+data/
+kops
