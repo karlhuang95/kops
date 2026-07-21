@@ -91,6 +91,18 @@
     <div class="chart-wrap"><canvas id="rpsChart"></canvas></div>
 </div>
 
+<!-- Cost Trend Chart -->
+<div class="chart-card">
+    <h6><i class="bi bi-cash-stack me-1"></i>成本趋势 · 估算 ($/小时) <small class="text-muted" style="font-size:0.7rem;">— 基于 CPU 用量 × 单价</small></h6>
+    <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+</div>
+
+<!-- HPA Suggestion -->
+<div class="rec-card">
+    <h6><i class="bi bi-arrows-angle-expand me-1"></i>HPA 伸缩建议 <span class="spinner-border spinner-border-sm text-primary" id="hpaSpinner" style="width:0.85rem;height:0.85rem;"></span></h6>
+    <div id="hpaContent"><p class="text-muted mb-0">加载中...</p></div>
+</div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -111,7 +123,7 @@ function isLongRange(points){
     return(t1-t0)>86400;
 }
 
-var cpuChart,memChart,rpsChart;
+var cpuChart,memChart,rpsChart,costChart;
 
 function makeLineChart(canvasId,label,points,color){
     var canvas=document.getElementById(canvasId);
@@ -171,9 +183,15 @@ function updateStats(cpu,mem,rps){
 }
 
 function drawAll(cpu,mem,rps){
-    cpuChart=makeLineChart('cpuChart','CPU (m)',cpu,'#1a73e8');
-    memChart=makeLineChart('memChart','Mem (MiB)',mem,'#e37400');
-    rpsChart=makeLineChart('rpsChart','RPS',rps,'#1e8e3e');
+    cpuChart=makeLineChart('cpuChart','CPU (m)',cpu,'#6366f1');
+    memChart=makeLineChart('memChart','Mem (MiB)',mem,'#f97316');
+    rpsChart=makeLineChart('rpsChart','RPS',rps,'#10b981');
+    // Cost chart: derive from CPU (m) -> $/hour = cpu_m/1000 * cost_per_core * hours
+    var costPoints=(cpu||[]).map(function(p){
+        var v=p.v!==undefined?p.v:(p.Value||0);
+        return{t:p.t||p.Timestamp||0,v:v/1000*0.08}; // $0.08/core/hour estimate
+    });
+    costChart=makeLineChart('costChart','Cost ($/hr)',costPoints,'#8b5cf6');
     updateStats(cpu,mem,rps);
 }
 
@@ -195,6 +213,7 @@ function loadTimeSeries(dur,btn){
     .then(function(d){
         document.getElementById('tsSpinner').style.display='none';
         drawAll(d.cpuPoints||[],d.memPoints||[],d.rpsPoints||[]);
+        // Also update cost chart on range change
     }).catch(function(e){
         document.getElementById('tsSpinner').style.display='none';
         console.error(e);
@@ -233,6 +252,28 @@ fetch('/api/service/{{.Namespace}}/{{.ServiceName}}/recommendation')
 }).catch(function(e){
     document.getElementById('recSpinner').style.display='none';
     document.getElementById('recContent').innerHTML='<p class="text-muted mb-0">推荐加载失败：'+e.message+'。<br><small>请确认服务名正确（如 <code>mpbase-prod</code> 而非 <code>mpbase</code>）。</small></p>';
+});
+
+// HPA suggestion
+fetch('/api/service/{{.Namespace}}/{{.ServiceName}}/hpa')
+.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+.then(function(d){
+    document.getElementById('hpaSpinner').style.display='none';
+    var h='<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">'+
+        '<div style="text-align:center"><div style="font-size:10px;color:#94a3b8">当前副本</div><div style="font-size:20px;font-weight:900;color:#1a1a2e">'+d.currentReplicas+'</div></div>'+
+        '<div style="color:#cbd5e1">→</div>'+
+        '<div style="text-align:center"><div style="font-size:10px;color:#94a3b8">推荐 Min</div><div style="font-size:20px;font-weight:900;color:#10b981">'+d.minReplicas+'</div></div>'+
+        '<div style="text-align:center"><div style="font-size:10px;color:#94a3b8">推荐 Max</div><div style="font-size:20px;font-weight:900;color:#ef4444">'+d.maxReplicas+'</div></div>';
+    if(d.targetRPSPerReplica)h+='<div style="text-align:center"><div style="font-size:10px;color:#94a3b8">RPS / 副本</div><div style="font-size:14px;font-weight:700;color:#1a1a2e">'+d.targetRPSPerReplica.toFixed(2)+'</div></div>';
+    h+='</div>'+
+        '<div style="margin-top:10px;padding:10px 14px;background:rgba(99,102,241,.05);border-radius:8px;font-size:12px;color:#475569">'+(d.recommendation||'')+'</div>'+
+        '<div style="display:flex;gap:8px;margin-top:8px;font-size:10px;color:#94a3b8">'+
+        '<span>P10: '+(d.p10RPS||0).toFixed(2)+' RPS</span><span>P50: '+(d.p50RPS||0).toFixed(2)+' RPS</span><span>P95: '+(d.p95RPS||0).toFixed(2)+' RPS</span>'+
+        '<span>均值: '+(d.avgRPS||0).toFixed(2)+' RPS</span></div>';
+    document.getElementById('hpaContent').innerHTML=h;
+}).catch(function(e){
+    document.getElementById('hpaSpinner').style.display='none';
+    document.getElementById('hpaContent').innerHTML='<p class="text-muted mb-0">HPA 分析暂不可用</p>';
 });
 </script>
 </body>

@@ -87,6 +87,7 @@ func (s *Server) registerRoutes() {
 	s.router.GET("/api/forecast/:namespace/:name", s.handleForecast)
 	s.router.GET("/api/service/:namespace/:name/recommendation", s.handleServiceRecommendation)
 	s.router.GET("/api/service/:namespace/:name/timeseries", s.handleServiceTimeSeries)
+	s.router.GET("/api/service/:namespace/:name/hpa", s.handleHPA)
 	s.router.POST("/api/refresh", s.handleRefresh)
 	s.router.POST("/api/config/reload", s.handleConfigReload)
 	s.router.GET("/api/export/csv", s.handleExportCSV)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -700,6 +701,101 @@ func (s *Server) handleServiceRecommendation(c *gin.Context) {
 		"advice":   result,
 		"replicas": m.Replicas,
 		"podCount": m.Replicas,
+	})
+}
+
+// handleHPA analyzes traffic patterns and recommends HPA min/max replicas.
+func (s *Server) handleHPA(c *gin.Context) {
+	ns := c.Param("namespace")
+	name := c.Param("name")
+
+	coll := platformcollector.NewCollector(s.cfg)
+	pc := platformcollector.NewCollector(s.cfg)
+	_ = pc
+
+	// Get current replicas from Prometheus
+	repQuery := fmt.Sprintf(`kube_deployment_spec_replicas{namespace="%s", deployment="%s"}`, ns, name)
+	repData, err := coll.QueryInstant(repQuery)
+	currentReplicas := 1
+	if err == nil && len(repData) > 0 {
+		currentReplicas = int(repData[0].Value)
+	}
+
+	// Get 7-day RPS time series
+	end := time.Now()
+	start := end.Add(-7 * 24 * time.Hour)
+	rpsQuery := fmt.Sprintf(`sum(rate(traefik_service_requests_total{exported_service=~"%s-%s-.*"}[1h]))`, ns, name)
+	rpsPoints, err := coll.QueryRange(rpsQuery, start, end, 1*time.Hour)
+	if err != nil || len(rpsPoints) < 5 {
+		c.JSON(http.StatusOK, gin.H{
+			"currentReplicas": currentReplicas,
+			"recommendation":  "数据不足，无法分析",
+			"minReplicas":     currentReplicas,
+			"maxReplicas":     currentReplicas,
+		})
+		return
+	}
+
+	// Collect RPS values
+	var rpsVals []float64
+	var totalRPS float64
+	for _, p := range rpsPoints {
+		if p.Value >= 0 {
+			rpsVals = append(rpsVals, p.Value)
+			totalRPS += p.Value
+		}
+	}
+	if len(rpsVals) == 0 {
+		c.JSON(http.StatusOK, gin.H{"recommendation": "无流量数据"})
+		return
+	}
+
+	avgRPS := totalRPS / float64(len(rpsVals))
+	sort.Float64s(rpsVals)
+
+	// P10, P50, P95
+	p10 := rpsVals[len(rpsVals)*10/100]
+	p50 := rpsVals[len(rpsVals)*50/100]
+	p95 := rpsVals[len(rpsVals)*95/100]
+
+	// Target RPS per replica
+	targetRPSPerReplica := avgRPS
+	if currentReplicas > 0 {
+		targetRPSPerReplica = p50 / float64(currentReplicas)
+	}
+	if targetRPSPerReplica <= 0 {
+		targetRPSPerReplica = avgRPS
+	}
+
+	// Recommended min/max
+	minReplicas := int(math.Max(1, math.Ceil(p10/targetRPSPerReplica)))
+	maxReplicas := int(math.Max(float64(minReplicas)+1, math.Ceil(p95*1.3/targetRPSPerReplica)))
+
+	// Generate recommendation text
+	var recommendation string
+	confidence := "高"
+	if maxReplicas > currentReplicas*2 && maxReplicas > 1 {
+		recommendation = fmt.Sprintf("建议配置 HPA，流量波动大（P10=%.1f, P95=%.1f RPS），当前 %d 副本不足应对峰值", p10, p95, currentReplicas)
+	} else if maxReplicas <= currentReplicas && minReplicas < currentReplicas {
+		recommendation = fmt.Sprintf("建议缩容，当前 %d 副本偏多，低谷流量仅需 %d 副本", currentReplicas, minReplicas)
+	} else if maxReplicas == currentReplicas {
+		recommendation = "当前副本数合理，流量波动在可接受范围"
+	} else {
+		recommendation = fmt.Sprintf("当前配置基本合理，建议 min=%d, max=%d（当前 %d）", minReplicas, maxReplicas, currentReplicas)
+		confidence = "中"
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"currentReplicas":      currentReplicas,
+		"minReplicas":          minReplicas,
+		"maxReplicas":          maxReplicas,
+		"targetRPSPerReplica":  targetRPSPerReplica,
+		"avgRPS":               avgRPS,
+		"p10RPS":               p10,
+		"p50RPS":               p50,
+		"p95RPS":               p95,
+		"recommendation":       recommendation,
+		"confidence":           confidence,
 	})
 }
 
