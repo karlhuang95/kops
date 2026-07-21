@@ -573,6 +573,87 @@ func (s *Server) handleCostAttribution(c *gin.Context) {
 }
 
 // handleIngressRanking returns top services by RPS from Traefik metrics.
+// handlePodStability returns services with pod stability issues (restarts, OOM, crash loops).
+func (s *Server) handlePodStability(c *gin.Context) {
+	coll := platformcollector.NewCollector(s.cfg)
+
+	type unstableSvc struct {
+		Namespace  string  `json:"namespace"`
+		Deployment string  `json:"deployment"`
+		Restarts   float64 `json:"restarts"`
+		OOMKill    float64 `json:"oomKill"`
+		CrashLoop  float64 `json:"crashLoop"`
+		Severity   string  `json:"severity"` // high/medium/low
+	}
+	var results []unstableSvc
+
+	for _, ns := range s.cfg.Namespaces {
+		// Restart count (last 7 days)
+		restartQuery := fmt.Sprintf(`sum by(deployment)(increase(kube_pod_container_status_restarts_total{namespace="%s"}[7d]))`, ns)
+		restartData, _ := coll.QueryInstant(restartQuery)
+
+		// OOM kills
+		oomQuery := fmt.Sprintf(`sum by(deployment)(kube_pod_container_status_last_terminated_reason{namespace="%s",reason="OOMKilled"})`, ns)
+		oomData, _ := coll.QueryInstant(oomQuery)
+
+		// CrashLoopBackOff
+		crashQuery := fmt.Sprintf(`sum by(deployment)(kube_pod_container_status_waiting_reason{namespace="%s",reason="CrashLoopBackOff"})`, ns)
+		crashData, _ := coll.QueryInstant(crashQuery)
+
+		// Merge
+		deployMap := make(map[string]*unstableSvc)
+		for _, r := range restartData {
+			d := r.Metric["deployment"]
+			if d == "" {
+				continue
+			}
+			deployMap[d] = &unstableSvc{Namespace: ns, Deployment: d, Restarts: r.Value}
+		}
+		for _, r := range oomData {
+			d := r.Metric["deployment"]
+			if d == "" {
+				continue
+			}
+			if deployMap[d] == nil {
+				deployMap[d] = &unstableSvc{Namespace: ns, Deployment: d}
+			}
+			deployMap[d].OOMKill = r.Value
+		}
+		for _, r := range crashData {
+			d := r.Metric["deployment"]
+			if d == "" {
+				continue
+			}
+			if deployMap[d] == nil {
+				deployMap[d] = &unstableSvc{Namespace: ns, Deployment: d}
+			}
+			deployMap[d].CrashLoop = r.Value
+		}
+
+		for _, svc := range deployMap {
+			// Skip completely stable services
+			if svc.Restarts < 1 && svc.OOMKill == 0 && svc.CrashLoop == 0 {
+				continue
+			}
+			if svc.Restarts > 20 || svc.OOMKill > 0 {
+				svc.Severity = "high"
+			} else if svc.Restarts > 5 || svc.CrashLoop > 0 {
+				svc.Severity = "medium"
+			} else {
+				svc.Severity = "low"
+			}
+			results = append(results, *svc)
+		}
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		order := map[string]int{"high": 0, "medium": 1, "low": 2}
+		return order[results[i].Severity] < order[results[j].Severity]
+	})
+
+	c.JSON(http.StatusOK, gin.H{"services": results})
+}
+
 func (s *Server) handleIngressRanking(c *gin.Context) {
 	coll := platformcollector.NewCollector(s.cfg)
 
@@ -873,6 +954,107 @@ func (s *Server) handleHPA(c *gin.Context) {
 		"p95RPS":               p95,
 		"recommendation":       recommendation,
 		"confidence":           confidence,
+	})
+}
+
+// handlePredict forecasts monthly cost and detects anomalies from 7-day CPU/RPS data.
+func (s *Server) handlePredict(c *gin.Context) {
+	ns := c.Param("namespace")
+	name := c.Param("name")
+
+	coll := platformcollector.NewCollector(s.cfg)
+	end := time.Now()
+	start := end.Add(-7 * 24 * time.Hour)
+
+	// Get 7-day CPU time series (hourly)
+	cpuQuery := fmt.Sprintf(`sum(rate(container_cpu_usage_seconds_total{namespace="%s", pod=~"^%s-.*", container!=""}[1h])) * 1000`, ns, name)
+	cpuPoints, err := coll.QueryRange(cpuQuery, start, end, 1*time.Hour)
+	if err != nil || len(cpuPoints) < 10 {
+		c.JSON(http.StatusOK, gin.H{"prediction": gin.H{"available": false}, "anomalies": []gin.H{}})
+		return
+	}
+
+	// Extract CPU values with timestamps
+	type tv struct{ t int64; v float64 }
+	var points []tv
+	var totalCPU float64
+	for _, p := range cpuPoints {
+		if p.Value >= 0 {
+			points = append(points, tv{p.Timestamp, p.Value})
+			totalCPU += p.Value
+		}
+	}
+	if len(points) < 10 {
+		c.JSON(http.StatusOK, gin.H{"prediction": gin.H{"available": false}, "anomalies": []gin.H{}})
+		return
+	}
+
+	// Linear regression for prediction
+	n := float64(len(points))
+	var sumT, sumV, sumTV, sumT2 float64
+	t0 := points[0].t
+	for _, p := range points {
+		t := float64(p.t-t0) / 3600.0 // hours since start
+		v := p.v
+		sumT += t
+		sumV += v
+		sumTV += t * v
+		sumT2 += t * t
+	}
+	slope := (n*sumTV - sumT*sumV) / (n*sumT2 - sumT*sumT)
+	intercept := (sumV - slope*sumT) / n
+
+	// Predict next 30 days cost
+	avgCPU := totalCPU / n
+	hoursInMonth := 30.0 * 24.0
+	costPerCoreHour := 0.08 // $0.08/core/hour
+	currentMonthlyCost := (avgCPU / 1000.0) * hoursInMonth * costPerCoreHour
+
+	// Trend: use slope to project
+	lastX := float64(points[len(points)-1].t-t0) / 3600.0
+	predictedAvgCPU := slope*(lastX+hoursInMonth/2.0) + intercept
+	if predictedAvgCPU < 0 {
+		predictedAvgCPU = avgCPU
+	}
+	predictedMonthlyCost := (predictedAvgCPU / 1000.0) * hoursInMonth * costPerCoreHour
+
+	trend := "stable"
+	change := (predictedMonthlyCost - currentMonthlyCost) / currentMonthlyCost * 100
+	if change > 20 {
+		trend = "up"
+	} else if change < -20 {
+		trend = "down"
+	}
+
+	// Anomaly detection: mean ± 2*stddev
+	mean := totalCPU / n
+	var sumSqDiff float64
+	for _, p := range points {
+		diff := p.v - mean
+		sumSqDiff += diff * diff
+	}
+	stddev := math.Sqrt(sumSqDiff / n)
+
+	var anomalies []gin.H
+	for _, p := range points {
+		if math.Abs(p.v-mean) > 2*stddev && p.v > 10 { // >10m to filter noise
+			anomalies = append(anomalies, gin.H{
+				"t":     p.t,
+				"value": p.v,
+				"mean":  mean,
+			})
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"prediction": gin.H{
+			"available":       true,
+			"currentMonthly":  currentMonthlyCost,
+			"predictedMonthly": predictedMonthlyCost,
+			"changePercent":   change,
+			"trend":           trend,
+		},
+		"anomalies": anomalies,
 	})
 }
 

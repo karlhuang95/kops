@@ -61,7 +61,8 @@
   </div>
 </div>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>if(typeof d3==='undefined'){document.write('<script src="https://d3js.org/d3.v7.min.js"><\/script>')}</script><script>if(typeof d3==='undefined'){document.write('<script src="https://unpkg.com/d3@7/dist/d3.min.js"><\/script>')}</script>
 <script>
 (function(){
 var svg=d3.select('#topoSvg'),canvas=document.getElementById('topo-canvas'),tip=d3.select('#topo-tip'),pop=d3.select('#topoPopover'),popC=d3.select('#topoPopoverContent');
@@ -191,8 +192,8 @@ function renderLookup(){
   var g=svg.append('g');svg.call(d3.zoom().scaleExtent([.2,5]).on('zoom',function(e){g.attr('transform',e.transform)}));
   g.append('rect').attr('width',W*3).attr('height',H*3).attr('x',-W).attr('y',-H).attr('fill','url(#dot)');
 
-  if(!lkp||!gr[lkp]){
-    var hc=dp.filter(function(s){return Object.keys(gr[s].up).length||Object.keys(gr[s].down).length});
+  lkp=lkp||'';if(!lkp||!gr[lkp]){
+    var hc=dp.filter(function(s){var g=gr[s];return g&&(Object.keys(g.up).length||Object.keys(g.down).length)});
     if(!hc.length){g.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle').style('font-size','14px').style('fill','#94a3b8').text('暂无调用数据，请刷新');return}
     g.append('text').attr('x',W/2).attr('y',24).attr('text-anchor','middle').style('font-size','13px').style('font-weight','700').style('fill','#1a1a2e').text('点击服务查看上下游调用链（'+hc.length+' 个服务有调用关系）');
     var cols=4,perC=Math.ceil(hc.length/cols);

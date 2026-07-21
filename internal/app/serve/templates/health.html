@@ -38,6 +38,7 @@ body{background:#fafbfc;font-family:"Inter",-apple-system,"PingFang SC",sans-ser
 
 /* Health badge */
 .health-badge{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:-.01em;min-width:64px;text-align:center}
+.badge-ns{background:rgba(0,0,0,.03);color:#64748b;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600}
 .health-critical{background:rgba(239,68,68,.12);color:#dc2626}
 .health-warning{background:rgba(249,115,22,.12);color:#ea580c}
 .health-healthy{background:rgba(34,197,94,.1);color:#16a34a}
@@ -197,6 +198,15 @@ body{background:#fafbfc;font-family:"Inter",-apple-system,"PingFang SC",sans-ser
 </div>
 
 {{end}}
+<!-- Pod Stability -->
+<div class="card-page" style="margin-top:20px" id="stabilitySection">
+    <div style="padding:14px 20px;font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:1px solid rgba(0,0,0,.04)">
+        <i class="bi bi-arrow-repeat me-1"></i>Pod 稳定性报告（7天）
+        <span class="spinner-border spinner-border-sm text-primary" id="stabSpinner" style="width:0.85rem;height:0.85rem;margin-left:8px"></span>
+    </div>
+    <div id="stabContent" style="text-align:center;color:#94a3b8;padding:20px">加载中...</div>
+</div>
+
 <!-- Slow Requests -->
 <div class="card-page" style="margin-top:20px" id="slowSection">
     <div style="padding:14px 20px;font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:1px solid rgba(0,0,0,.04)">
@@ -246,6 +256,27 @@ function filterHealth(){
     document.getElementById('healthInfo').textContent=vis+' / '+total+' 个服务';
 }
 filterHealth();
+// Pod stability
+fetch('/api/pod-stability').then(function(r){return r.json()}).then(function(d){
+    document.getElementById('stabSpinner').style.display='none';
+    var list=d.services||[];
+    if(!list.length){document.getElementById('stabContent').innerHTML='<div style="color:#22c55e;padding:10px;font-size:12px">✅ 所有服务稳定，无异常重启/OOM/CrashLoop</div>';return}
+    var h='<div class="table-responsive"><table><thead><tr><th>服务</th><th>命名空间</th><th>重启次数</th><th>OOM</th><th>CrashLoop</th><th>严重度</th></tr></thead><tbody>';
+    var sevColors={high:'#ef4444',medium:'#f97316',low:'#f59e0b'};
+    list.forEach(function(s){
+        h+='<tr><td style="font-weight:600">'+s.deployment+'</td><td><span class="badge badge-ns">'+s.namespace+'</span></td>'+
+            '<td style="color:'+(s.restarts>10?'#ef4444':s.restarts>3?'#f97316':'#1e293b')+';font-weight:700">'+s.restarts.toFixed(0)+'</td>'+
+            '<td style="color:'+(s.oomKill>0?'#ef4444;font-weight:700':'#94a3b8')+'">'+(s.oomKill>0?s.oomKill.toFixed(0)+' 次':'-')+'</td>'+
+            '<td style="color:'+(s.crashLoop>0?'#ef4444;font-weight:700':'#94a3b8')+'">'+(s.crashLoop>0?s.crashLoop.toFixed(0)+' 次':'-')+'</td>'+
+            '<td><span style="color:'+sevColors[s.severity]+';font-weight:700;font-size:11px">'+(s.severity==='high'?'严重':s.severity==='medium'?'警告':'轻微')+'</span></td></tr>';
+    });
+    h+='</tbody></table></div>';
+    document.getElementById('stabContent').innerHTML=h;
+}).catch(function(e){
+    document.getElementById('stabSpinner').style.display='none';
+    document.getElementById('stabContent').innerHTML='<span style="color:#94a3b8">稳定性数据暂不可用</span>';
+});
+
 // Slow requests
 fetch('/api/slow-requests').then(function(r){return r.json()}).then(function(d){
     document.getElementById('slowSpinner').style.display='none';
