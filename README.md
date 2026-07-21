@@ -5,7 +5,19 @@
 
 `kops` 是一个面向 Kubernetes 的资源治理和 FinOps CLI，基于 Prometheus 指标生成容量建议、健康诊断和成本分析。
 
-![](docs/img/kops.png)
+![](docs/img/总览.png)
+
+## 截图
+
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+  <img src="docs/img/总览.png" width="48%" alt="总览">
+  <img src="docs/img/资源推荐.png" width="48%" alt="资源推荐">
+  <img src="docs/img/流量效率.png" width="48%" alt="流量效率">
+  <img src="docs/img/健康状态.png" width="48%" alt="健康状态">
+  <img src="docs/img/集群分析.png" width="48%" alt="集群分析">
+  <img src="docs/img/业务拓扑-架构图.png" width="48%" alt="业务拓扑-架构图">
+  <img src="docs/img/业务拓扑图-依赖查询.png" width="48%" alt="业务拓扑-依赖查询">
+</div>
 
 ## 依赖
 
@@ -37,13 +49,13 @@
 
 | 页面 | URL | 功能 |
 |------|-----|------|
-| 总览 | `/` | 6 张图表 + 统计卡片 + 趋势对比 |
-| 资源推荐 | `/recommendations` | CPU/内存建议 + 成本 + 风险等级 + kubectl 命令 |
-| 流量效率 | `/efficiency` | 流量密度 S/A/B/C 评级 + 资源黑洞 |
-| 健康状态 | `/health` | Critical/Warning/Healthy/Idle 健康检查 |
-| 集群分析 | `/cluster` | 节点密度 + 伸缩建议 + 成本归属 |
-| 业务拓扑 | `/topology` | 服务调用链路 + 依赖查询 + 入口路由架构图 |
-| 服务详情 | `/service/:ns/:name` | CPU/内存/RPS 折线图 + 资源预测 |
+| 总览 | `/` | 6 张图表 + 统计卡片 + 趋势对比 | [📷](docs/img/总览.png) |
+| 资源推荐 | `/recommendations` | 节省优先卡片 + 成本对比 + kubectl 命令 | [📷](docs/img/资源推荐.png) |
+| 流量效率 | `/efficiency` | 流量密度 S/A/B/C 评级 + 资源黑洞 | [📷](docs/img/流量效率.png) |
+| 健康状态 | `/health` | Critical/Warning/Healthy/Idle + 评分条 | [📷](docs/img/健康状态.png) |
+| 集群分析 | `/cluster` | 节点伸缩 + 利用率色条 + 成本归属 | [📷](docs/img/集群分析.png) |
+| 业务拓扑 | `/topology` | 架构图 + 依赖查询（服务调用链） | [📷](docs/img/业务拓扑-架构图.png) [📷](docs/img/业务拓扑图-依赖查询.png) |
+| 服务详情 | `/service/:ns/:name` | CPU/内存/RPS 折线图 + 资源预测 | |
 
 Dashboard 特性：
 - 暗色模式、列排序、筛选芯片、行展开详情
