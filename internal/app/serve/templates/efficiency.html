@@ -1,105 +1,247 @@
 {{template "head.html" .}}
 {{template "nav.html" .}}
 
+<style>
+body{background:#fafbfc;font-family:"Inter",-apple-system,"PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
+.container-fluid{max-width:1100px;margin:0 auto;padding:20px 24px}
+.alert-danger{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 20px;border-radius:10px;font-size:13px;margin-bottom:20px}
+.alert-warning{background:#fffbeb;border:1px solid #fde68a;color:#b45309;padding:12px 20px;border-radius:10px;font-size:13px;margin-bottom:20px}
+
+/* Summary */
+.summary{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.s-card{flex:1;min-width:160px;background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.02);display:flex;align-items:center;gap:14px}
+.s-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.s-num{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.s-lbl{font-size:11px;color:#94a3b8;font-weight:500;margin-top:2px}
+
+/* Chips */
+.chip-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;border:1px solid rgba(0,0,0,.06);transition:.15s;user-select:none}
+.chip:hover{border-color:rgba(0,0,0,.12);color:#475569}
+.chip.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.chip-count{margin-left:4px;opacity:.5;font-weight:400}
+
+/* Search */
+.search-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.search-row input{padding:6px 12px;border:1px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;width:220px;outline:none;background:#fff;font-family:inherit;transition:.2s}
+.search-row input:focus{border-color:#6366f1}
+
+/* Service card */
+.svc-card{background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden}
+.svc-card:hover{border-color:rgba(99,102,241,.15);box-shadow:0 4px 16px rgba(0,0,0,.04)}
+.svc-card .main-row{display:flex;align-items:center;padding:14px 20px;gap:16px;cursor:pointer}
+.svc-card .svc-info{flex:1;min-width:0}
+.svc-card .svc-name{font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:-.01em}
+.svc-card .svc-ns{font-size:10px;color:#94a3b8;margin-top:2px}
+
+/* Rank badge */
+.rank-badge{padding:3px 10px;border-radius:6px;font-size:12px;font-weight:800;letter-spacing:-.01em}
+.rank-s{background:rgba(34,197,94,.1);color:#16a34a}
+.rank-a{background:rgba(99,102,241,.1);color:#6366f1}
+.rank-b{background:rgba(249,115,22,.1);color:#f97316}
+.rank-c{background:rgba(239,68,68,.1);color:#ef4444}
+
+/* Metrics columns */
+.metric-col{text-align:right;min-width:70px}
+.metric-col .val{font-size:13px;font-weight:700;color:#1a1a2e;font-family:"JetBrains Mono","SF Mono",monospace}
+.metric-col .lbl{font-size:9px;color:#94a3b8}
+
+.waste-col{text-align:right;min-width:90px}
+.waste-col .waste-val{font-size:18px;font-weight:900;letter-spacing:-.02em;color:#ef4444;line-height:1}
+.waste-col .waste-pct{font-size:10px;color:#ef4444;font-weight:600}
+
+.chevron{color:#cbd5e1;font-size:14px;transition:.2s}
+.svc-card.open .chevron{transform:rotate(180deg)}
+
+/* Expand */
+.expand{display:none;padding:0 20px 16px;border-top:1px solid rgba(0,0,0,.04);background:rgba(0,0,0,.01)}
+.svc-card.open .expand{display:block}
+.expand-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding-top:12px}
+.expand-item .e-label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.expand-item .e-value{font-size:12px;color:#1a1a2e;font-weight:500;font-family:"JetBrains Mono","SF Mono",monospace}
+.expand-item .e-reason{font-size:11px;color:#64748b;grid-column:1/-1}
+.expand-actions{display:flex;gap:8px;margin-top:12px;grid-column:1/-1}
+
+.btn-action{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;text-decoration:none;display:inline-block}
+.btn-primary{border:1px solid #6366f1;color:#6366f1;background:transparent}
+.btn-primary:hover{background:#6366f1;color:#fff}
+.btn-secondary{border:1px solid rgba(0,0,0,.1);color:#64748b;background:transparent}
+.btn-secondary:hover{background:rgba(0,0,0,.04)}
+
+/* Blackhole */
+.blackhole-section{margin-top:24px}
+.blackhole-section .section-title{font-size:14px;font-weight:800;color:#ef4444;margin-bottom:10px;padding:0 4px}
+.blackhole-section .svc-card{border-color:rgba(239,68,68,.1)}
+
+.page-footer{text-align:center;padding:16px;font-size:11px;color:#cbd5e1}
+
+@media(max-width:700px){
+  .svc-card .main-row{flex-wrap:wrap}
+  .expand-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+
 <div class="container-fluid pt-3 px-3">
 {{if .ErrorMessage}}
-<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>加载失败</strong> — {{.ErrorMessage}}</div>
+<div class="alert-danger"><strong>加载失败</strong> — {{.ErrorMessage}}</div>
 {{else}}
 
-<div class="card-page">
-    <div class="px-3 pt-2">
-        <div class="chip-row" id="efficiencyChips">
-            <span class="chip active" data-chip="all" onclick="setChipFilter('efficiency','all',this)">全部 <span class="chip-count">{{len .Results}}</span></span>
-            <span class="chip" data-chip="s-rank" onclick="setChipFilter('efficiency','s-rank',this)">🌟 S 级</span>
-            <span class="chip" data-chip="a-rank" onclick="setChipFilter('efficiency','a-rank',this)">A 级</span>
-            <span class="chip" data-chip="b-rank" onclick="setChipFilter('efficiency','b-rank',this)">B 级</span>
-            <span class="chip" data-chip="c-rank" onclick="setChipFilter('efficiency','c-rank',this)">⚠️ C 级</span>
-            <span class="chip" data-chip="waste" onclick="setChipFilter('efficiency','waste',this)">💸 有浪费</span>
-        </div>
+{{$results := .Results}}
+{{$totalWaste := 0.0}}{{$sRank := 0}}{{$rankA := 0}}{{$rankB := 0}}{{$rankC := 0}}{{$count := len $results}}
+{{range $results}}{{$totalWaste = addFloat $totalWaste .WasteAmount}}{{if hasPrefix .TrafficDensityRank "S"}}{{$sRank = add $sRank 1}}{{else if hasPrefix .TrafficDensityRank "A"}}{{$rankA = add $rankA 1}}{{else if hasPrefix .TrafficDensityRank "B"}}{{$rankB = add $rankB 1}}{{else}}{{$rankC = add $rankC 1}}{{end}}{{end}}
+{{$bhCount := 0}}{{if .BlackHoles}}{{$bhCount = len .BlackHoles}}{{end}}
+
+<div class="summary">
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(239,68,68,.1);color:#ef4444"><i class="bi bi-exclamation-diamond"></i></div>
+        <div><div class="s-num" style="color:#ef4444">${{formatFloat $totalWaste}}</div><div class="s-lbl">总浪费金额 / 月</div></div>
     </div>
-    <div class="table-toolbar">
-        <div class="d-flex align-items-center gap-2">
-            <input class="form-control form-control-sm search-input" type="text" placeholder="搜索..." oninput="filterTable('efficiencyTable',this.value)">
-            <span class="page-info" id="efficiencyInfo"></span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <select class="form-select form-select-sm page-size-select" onchange="changePageSize('efficiencyTable',this.value)">
-                <option value="20">20条</option><option value="50">50条</option><option value="100">100条</option><option value="99999">全部</option>
-            </select>
-            <div class="btn-group btn-group-sm" id="efficiencyPager"></div>
-        </div>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(99,102,241,.1);color:#6366f1"><i class="bi bi-diagram-3"></i></div>
+        <div><div class="s-num">{{$count}}</div><div class="s-lbl">分析服务</div></div>
     </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle" id="efficiencyTable">
-            <thead><tr>
-                <th data-sort="string" onclick="sortTable('efficiencyTable',0,'string')">服务 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="string" onclick="sortTable('efficiencyTable',1,'string')">命名空间 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('efficiencyTable',2,'number')">当前 CPU <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('efficiencyTable',3,'number')">推荐 CPU <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('efficiencyTable',4,'number')">流量密度 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="string" onclick="sortTable('efficiencyTable',5,'string')">评级 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('efficiencyTable',6,'number')">成本 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('efficiencyTable',7,'number')">浪费 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('efficiencyTable',8,'number')">浪费% <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th>建议</th>
-            </tr></thead>
-            <tbody>
-                {{range .Results}}
-                <tr data-rank="{{.TrafficDensityRank}}" data-waste="{{.WasteAmount}}" onclick="toggleRowExpand(this)">
-                    <td><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="svc-name" onclick="event.stopPropagation()">{{.ServiceName}}</a></td>
-                    <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
-                    <td class="text-mono">{{.CurrentCPU}} m</td>
-                    <td class="text-mono">{{.RecCPU}} m</td>
-                    <td>{{formatFloat .TrafficDensity}}</td>
-                    <td><span class="badge {{densityRankClass .TrafficDensityRank}}">{{.TrafficDensityRank}}</span></td>
-                    <td>${{formatFloat .CurrentCost}}</td>
-                    <td>${{formatFloat .WasteAmount}}</td>
-                    <td>{{formatPercent .WasteRatio}}</td>
-                    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{.Action}}">{{.Action}}</td>
-                </tr>
-                <tr class="expand-row" style="display:none" onclick="event.stopPropagation()"><td colspan="10">
-                    <div class="expand-panel">
-                        <div class="expand-item"><div class="expand-label">当前内存</div><div class="expand-value">{{.CurrentMem}} MiB</div></div>
-                        <div class="expand-item"><div class="expand-label">推荐内存</div><div class="expand-value">{{.RecMem}} MiB</div></div>
-                        <div class="expand-item"><div class="expand-label">推荐成本</div><div class="expand-value">${{formatFloat .RecCost}}</div></div>
-                        <div class="expand-item"><div class="expand-label">月节省</div><div class="expand-value">${{formatFloat .MonthlySaving}}</div></div>
-                        <div class="expand-item"><div class="expand-label">建议原因</div><div class="expand-value" style="font-size:0.78rem">{{.Reason}}</div></div>
-                        <div style="grid-column:1/-1;display:flex;gap:0.5rem">
-                            <a href="/service/{{.Namespace}}/{{.ServiceName}}" class="btn btn-sm btn-outline-primary">查看详情 →</a>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="copyKubectlPatch('{{.ServiceName}}','{{.Namespace}}','{{.RecCPU}}','{{.RecMem}}')"><i class="bi bi-clipboard me-1"></i>复制 kubectl 命令</button>
-                        </div>
-                    </div>
-                </td></tr>
-                {{else}}
-                <tr><td colspan="10" class="text-center text-muted py-4">暂无数据。请先在总览页点击"同步"刷新数据。</td></tr>
-                {{end}}
-            </tbody>
-        </table>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(34,197,94,.1);color:#22c55e"><i class="bi bi-star-fill"></i></div>
+        <div><div class="s-num" style="color:#16a34a">{{$sRank}}</div><div class="s-lbl">S 级（极高效率）</div></div>
     </div>
-    {{if .BlackHoles}}
-    <div class="blackhole-footer">
-        <div class="blackhole-title"><i class="bi bi-exclamation-diamond-fill text-danger me-2"></i>资源黑洞 Top 5（高成本、近零利用）</div>
-        <table class="table table-hover align-middle mb-0">
-            <thead><tr><th>#</th><th>服务</th><th>命名空间</th><th>当前成本</th><th>实际消耗</th><th>浪费比例</th><th>浪费金额</th></tr></thead>
-            <tbody>
-                {{range $i,$bh := .BlackHoles}}{{if lt $i 5}}
-                <tr><td class="fw-bold text-muted">{{add $i 1}}</td>
-                    <td><a href="/service/{{$bh.Namespace}}/{{$bh.ServiceName}}" class="svc-name">{{$bh.ServiceName}}</a></td>
-                    <td><span class="badge bg-light text-dark">{{$bh.Namespace}}</span></td>
-                    <td>${{formatFloat $bh.CurrentCost}}</td><td>${{formatFloat $bh.ActualCost}}</td>
-                    <td class="waste-high">{{formatPercent $bh.WasteRatio}}</td><td class="waste-high">${{formatFloat $bh.WasteAmount}}</td>
-                </tr>{{end}}{{end}}
-            </tbody>
-        </table>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(239,68,68,.1);color:#ef4444"><i class="bi bi-exclamation-diamond-fill"></i></div>
+        <div><div class="s-num" style="color:#ef4444">{{$bhCount}}</div><div class="s-lbl">资源黑洞</div></div>
     </div>
-    {{end}}
 </div>
+
+<!-- Chips -->
+<div class="chip-bar" id="effChips">
+    <span class="chip active" data-chip="all">全部 <span class="chip-count">{{$count}}</span></span>
+    <span class="chip" data-chip="s-rank">S 级 <span class="chip-count">{{$sRank}}</span></span>
+    <span class="chip" data-chip="a-rank">A 级 <span class="chip-count">{{$rankA}}</span></span>
+    <span class="chip" data-chip="b-rank">B 级 <span class="chip-count">{{$rankB}}</span></span>
+    <span class="chip" data-chip="c-rank">C 级 <span class="chip-count">{{$rankC}}</span></span>
+    <span class="chip" data-chip="waste">有浪费</span>
+</div>
+
+<div class="search-row">
+    <input type="text" id="effSearch" placeholder="搜索服务..." oninput="filterEffs()">
+    <span style="font-size:11px;color:#94a3b8" id="effInfo"></span>
+</div>
+
+<!-- Service cards, sorted by waste -->
+<div id="effList">
+{{range .Results}}
+<div class="svc-card" data-rank="{{.TrafficDensityRank}}" data-waste="{{.WasteAmount}}" data-search="{{.ServiceName}} {{.Namespace}}" style="order:{{printf "%.0f" (mul .WasteAmount -1000)}}">
+    <div class="main-row" onclick="this.parentElement.classList.toggle('open')">
+        <div class="svc-info">
+            <div class="svc-name">{{.ServiceName}}</div>
+            <div class="svc-ns">{{.Namespace}}</div>
+        </div>
+        <div class="rank-badge {{if hasPrefix .TrafficDensityRank "S"}}rank-s{{else if hasPrefix .TrafficDensityRank "A"}}rank-a{{else if hasPrefix .TrafficDensityRank "B"}}rank-b{{else}}rank-c{{end}}">{{.TrafficDensityRank}}</div>
+        <div class="metric-col">
+            <div class="val">{{.TrafficDensity}}</div>
+            <div class="lbl">RPS/Core</div>
+        </div>
+        <div class="metric-col">
+            <div class="val">{{.CurrentCPU}}m → {{.RecCPU}}m</div>
+            <div class="lbl">CPU 当前→推荐</div>
+        </div>
+        <div class="waste-col">
+            <div class="waste-val">{{if gt .WasteAmount 0.0}}${{formatFloat .WasteAmount}}{{else}}-{{end}}</div>
+            <div class="waste-pct">{{if gt .WasteRatio 0.0}}{{formatPercent .WasteRatio}}{{end}}</div>
+        </div>
+        <span class="chevron">▾</span>
+    </div>
+    <div class="expand">
+        <div class="expand-grid">
+            <div class="expand-item"><div class="e-label">当前 CPU</div><div class="e-value">{{.CurrentCPU}} m</div></div>
+            <div class="expand-item"><div class="e-label">推荐 CPU</div><div class="e-value">{{.RecCPU}} m</div></div>
+            <div class="expand-item"><div class="e-label">当前内存</div><div class="e-value">{{.CurrentMem}} MiB → {{.RecMem}} MiB</div></div>
+            <div class="expand-item"><div class="e-label">实际成本</div><div class="e-value">${{formatFloat .ActualCost}}</div></div>
+            <div class="expand-item"><div class="e-label">推荐成本</div><div class="e-value">${{formatFloat .RecCost}}</div></div>
+            <div class="expand-item"><div class="e-label">月节省</div><div class="e-value" style="color:#10b981">${{formatFloat .MonthlySaving}}</div></div>
+            <div class="expand-item" style="grid-column:1/-1"><div class="e-label">建议原因</div><div class="e-reason">{{.Reason}}</div></div>
+            <div class="expand-actions">
+                <a href="/service/{{.Namespace}}/{{.ServiceName}}" class="btn-action btn-primary">查看详情 →</a>
+                <button class="btn-action btn-secondary" onclick="event.stopPropagation();copyKubectlPatch('{{.ServiceName}}','{{.Namespace}}','{{.RecCPU}}','{{.RecMem}}')">复制 kubectl 命令</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{else}}
+<div style="text-align:center;color:#94a3b8;padding:40px;background:#fff;border-radius:12px">暂无数据。</div>
+{{end}}
+</div>
+
+<!-- Blackholes -->
+{{if .BlackHoles}}
+<div class="blackhole-section">
+    <div class="section-title">资源黑洞（高成本、近零利用）</div>
+    {{range $i,$bh := .BlackHoles}}{{if lt $i 5}}
+    <div class="svc-card" style="border-color:rgba(239,68,68,.15)">
+        <div class="main-row" style="cursor:default">
+            <div class="svc-info">
+                <div class="svc-name" style="color:#ef4444">{{$bh.ServiceName}}</div>
+                <div class="svc-ns">{{$bh.Namespace}}</div>
+            </div>
+            <div class="metric-col">
+                <div class="val">${{formatFloat $bh.CurrentCost}}</div>
+                <div class="lbl">当前成本</div>
+            </div>
+            <div class="metric-col">
+                <div class="val">${{formatFloat $bh.ActualCost}}</div>
+                <div class="lbl">实际消耗</div>
+            </div>
+            <div class="waste-col">
+                <div class="waste-val">${{formatFloat $bh.WasteAmount}}</div>
+                <div class="waste-pct">{{formatPercent $bh.WasteRatio}}</div>
+            </div>
+            <span style="font-size:10px;color:#ef4444;font-weight:600">黑洞 #{{add $i 1}}</span>
+        </div>
+    </div>
+    {{end}}{{end}}
+</div>
+{{end}}
 
 {{end}}
 <div class="page-footer">kops — 流量效率</div>
 </div>
 
 {{template "scripts.html"}}
-<script>renderTable('efficiencyTable')</script>
+<script>
+document.querySelectorAll('#effChips .chip').forEach(function(c){c.onclick=function(){
+    var chip=this.dataset.chip;
+    document.querySelectorAll('#effChips .chip').forEach(function(x){x.classList.remove('active')});
+    this.classList.add('active');
+    document.querySelectorAll('#effList .svc-card').forEach(function(card){
+        if(chip==='all'){card.style.display='';return}
+        var rank=(card.dataset.rank||''),waste=parseFloat(card.dataset.waste||0);
+        var show=false;
+        if(chip==='s-rank'&&rank.startsWith('S'))show=true;
+        if(chip==='a-rank'&&rank.startsWith('A'))show=true;
+        if(chip==='b-rank'&&rank.startsWith('B'))show=true;
+        if(chip==='c-rank'&&rank.startsWith('C'))show=true;
+        if(chip==='waste'&&waste>0)show=true;
+        card.style.display=show?'':'none';
+    });
+    filterEffs();
+}});
+
+// Default sort by waste descending
+(function(){
+    var list=document.getElementById('effList'),cards=Array.from(list.querySelectorAll('.svc-card'));
+    cards.sort(function(a,b){return(parseFloat(b.dataset.waste)||0)-(parseFloat(a.dataset.waste)||0)});
+    cards.forEach(function(c){list.appendChild(c)});
+})();
+
+function filterEffs(){
+    var q=(document.getElementById('effSearch').value||'').toLowerCase(),vis=0,total=0;
+    document.querySelectorAll('#effList .svc-card').forEach(function(card){
+        if(card.style.display==='none')return;total++;
+        var s=card.dataset.search||'';
+        var match=!q||s.toLowerCase().indexOf(q)>=0;
+        card.style.display=match?'':'none';if(match)vis++;
+    });
+    document.getElementById('effInfo').textContent=vis+' / '+total+' 个服务';
+}
+filterEffs();
+</script>
 </body>
 </html>

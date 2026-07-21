@@ -1,92 +1,199 @@
 {{template "head.html" .}}
 {{template "nav.html" .}}
 
+<style>
+body{background:#fafbfc;font-family:"Inter",-apple-system,"PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
+.container-fluid{max-width:1100px;margin:0 auto;padding:20px 24px}
+.alert-danger{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 20px;border-radius:10px;font-size:13px;margin-bottom:20px}
+.alert-warning{background:#fffbeb;border:1px solid #fde68a;color:#b45309;padding:12px 20px;border-radius:10px;font-size:13px;margin-bottom:20px}
+
+/* Summary */
+.summary{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.s-card{flex:1;min-width:140px;background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.02);display:flex;align-items:center;gap:14px}
+.s-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.s-num{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.s-lbl{font-size:11px;color:#94a3b8;font-weight:500;margin-top:2px}
+
+/* Chips */
+.chip-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;border:1px solid rgba(0,0,0,.06);transition:.15s;user-select:none}
+.chip:hover{border-color:rgba(0,0,0,.12);color:#475569}
+.chip.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.chip-count{margin-left:4px;opacity:.5;font-weight:400}
+
+/* Search */
+.search-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.search-row input{padding:6px 12px;border:1px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;width:220px;outline:none;background:#fff;font-family:inherit;transition:.2s}
+.search-row input:focus{border-color:#6366f1}
+
+/* Service card */
+.svc-card{background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.02);transition:all .2s;overflow:hidden}
+.svc-card:hover{border-color:rgba(99,102,241,.15);box-shadow:0 4px 16px rgba(0,0,0,.04)}
+.svc-card.critical{border-color:rgba(239,68,68,.15);background:#fffbfb}
+.svc-card.warning{border-color:rgba(249,115,22,.1)}
+.svc-card .main-row{display:flex;align-items:center;padding:14px 20px;gap:16px;cursor:pointer}
+.svc-card .svc-info{flex:1;min-width:0}
+.svc-card .svc-name{font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:-.01em}
+.svc-card .svc-ns{font-size:10px;color:#94a3b8;margin-top:2px}
+
+/* Health badge */
+.health-badge{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:-.01em;min-width:64px;text-align:center}
+.health-critical{background:rgba(239,68,68,.12);color:#dc2626}
+.health-warning{background:rgba(249,115,22,.12);color:#ea580c}
+.health-healthy{background:rgba(34,197,94,.1);color:#16a34a}
+.health-idle{background:rgba(0,0,0,.04);color:#94a3b8}
+
+/* Metric columns */
+.metric-col{text-align:right;min-width:60px}
+.metric-col .val{font-size:13px;font-weight:700;color:#1a1a2e;font-family:"JetBrains Mono","SF Mono",monospace}
+.metric-col .lbl{font-size:9px;color:#94a3b8}
+.metric-err{color:#ef4444;font-weight:700}
+.metric-ok{color:#94a3b8}
+
+/* Health score bar */
+.score-col{min-width:100px;display:flex;align-items:center;gap:8px}
+.score-bar{width:60px;height:6px;border-radius:3px;background:rgba(0,0,0,.06);overflow:hidden}
+.score-fill{height:100%;border-radius:3px;transition:width .4s}
+.score-green{background:#22c55e}
+.score-orange{background:#f97316}
+.score-red{background:#ef4444}
+.score-num{font-size:12px;font-weight:700;font-family:"JetBrains Mono","SF Mono",monospace;color:#1a1a2e}
+
+/* Spend */
+.spend-col{text-align:right;min-width:80px}
+.spend-col .spend-val{font-size:16px;font-weight:900;letter-spacing:-.02em;color:#ef4444;line-height:1}
+.spend-col .spend-lbl{font-size:9px;color:#94a3b8}
+
+.chevron{color:#cbd5e1;font-size:14px;transition:.2s}
+.svc-card.open .chevron{transform:rotate(180deg)}
+
+/* Expand */
+.expand{display:none;padding:0 20px 16px;border-top:1px solid rgba(0,0,0,.04);background:rgba(0,0,0,.01)}
+.svc-card.open .expand{display:block}
+.expand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:12px}
+.expand-item .e-label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.03em;margin-bottom:2px}
+.expand-item .e-value{font-size:12px;color:#1a1a2e;font-weight:500;font-family:"JetBrains Mono","SF Mono",monospace}
+.expand-item .e-reason{font-size:11px;color:#64748b;grid-column:1/-1}
+.expand-actions{display:flex;gap:8px;margin-top:12px;grid-column:1/-1}
+
+.btn-action{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;text-decoration:none;display:inline-block}
+.btn-primary{border:1px solid #6366f1;color:#6366f1;background:transparent}
+.btn-primary:hover{background:#6366f1;color:#fff}
+
+.page-footer{text-align:center;padding:16px;font-size:11px;color:#cbd5e1}
+
+@media(max-width:700px){
+  .svc-card .main-row{flex-wrap:wrap}
+  .expand-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+
 <div class="container-fluid pt-3 px-3">
 {{if .ErrorMessage}}
-<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>加载失败</strong> — {{.ErrorMessage}}</div>
+<div class="alert-danger"><strong>加载失败</strong> — {{.ErrorMessage}}</div>
 {{else}}
 
 {{if .HealthWarning}}
-<div class="alert alert-warning d-flex align-items-center"><i class="bi bi-exclamation-triangle me-2"></i>健康数据采集受限：{{.HealthWarning}}</div>
+<div class="alert-warning">健康数据采集受限：{{.HealthWarning}}</div>
 {{end}}
 
-<div class="stat-row">
-    <div class="stat-card"><div class="stat-icon red"><i class="bi bi-shield-exclamation"></i></div><div><div class="stat-value text-danger">{{.CriticalCount}}</div><div class="stat-label">严重</div></div></div>
-    <div class="stat-card"><div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div><div><div class="stat-value text-warning">{{.WarningCount}}</div><div class="stat-label">警告</div></div></div>
-    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value text-success">{{.HealthyCount}}</div><div class="stat-label">健康</div></div></div>
-    <div class="stat-card"><div class="stat-icon blue" style="background:#e8eaed;color:#666"><i class="bi bi-dash-circle"></i></div><div><div class="stat-value text-muted">{{.IdleCount}}</div><div class="stat-label">空闲</div></div></div>
-    <div class="stat-card"><div class="stat-icon teal"><i class="bi bi-cash-coin"></i></div><div><div class="stat-value">${{formatFloat .TotalInvalidSpend}}</div><div class="stat-label">无效支出</div></div></div>
-    <div class="stat-card"><div class="stat-icon purple"><i class="bi bi-shield-check"></i></div><div><div class="stat-value">{{.AvgScore}}%</div><div class="stat-label">平均健康分</div></div></div>
+{{$results := .Results}}
+{{$critical := 0}}{{$warning := 0}}{{$healthy := 0}}{{$idle := 0}}{{$totalSpend := 0.0}}{{$totalScore := 0.0}}{{$scoreCount := 0}}
+{{range $results}}
+  {{if eq .HealthCode "Critical"}}{{$critical = add $critical 1}}
+  {{else if eq .HealthCode "Warning"}}{{$warning = add $warning 1}}
+  {{else if eq .HealthCode "Healthy"}}{{$healthy = add $healthy 1}}
+  {{else}}{{$idle = add $idle 1}}{{end}}
+  {{$totalSpend = addFloat $totalSpend .InvalidSpend}}
+  {{if ne .HealthCode "Idle"}}{{$totalScore = addFloat $totalScore .HealthScore}}{{$scoreCount = add $scoreCount 1}}{{end}}
+{{end}}
+{{$avgScore := 0.0}}{{if gt $scoreCount 0}}{{$avgScore = divFloat $totalScore (float64 $scoreCount)}}{{end}}
+
+<div class="summary">
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(239,68,68,.1);color:#ef4444"><i class="bi bi-shield-exclamation"></i></div>
+        <div><div class="s-num" style="color:#ef4444">{{$critical}}</div><div class="s-lbl">严重</div></div>
+    </div>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(249,115,22,.1);color:#f97316"><i class="bi bi-exclamation-triangle"></i></div>
+        <div><div class="s-num" style="color:#f97316">{{$warning}}</div><div class="s-lbl">警告</div></div>
+    </div>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(34,197,94,.1);color:#22c55e"><i class="bi bi-check-circle"></i></div>
+        <div><div class="s-num" style="color:#22c55e">{{$healthy}}</div><div class="s-lbl">健康</div></div>
+    </div>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(239,68,68,.1);color:#ef4444"><i class="bi bi-cash-coin"></i></div>
+        <div><div class="s-num" style="color:#ef4444">${{formatFloat $totalSpend}}</div><div class="s-lbl">无效支出</div></div>
+    </div>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6"><i class="bi bi-shield-check"></i></div>
+        <div><div class="s-num">{{printf "%.0f" $avgScore}}%</div><div class="s-lbl">平均健康分</div></div>
+    </div>
+    <div class="s-card">
+        <div class="s-icon" style="background:rgba(0,0,0,.04);color:#94a3b8"><i class="bi bi-dash-circle"></i></div>
+        <div><div class="s-num" style="color:#94a3b8">{{$idle}}</div><div class="s-lbl">空闲</div></div>
+    </div>
 </div>
 
-<div class="card-page">
-    <div class="px-3 pt-2">
-        <div class="chip-row" id="healthChips">
-            <span class="chip active" data-chip="all" onclick="setChipFilter('health','all',this)">全部 <span class="chip-count">{{len .Results}}</span></span>
-            <span class="chip" data-chip="critical" onclick="setChipFilter('health','critical',this)">🔴 严重</span>
-            <span class="chip" data-chip="warning" onclick="setChipFilter('health','warning',this)">🟡 警告</span>
-            <span class="chip" data-chip="healthy" onclick="setChipFilter('health','healthy',this)">🟢 健康</span>
-            <span class="chip" data-chip="idle" onclick="setChipFilter('health','idle',this)">⚪ 空闲</span>
-            <span class="chip" data-chip="has-waste" onclick="setChipFilter('health','has-waste',this)">💸 有无效支出</span>
+<!-- Chips -->
+<div class="chip-bar" id="healthChips">
+    <span class="chip active" data-chip="all">全部 <span class="chip-count">{{len $results}}</span></span>
+    <span class="chip" data-chip="Critical">严重 <span class="chip-count">{{$critical}}</span></span>
+    <span class="chip" data-chip="Warning">警告 <span class="chip-count">{{$warning}}</span></span>
+    <span class="chip" data-chip="Healthy">健康 <span class="chip-count">{{$healthy}}</span></span>
+    <span class="chip" data-chip="Idle">空闲 <span class="chip-count">{{$idle}}</span></span>
+    <span class="chip" data-chip="spend">有无效支出</span>
+</div>
+
+<div class="search-row">
+    <input type="text" id="healthSearch" placeholder="搜索服务..." oninput="filterHealth()">
+    <span style="font-size:11px;color:#94a3b8" id="healthInfo"></span>
+</div>
+
+<div id="healthList">
+{{range .Results}}
+<div class="svc-card {{if eq .HealthCode "Critical"}}critical{{else if eq .HealthCode "Warning"}}warning{{end}}" data-health="{{.HealthCode}}" data-spend="{{.InvalidSpend}}" data-score="{{.HealthScore}}" data-search="{{.ServiceName}} {{.Namespace}}">
+    <div class="main-row" onclick="this.parentElement.classList.toggle('open')">
+        <div style="width:3px;height:36px;border-radius:2px;flex-shrink:0;background:{{if eq .HealthCode "Critical"}}#ef4444{{else if eq .HealthCode "Warning"}}#f97316{{else if eq .HealthCode "Healthy"}}#22c55e{{else}}#cbd5e1{{end}}"></div>
+        <div class="svc-info">
+            <div class="svc-name">{{.ServiceName}}</div>
+            <div class="svc-ns">{{.Namespace}}</div>
+        </div>
+        <div class="health-badge {{if eq .HealthCode "Critical"}}health-critical{{else if eq .HealthCode "Warning"}}health-warning{{else if eq .HealthCode "Healthy"}}health-healthy{{else}}health-idle{{end}}">{{.HealthCode}}</div>
+        {{if ge .RPS 0.001}}
+        <div class="metric-col"><div class="val">{{formatFloat .RPS}}</div><div class="lbl">RPS</div></div>
+        <div class="metric-col"><div class="val {{if gt .Error5xxRate 0.01}}metric-err{{else}}metric-ok{{end}}">{{formatPercent .Error5xxRate}}</div><div class="lbl">5xx</div></div>
+        <div class="metric-col"><div class="val {{if gt .Error4xxRate 0.05}}metric-err{{else}}metric-ok{{end}}">{{formatPercent .Error4xxRate}}</div><div class="lbl">4xx</div></div>
+        <div class="metric-col"><div class="val">{{printf "%.0f" (mul .P99Latency 1000)}}ms</div><div class="lbl">P99</div></div>
+        {{else}}
+        <div class="metric-col" style="flex:1"><div class="val" style="color:#94a3b8;font-weight:400">空闲</div><div class="lbl">无流量</div></div>
+        {{end}}
+        <div class="score-col">
+            <div class="score-bar"><div class="score-fill {{if ge .HealthScore 80.0}}score-green{{else if ge .HealthScore 50.0}}score-orange{{else}}score-red{{end}}" style="width:{{.HealthScore}}%"></div></div>
+            <div class="score-num">{{printf "%.0f" .HealthScore}}</div>
+        </div>
+        <div class="spend-col">
+            <div class="spend-val">{{if gt .InvalidSpend 0.0}}${{formatFloat .InvalidSpend}}{{else}}-{{end}}</div>
+            <div class="spend-lbl">无效支出</div>
+        </div>
+        <span class="chevron">▾</span>
+    </div>
+    <div class="expand">
+        <div class="expand-grid">
+            <div class="expand-item"><div class="e-label">状态</div><div class="e-value">{{.StatusIcon}} {{.HealthCode}}</div></div>
+            <div class="expand-item"><div class="e-label">全链路损耗</div><div class="e-value">${{formatFloat .WastedSpendTotal}}</div></div>
+            <div class="expand-item"><div class="e-label">建议操作</div><div class="e-value">{{.Action}}</div></div>
+            <div class="expand-item" style="grid-column:1/-1"><div class="e-label">诊断详情</div><div class="e-reason">{{.Diagnosis}}</div></div>
+            <div class="expand-actions">
+                <a href="/service/{{.Namespace}}/{{.ServiceName}}" class="btn-action btn-primary">查看详情 →</a>
+            </div>
         </div>
     </div>
-    <div class="table-toolbar">
-        <div class="d-flex align-items-center gap-2">
-            <input class="form-control form-control-sm search-input" type="text" placeholder="搜索..." oninput="filterTable('healthTable',this.value)">
-            <span class="page-info" id="healthInfo"></span>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <select class="form-select form-select-sm page-size-select" onchange="changePageSize('healthTable',this.value)">
-                <option value="20">20条</option><option value="50">50条</option><option value="100">100条</option><option value="99999">全部</option>
-            </select>
-            <div class="btn-group btn-group-sm" id="healthPager"></div>
-        </div>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle" id="healthTable">
-            <thead><tr>
-                <th data-sort="string" onclick="sortTable('healthTable',0,'string')">服务 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="string" onclick="sortTable('healthTable',1,'string')">命名空间 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('healthTable',2,'number')">RPS <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('healthTable',3,'number')">5xx <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('healthTable',4,'number')">4xx <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('healthTable',5,'number')">P99 (ms) <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="string" onclick="sortTable('healthTable',6,'string')">评级 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('healthTable',7,'number')">健康分 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th data-sort="number" onclick="sortTable('healthTable',8,'number')">无效支出 <span class="sort-icon bi bi-arrow-down-up"></span></th>
-                <th>诊断</th>
-            </tr></thead>
-            <tbody>
-                {{range .Results}}
-                <tr class="{{healthRowClass .HealthCode}}" data-health-code="{{.HealthCode}}" data-invalid-spend="{{.InvalidSpend}}" onclick="toggleRowExpand(this)">
-                    <td><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="svc-name" onclick="event.stopPropagation()">{{.ServiceName}}</a></td>
-                    <td><span class="badge bg-light text-dark">{{.Namespace}}</span></td>
-                    {{if ge .RPS 0.001}}
-                    <td class="text-mono">{{formatFloat .RPS}}</td><td>{{formatPercent .Error5xxRate}}</td><td>{{formatPercent .Error4xxRate}}</td>
-                    <td class="text-mono">{{printf "%.0f" (mul .P99Latency 1000)}}</td>
-                    {{else}}
-                    <td colspan="4" class="text-muted">空闲 / 无流量</td>
-                    {{end}}
-                    <td><span class="badge {{healthCodeClass .HealthCode}}">{{.HealthCode}}</span></td>
-                    <td><div class="d-flex align-items-center gap-1"><div class="progress" style="width:46px;height:5px"><div class="progress-bar {{if ge .HealthScore 80.0}}bg-success{{else if ge .HealthScore 50.0}}bg-warning{{else}}bg-danger{{end}}" style="width:{{.HealthScore}}%"></div></div><small>{{formatFloat .HealthScore}}</small></div></td>
-                    <td>${{formatFloat .InvalidSpend}}</td>
-                    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{.Diagnosis}}">{{.Diagnosis}}</td>
-                </tr>
-                <tr class="expand-row" style="display:none" onclick="event.stopPropagation()"><td colspan="10">
-                    <div class="expand-panel">
-                        <div class="expand-item"><div class="expand-label">状态</div><div class="expand-value">{{.StatusIcon}} {{.HealthCode}}</div></div>
-                        <div class="expand-item"><div class="expand-label">全链路损耗</div><div class="expand-value">${{formatFloat .WastedSpendTotal}}</div></div>
-                        <div class="expand-item"><div class="expand-label">建议操作</div><div class="expand-value">{{.Action}}</div></div>
-                        <div class="expand-item"><div class="expand-label">诊断详情</div><div class="expand-value" style="font-size:0.78rem">{{.Diagnosis}}</div></div>
-                        <div style="grid-column:1/-1"><a href="/service/{{.Namespace}}/{{.ServiceName}}" class="btn btn-sm btn-outline-primary">查看详情 →</a></div>
-                    </div>
-                </td></tr>
-                {{else}}
-                <tr><td colspan="10" class="text-center text-muted py-4">暂无数据。请先在总览页点击"同步"刷新数据。</td></tr>
-                {{end}}
-            </tbody>
-        </table>
-    </div>
+</div>
+{{else}}
+<div style="text-align:center;color:#94a3b8;padding:40px;background:#fff;border-radius:12px">暂无数据。</div>
+{{end}}
 </div>
 
 {{end}}
@@ -94,6 +201,42 @@
 </div>
 
 {{template "scripts.html"}}
-<script>renderTable('healthTable')</script>
+<script>
+// Default sort: Critical first, then Warning, then by invalid spend
+(function(){
+    var list=document.getElementById('healthList'),cards=Array.from(list.querySelectorAll('.svc-card'));
+    var order={Critical:0,Warning:1,Healthy:2,Idle:3};
+    cards.sort(function(a,b){
+        var ha=a.dataset.health,hb=b.dataset.health;
+        if(ha!==hb)return(order[ha]||9)-(order[hb]||9);
+        return(parseFloat(b.dataset.spend)||0)-(parseFloat(a.dataset.spend)||0);
+    });
+    cards.forEach(function(c){list.appendChild(c)});
+})();
+
+// Chips
+document.querySelectorAll('#healthChips .chip').forEach(function(c){c.onclick=function(){
+    var chip=this.dataset.chip;
+    document.querySelectorAll('#healthChips .chip').forEach(function(x){x.classList.remove('active')});
+    this.classList.add('active');
+    document.querySelectorAll('#healthList .svc-card').forEach(function(card){
+        if(chip==='all'){card.style.display='';return}
+        var h=card.dataset.health,spend=parseFloat(card.dataset.spend||0);
+        card.style.display=(chip===h||(chip==='spend'&&spend>0))?'':'none';
+    });
+    filterHealth();
+}});
+
+function filterHealth(){
+    var q=(document.getElementById('healthSearch').value||'').toLowerCase(),vis=0,total=0;
+    document.querySelectorAll('#healthList .svc-card').forEach(function(card){
+        if(card.style.display==='none')return;total++;
+        var s=card.dataset.search||'',match=!q||s.toLowerCase().indexOf(q)>=0;
+        card.style.display=match?'':'none';if(match)vis++;
+    });
+    document.getElementById('healthInfo').textContent=vis+' / '+total+' 个服务';
+}
+filterHealth();
+</script>
 </body>
 </html>

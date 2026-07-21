@@ -1,26 +1,48 @@
 {{define "nav.html"}}
-<nav class="navbar navbar-dark navbar-expand">
-    <span class="navbar-brand"><i class="bi bi-cpu"></i>kops</span>
-    <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link {{if eq .Active "overview"}}active{{end}}" href="/"><i class="bi bi-speedometer2 me-1"></i>总览</a></li>
-        <li class="nav-item"><a class="nav-link {{if eq .Active "recommendations"}}active{{end}}" href="/recommendations"><i class="bi bi-lightning-charge me-1"></i>资源推荐</a></li>
-        <li class="nav-item"><a class="nav-link {{if eq .Active "efficiency"}}active{{end}}" href="/efficiency"><i class="bi bi-speedometer me-1"></i>流量效率</a></li>
-        <li class="nav-item"><a class="nav-link {{if eq .Active "health"}}active{{end}}" href="/health"><i class="bi bi-heart-pulse me-1"></i>健康状态</a></li>
-        <li class="nav-item"><a class="nav-link {{if eq .Active "cluster"}}active{{end}}" href="/cluster"><i class="bi bi-diagram-3 me-1"></i>集群分析</a></li>
-	        <li class="nav-item"><a class="nav-link {{if eq .Active "topology"}}active{{end}}" href="/topology"><i class="bi bi-share me-1"></i>业务拓扑</a></li>
-    </ul>
-    <span class="navbar-meta d-flex align-items-center gap-2">
-        <span class="d-flex align-items-center gap-1" id="promStatus" title="Prometheus 连接状态">
-            <span class="prom-indicator unknown"></span>
-            <span style="font-size:0.68rem;">Prometheus</span>
-        </span>
-        <span class="badge bg-white text-dark opacity-75" id="updateTime">更新于 {{.LastUpdated}}</span>
-        <button id="refreshBtn" class="btn btn-sm btn-outline-light" onclick="syncData()" title="刷新数据">
-            <i class="bi bi-arrow-repeat"></i> 同步
-        </button>
-        <span class="theme-toggle" onclick="toggleTheme()" title="切换暗色模式">
-            <i class="bi" id="themeIcon">🌙</i>
-        </span>
+<style>
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(255,255,255,.8);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(0,0,0,.06)}
+.topnav .logo{display:flex;align-items:center;gap:7px;font-weight:800;font-size:14px;color:#1a1a2e;text-decoration:none;letter-spacing:-.02em}
+.topnav .logo-icon{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff}
+.topnav .nav-links{display:flex;align-items:center;gap:2px}
+.topnav .nav-links a{padding:5px 13px;border-radius:7px;font-size:12px;font-weight:500;color:#64748b;text-decoration:none;transition:all .15s;letter-spacing:-.01em}
+.topnav .nav-links a:hover{color:#1a1a2e;background:rgba(0,0,0,.03)}
+.topnav .nav-links a.active{color:#1a1a2e;background:rgba(0,0,0,.04);font-weight:600}
+.topnav .nav-right{display:flex;align-items:center;gap:10px;font-size:11px;color:#94a3b8}
+.topnav .nav-right .prom-dot{width:7px;height:7px;border-radius:50%;background:#f59e0b}
+.topnav .nav-right .prom-dot.ok{background:#22c55e}
+.topnav .nav-right .prom-dot.err{background:#ef4444}
+.topnav .nav-right .btn-nav{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:#64748b;border:1px solid rgba(0,0,0,.08);transition:.15s}
+.topnav .nav-right .btn-nav:hover{background:rgba(0,0,0,.03);color:#475569}
+.topnav .nav-right .btn-nav.primary{background:#1a1a2e;color:#fff;border:none}
+.topnav .nav-right .btn-nav.primary:hover{background:#2d2d44}
+.topnav .nav-right .theme-btn{cursor:pointer;font-size:14px;opacity:.7;transition:.15s}
+.topnav .nav-right .theme-btn:hover{opacity:1}
+</style>
+
+<nav class="topnav">
+  <a href="/" class="logo">
+    <div class="logo-icon">◆</div>
+    kops
+  </a>
+  <div class="nav-links">
+    <a href="/" class="{{if eq .Active "overview"}}active{{end}}">总览</a>
+    <a href="/recommendations" class="{{if eq .Active "recommendations"}}active{{end}}">资源推荐</a>
+    <a href="/efficiency" class="{{if eq .Active "efficiency"}}active{{end}}">流量效率</a>
+    <a href="/health" class="{{if eq .Active "health"}}active{{end}}">健康状态</a>
+    <a href="/cluster" class="{{if eq .Active "cluster"}}active{{end}}">集群分析</a>
+    <a href="/topology" class="{{if eq .Active "topology"}}active{{end}}">业务拓扑</a>
+  </div>
+  <div class="nav-right">
+    <span style="display:flex;align-items:center;gap:5px" id="promStatus" title="Prometheus 连接状态">
+      <span class="prom-dot" id="promDot"></span>
+      <span id="promLabel">Prometheus</span>
     </span>
+    <span style="color:#94a3b8" id="updateTime">更新于 {{.LastUpdated}}</span>
+    <button class="btn-nav primary" id="refreshBtn" onclick="syncData()">同步</button>
+    <span class="theme-btn" onclick="toggleTheme()" title="切换暗色模式" id="themeIcon">🌙</span>
+  </div>
 </nav>
+
+<!-- Spacer since nav is fixed -->
+<div style="height:48px"></div>
 {{end}}
