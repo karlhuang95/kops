@@ -55,13 +55,16 @@
 | 健康状态 | `/health` | Critical/Warning/Healthy/Idle + 评分条 | [📷](docs/img/健康状态.png) |
 | 集群分析 | `/cluster` | 节点伸缩 + 利用率色条 + 成本归属 | [📷](docs/img/集群分析.png) |
 | 业务拓扑 | `/topology` | 架构图 + 依赖查询（服务调用链） | [📷](docs/img/业务拓扑-架构图.png) [📷](docs/img/业务拓扑图-依赖查询.png) |
-| 服务详情 | `/service/:ns/:name` | CPU/内存/RPS 折线图 + 资源预测 | |
+| 服务详情 | `/service/:ns/:name` | 成本趋势、HPA 建议、成本预测、异常检测 | |
 
 Dashboard 特性：
-- 暗色模式、列排序、筛选芯片、行展开详情
-- 键盘快捷键（`?` 查看）、kubectl 命令一键复制
+- 暗色模式（全页面适配）、列排序、筛选芯片、行展开详情
+- HPA 伸缩建议（基于 P10/P50/P95 流量分析）
+- 成本预测（7 天线性回归） + 异常检测（均值 ± 2σ）
+- Pod 稳定性报告（重启次数 / OOMKill / CrashLoopBackOff）
+- 入口流量排行 + 慢请求分析（P99）+ Jaeger Trace 链接
 - Prometheus 连通性状态指示器
-- 自动刷新、CSV/JSON 导出
+- kubectl 命令一键复制、CSV/JSON 导出
 
 ## 目录
 
@@ -150,6 +153,11 @@ jaeger:
 | `GET /api/forecast/:ns/:name` | 资源预测 |
 | `GET /api/service/:ns/:name/recommendation` | 单服务推荐 |
 | `GET /api/service/:ns/:name/timeseries` | 单服务时间序列 |
+| `GET /api/service/:ns/:name/hpa` | HPA 伸缩建议 |
+| `GET /api/service/:ns/:name/predict` | 成本预测 + 异常检测 |
+| `GET /api/ingress-ranking` | 入口流量排行 |
+| `GET /api/slow-requests` | 慢请求分析（P99） |
+| `GET /api/pod-stability` | Pod 稳定性报告 |
 | `GET /api/topology/graph` | 拓扑图数据 |
 | `POST /api/topology/refresh` | 重建拓扑（从 Prometheus + Jaeger） |
 | `DELETE /api/topology/cleanup` | 清理拓扑缓存 |
