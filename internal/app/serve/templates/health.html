@@ -197,6 +197,15 @@ body{background:#fafbfc;font-family:"Inter",-apple-system,"PingFang SC",sans-ser
 </div>
 
 {{end}}
+<!-- Slow Requests -->
+<div class="card-page" style="margin-top:20px" id="slowSection">
+    <div style="padding:14px 20px;font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:1px solid rgba(0,0,0,.04)">
+        <i class="bi bi-clock-history me-1"></i>慢请求分析（P99 &gt; 100ms）
+        <span class="spinner-border spinner-border-sm text-primary" id="slowSpinner" style="width:0.85rem;height:0.85rem;margin-left:8px"></span>
+    </div>
+    <div id="slowContent" style="text-align:center;color:#94a3b8;padding:20px">加载中...</div>
+</div>
+
 <div class="page-footer">kops — 健康状态</div>
 </div>
 
@@ -237,6 +246,30 @@ function filterHealth(){
     document.getElementById('healthInfo').textContent=vis+' / '+total+' 个服务';
 }
 filterHealth();
+// Slow requests
+fetch('/api/slow-requests').then(function(r){return r.json()}).then(function(d){
+    document.getElementById('slowSpinner').style.display='none';
+    var list=d.services||[],jaeger=d.jaegerURL||'';
+    if(!list.length){document.getElementById('slowContent').innerHTML='<div style="color:#22c55e;padding:10px;font-size:12px">✅ 所有服务 P99 延迟 &lt; 100ms</div>';return}
+    var h='<div style="display:flex;flex-direction:column;gap:4px">';
+    list.forEach(function(s,i){
+        var color=s.p99Latency>1?'#ef4444':s.p99Latency>0.5?'#f97316':'#f59e0b';
+        var svcName=s.namespace+'/'+s.serviceName;
+        var jaegerLink=jaeger?'<a href="'+jaeger+'/search?service='+s.serviceName+'_prod" target="_blank" style="font-size:10px;color:#6366f1;margin-left:8px">查看 Trace →</a>':'';
+        h+='<div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:#fff;border-radius:8px;border:1px solid rgba(0,0,0,.04)">'+
+            '<span style="font-weight:600;font-size:12px;color:#1a1a2e;min-width:180px">'+s.serviceName+'</span>'+
+            '<span style="font-size:10px;color:#94a3b8;min-width:80px">'+s.namespace+'</span>'+
+            '<span style="font-size:14px;font-weight:800;color:'+color+';min-width:100px;text-align:right">'+(s.p99Latency*1000).toFixed(0)+' ms</span>'+
+            '<span style="font-size:10px;color:#94a3b8;min-width:60px">RPS: '+s.rps.toFixed(1)+'</span>'+
+            '<span class="badge '+(s.healthCode==='Critical'?'badge-critical':s.healthCode==='Warning'?'badge-warning':'badge-healthy')+'">'+s.healthCode+'</span>'+
+            jaegerLink+'</div>';
+    });
+    h+='</div>';
+    document.getElementById('slowContent').innerHTML=h;
+}).catch(function(e){
+    document.getElementById('slowSpinner').style.display='none';
+    document.getElementById('slowContent').innerHTML='<span style="color:#94a3b8">慢请求分析暂不可用</span>';
+});
 </script>
 </body>
 </html>

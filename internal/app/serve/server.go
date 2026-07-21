@@ -84,6 +84,8 @@ func (s *Server) registerRoutes() {
 	s.router.GET("/api/cluster/nodes", s.handleClusterNodes)
 	s.router.GET("/api/cluster/scaling", s.handleNodeScaling)
 	s.router.GET("/api/cost-attribution", s.handleCostAttribution)
+	s.router.GET("/api/ingress-ranking", s.handleIngressRanking)
+	s.router.GET("/api/slow-requests", s.handleSlowRequests)
 	s.router.GET("/api/forecast/:namespace/:name", s.handleForecast)
 	s.router.GET("/api/service/:namespace/:name/recommendation", s.handleServiceRecommendation)
 	s.router.GET("/api/service/:namespace/:name/timeseries", s.handleServiceTimeSeries)

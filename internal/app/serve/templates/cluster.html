@@ -102,6 +102,12 @@ tbody tr:hover{background:rgba(99,102,241,.03)}
     <div class="card-body" id="costContent" style="text-align:center;color:#94a3b8;padding:30px">加载中...</div>
 </div>
 
+<!-- Ingress Ranking -->
+<div class="card" style="margin-bottom:14px">
+    <div class="card-header"><i class="bi bi-graph-up-arrow me-1"></i>入口流量排行（24h）</div>
+    <div class="card-body" id="ingressContent" style="text-align:center;color:#94a3b8;padding:20px">加载中...</div>
+</div>
+
 <div class="page-footer">kops — 集群分析</div>
 </div>
 
@@ -171,6 +177,24 @@ fetch('/api/cost-attribution').then(function(r){return r.json()}).then(function(
     h+='</tbody></table></div>';
     document.getElementById('costContent').innerHTML=h;
 }).catch(function(e){document.getElementById('costContent').innerHTML='<div style="color:#ef4444;padding:14px">加载失败: '+e.message+'</div>'});
+
+// Ingress ranking
+fetch('/api/ingress-ranking').then(function(r){return r.json()}).then(function(d){
+    var h='<div style="display:flex;gap:20px;flex-wrap:wrap">';
+    // Entrypoints
+    h+='<div style="flex:1;min-width:200px"><div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:8px">入口流量</div>';
+    (d.entrypoints||[]).forEach(function(ep,i){
+        h+='<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.03);font-size:12px"><span style="font-weight:600">'+ep.entrypoint+'</span><span style="font-family:monospace">'+ep.rps.toFixed(1)+' RPS</span></div>';
+    });
+    h+='</div>';
+    // Top services
+    h+='<div style="flex:1;min-width:300px"><div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:8px">Top 服务</div>';
+    (d.services||[]).slice(0,15).forEach(function(s,i){
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.03);font-size:12px"><span style="font-weight:600">'+s.service+'</span><span style="font-family:monospace;color:#6366f1">'+s.rps.toFixed(1)+' RPS</span></div>';
+    });
+    h+='</div></div>';
+    document.getElementById('ingressContent').innerHTML=h||'<span style="color:#94a3b8">暂无流量数据</span>';
+}).catch(function(e){document.getElementById('ingressContent').innerHTML='<span style="color:#94a3b8">流量数据暂不可用</span>'});
 </script>
 </body>
 </html>

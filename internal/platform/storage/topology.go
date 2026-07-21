@@ -579,6 +579,15 @@ func (ts *TopologyStore) aggregateCallStats(gd *GraphData) {
 		n.Properties["callInbound"] = s.inbound
 		n.Properties["callOutbound"] = s.outbound
 		n.Properties["callPeerCount"] = len(s.peers)
+		isProtected, _ := n.Properties["isProtected"].(bool)
+		riskLevel, _ := n.Properties["riskLevel"].(string)
+		if !isProtected && s.inbound > 500 && len(s.peers) >= 2 {
+			n.Properties["depRisk"] = "high"
+		} else if !isProtected && riskLevel == "高" && s.inbound > 100 {
+			n.Properties["depRisk"] = "medium"
+		} else if s.inbound > 200 && len(s.peers) >= 2 {
+			n.Properties["depRisk"] = "low"
+		}
 		gd.Nodes[i] = n
 	}
 }

@@ -572,6 +572,83 @@ func (s *Server) handleCostAttribution(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"attributions": entries})
 }
 
+// handleIngressRanking returns top services by RPS from Traefik metrics.
+func (s *Server) handleIngressRanking(c *gin.Context) {
+	coll := platformcollector.NewCollector(s.cfg)
+
+	// Top services by RPS
+	svcQuery := `topk(20, sum by(exported_service)(rate(traefik_service_requests_total[24h])))`
+	svcData, err := coll.QueryInstant(svcQuery)
+	services := make([]gin.H, 0)
+	if err == nil {
+		for _, r := range svcData {
+			svc := r.Metric["exported_service"]
+			if svc != "" {
+				services = append(services, gin.H{"service": svc, "rps": r.Value})
+			}
+		}
+	}
+
+	// Top entrypoints by RPS
+	epQuery := `sum by(entrypoint)(rate(traefik_entrypoint_requests_total[24h]))`
+	epData, err := coll.QueryInstant(epQuery)
+	entrypoints := make([]gin.H, 0)
+	if err == nil {
+		for _, r := range epData {
+			ep := r.Metric["entrypoint"]
+			if ep != "" && ep != "metrics" {
+				entrypoints = append(entrypoints, gin.H{"entrypoint": ep, "rps": r.Value})
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"services":    services,
+		"entrypoints": entrypoints,
+	})
+}
+
+// handleSlowRequests returns services with high P99 latency, sorted by severity.
+func (s *Server) handleSlowRequests(c *gin.Context) {
+	data, err := s.loadOrAnalyze()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	type slowSvc struct {
+		ServiceName string  `json:"serviceName"`
+		Namespace   string  `json:"namespace"`
+		P99Latency  float64 `json:"p99Latency"`
+		RPS         float64 `json:"rps"`
+		HealthCode  string  `json:"healthCode"`
+		HealthScore float64 `json:"healthScore"`
+	}
+
+	var result []slowSvc
+	for _, h := range data.HealthStatuses {
+		if h.P99Latency > 0.1 { // > 100ms
+			result = append(result, slowSvc{
+				ServiceName: h.ServiceName,
+				Namespace:   h.Namespace,
+				P99Latency:  h.P99Latency,
+				RPS:         h.RPS,
+				HealthCode:  h.HealthCode,
+				HealthScore: h.HealthScore,
+			})
+		}
+	}
+
+	// Sort by P99 desc
+	sort.Slice(result, func(i, j int) bool { return result[i].P99Latency > result[j].P99Latency })
+
+	if len(result) > 20 {
+		result = result[:20]
+	}
+
+	c.JSON(http.StatusOK, gin.H{"services": result, "jaegerURL": s.cfg.Jaeger.Address})
+}
+
 func (s *Server) handleForecast(c *gin.Context) {
 	ns := c.Param("namespace")
 	name := c.Param("name")
