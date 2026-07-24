@@ -5,50 +5,102 @@
 body{background:#fafbfc;font-family:"Inter",-apple-system,"PingFang SC",sans-serif;-webkit-font-smoothing:antialiased}
 .container-fluid{max-width:1200px;margin:0 auto;padding:20px 24px}
 .summary{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.s-card{flex:1;min-width:160px;background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.02);display:flex;align-items:center;gap:14px}
-.s-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.s-num{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.s-card{flex:1;min-width:140px;background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.02);display:flex;align-items:center;gap:12px}
+.s-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.s-num{font-size:24px;font-weight:900;letter-spacing:-.03em;line-height:1}
 .s-lbl{font-size:11px;color:#94a3b8;font-weight:500;margin-top:2px}
-.card{background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.02);overflow:hidden;margin-bottom:14px}
-.card-hd{padding:14px 20px;font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:1px solid rgba(0,0,0,.04)}
+.grid2{display:grid;grid-template-columns:300px 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid rgba(0,0,0,.05);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.02);overflow:hidden}
+.card-hd{padding:14px 20px;font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:1px solid rgba(0,0,0,.04);display:flex;align-items:center;justify-content:space-between}
 .card-bd{padding:16px 20px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.03em;background:rgba(0,0,0,.015);border-bottom:1px solid rgba(0,0,0,.05)}
-td{padding:9px 12px;border-bottom:1px solid rgba(0,0,0,.03)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:8px 10px;text-align:left;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.03em;background:rgba(0,0,0,.015);border-bottom:1px solid rgba(0,0,0,.05)}
+td{padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.03)}
 tr:hover{background:rgba(99,102,241,.03)}
-.badge{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600}
+.badge{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600}
 .b-ok{background:rgba(34,197,94,.1);color:#16a34a}
 .b-warn{background:rgba(249,115,22,.1);color:#ea580c}
 .b-bad{background:rgba(239,68,68,.1);color:#dc2626}
 .b-gray{background:rgba(0,0,0,.04);color:#94a3b8}
-.text-mono{font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.text-mono{font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .page-footer{text-align:center;padding:16px;font-size:11px;color:#cbd5e1}
+
+/* Service list */
+.svc-list-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,.03);transition:background .15s}
+.svc-list-item:hover{background:rgba(99,102,241,.04)}
+.svc-list-item.active{background:rgba(99,102,241,.08);border-left:3px solid #6366f1}
+.svc-list-item .svc-name{font-weight:600;font-size:12px;color:#1a1a2e}
+.svc-list-item .svc-meta{font-size:9px;color:#94a3b8}
+.svc-list-item .svc-p99{font-weight:700;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;min-width:50px;text-align:right}
+.dist-bar{display:flex;align-items:center;gap:4px;margin-top:3px}
+.dist-bar .bar-wrap{flex:1;height:8px;border-radius:4px;background:rgba(0,0,0,.04);overflow:hidden;display:flex;position:relative}
+.dist-bar .bar-wrap .seg{height:100%;border-left:2px solid #fff}
+.dist-bar .bar-wrap .seg.p50{background:linear-gradient(90deg,#22c55e,#4ade80)}.dist-bar .bar-wrap .seg.p95{background:linear-gradient(90deg,#f59e0b,#fbbf24)}.dist-bar .bar-wrap .seg.p99{background:linear-gradient(90deg,#ef4444,#f87171)}
+.dist-bar .bar-lbl{font-size:8px;color:#94a3b8;font-family:"JetBrains Mono","SF Mono",monospace;white-space:nowrap;min-width:80px;text-align:right}
+
+/* Search */
+.search-input{padding:6px 12px;border:1px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;width:100%;outline:none;background:#fff;font-family:inherit;box-sizing:border-box}
+.search-input:focus{border-color:#6366f1}
+
+/* Detail */
+.detail-header{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.detail-header .dh-name{font-size:16px;font-weight:800;color:#1a1a2e;letter-spacing:-.01em}
+.detail-header .dh-stat{text-align:center}
+.detail-header .dh-val{font-size:18px;font-weight:900;font-family:"JetBrains Mono","SF Mono",monospace}
+.detail-header .dh-lbl{font-size:9px;color:#94a3b8}
+.latency-bar{display:flex;align-items:center;gap:6px}
+.latency-bar .bar{width:70px;height:5px;border-radius:2px;background:rgba(0,0,0,.06);overflow:hidden}
+.latency-bar .fill{height:100%;border-radius:2px}
+.cover-bar{display:flex;align-items:center;gap:10px;padding:8px 0}
+.cover-bar .bar{flex:1;height:8px;border-radius:4px;background:rgba(0,0,0,.06);overflow:hidden}
+.cover-bar .fill{height:100%;border-radius:4px}
+.cover-bar .pct{font-weight:800;font-size:14px}
 </style>
 
 <div class="container-fluid pt-3 px-3">
 
-<div class="summary" id="summaryRow">
+<div class="summary">
   <div class="s-card"><div class="s-icon" style="background:rgba(99,102,241,.1);color:#6366f1">📊</div><div><div class="s-num" id="sumServices">-</div><div class="s-lbl">OTel 服务</div></div></div>
   <div class="s-card"><div class="s-icon" style="background:rgba(34,197,94,.1);color:#22c55e">✅</div><div><div class="s-num" style="color:#22c55e" id="sumCovered">-</div><div class="s-lbl">已覆盖</div></div></div>
   <div class="s-card"><div class="s-icon" style="background:rgba(239,68,68,.1);color:#ef4444">🐢</div><div><div class="s-num" style="color:#ef4444" id="sumSlow">-</div><div class="s-lbl">P99 &gt; 500ms</div></div></div>
-  <div class="s-card"><div class="s-icon" style="background:rgba(139,92,246,.1);color:#7c3aed">🔗</div><div><div class="s-num" id="sumDeps">-</div><div class="s-lbl">服务依赖对</div></div></div>
+  <div class="s-card"><div class="s-icon" style="background:rgba(139,92,246,.1);color:#7c3aed">🔗</div><div><div class="s-num" id="sumDeps">-</div><div class="s-lbl">依赖对</div></div></div>
+  <div class="s-card" id="coverSummary"></div>
 </div>
 
-<div class="card">
-  <div class="card-hd">📊 服务延迟排行 (P99) <span class="spinner spinner-border-sm" id="sp1" style="width:12px;height:12px;margin-left:8px"></span></div>
-  <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>服务</th><th>P50</th><th>P95</th><th>P99</th><th>RPS</th><th>错误率</th><th>状态</th></tr></thead><tbody id="latencyBody"><tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:30px">加载中...</td></tr></tbody></table></div>
+<div class="grid2">
+  <!-- LEFT: service list -->
+  <div class="card">
+    <div class="card-hd">服务列表 <span style="font-weight:400;font-size:9px;color:#94a3b8">延迟(P50→P95→P99) <span style="color:#22c55e">■</span><span style="color:#f59e0b">■</span><span style="color:#ef4444">■</span></span></div>
+    <div class="card-bd" style="padding:10px 12px">
+      <input class="search-input" id="svcSearch" placeholder="搜索服务..." oninput="filterSvcList()">
+    </div>
+    <div style="max-height:600px;overflow-y:auto" id="svcList"><div style="text-align:center;color:#94a3b8;padding:40px">加载中...</div></div>
+  </div>
+
+  <!-- RIGHT: detail -->
+  <div class="card">
+    <div class="card-hd" id="detailTitle">← 选择服务查看详情</div>
+    <div class="card-bd" id="detailContent"><span style="color:#94a3b8">点击左侧服务查看其 OTel 延迟分析</span></div>
+  </div>
 </div>
 
-<div class="card">
-  <div class="card-hd">🔗 服务间依赖延迟 <span style="font-weight:400;font-size:10px;color:#94a3b8">基于 OTel client metrics（内部调用，Traefik 看不到）</span></div>
-  <div style="overflow-x:auto"><table><thead><tr><th>调用方</th><th>→</th><th>被调用方</th><th>P50</th><th>P99</th><th>RPS</th><th>错误率</th><th>状态</th></tr></thead><tbody id="depBody"><tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:30px">加载中...</td></tr></tbody></table></div>
+<!-- SLO + Uncovered + Scatter -->
+<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+  <div class="card" style="flex:1;min-width:200px">
+    <div class="card-hd">🎯 SLO 达标率 <span style="font-weight:400;font-size:10px;color:#94a3b8">P99 &lt; 500ms</span></div>
+    <div class="card-bd" style="text-align:center" id="sloContent"><span style="color:#94a3b8">加载中...</span></div>
+  </div>
+  <div class="card" style="flex:1;min-width:280px">
+    <div class="card-hd">⚠️ 未覆盖高流量服务 <span style="font-weight:400;font-size:10px;color:#94a3b8">建议优先接入</span></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>服务</th><th>NS</th><th>月成本</th></tr></thead><tbody id="uncoveredBody"><tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:20px">加载中...</td></tr></tbody></table></div>
+  </div>
 </div>
-
 <div class="card">
-  <div class="card-hd">📋 OTel 埋点覆盖率</div>
-  <div style="overflow-x:auto"><table><thead><tr><th>服务</th><th>命名空间</th><th>OTel 状态</th></tr></thead><tbody id="coverageBody"><tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:30px">加载中...</td></tr></tbody></table></div>
+  <div class="card-hd">📈 RPS vs 延迟 <span style="font-weight:400;font-size:10px;color:#94a3b8">气泡大小=调用量，红色=P99>500ms</span></div>
+  <div class="card-bd" id="scatterContent" style="text-align:center"><span style="color:#94a3b8">加载中...</span></div>
 </div>
 
 <div class="page-footer">kops — OTel 可观测性</div>
@@ -56,48 +108,189 @@ tr:hover{background:rgba(99,102,241,.03)}
 
 {{template "scripts.html"}}
 <script>
-fetch('/api/otel/summary').then(function(r){return r.json()}).then(function(d){
-  document.getElementById('sp1').style.display='none';
-
-  var lats=d.latencies||[],deps=d.deps||[],cov=d.coverage||[];
-  var slowCount=lats.filter(function(l){return l.p99>500}).length;
-
+var ALL={},selected=null;
+Promise.all([
+  fetch('/api/otel/summary').then(function(r){return r.json()}),
+  fetch('/api/topology/graph').then(function(r){return r.json()}).catch(function(){return{edges:[]}})
+]).then(function(res){
+  var d=res[0],topo=res[1];
+  var lats=d.latencies||[],routes=d.routes||[],cov=d.coverage||[];
+  // Build deps from topology CALLS edges, matching to OTel services
+  function normalize(n){return n.replace(/_/g,'-').replace(/-(prod|fat|dev|staging)$/,'').toLowerCase()}
+  var topoCalls=(topo.edges||[]).filter(function(e){return e.type==='CALLS'});
+  var otelNames=new Set();lats.forEach(function(l){otelNames.add(l.name)});
+  var otelMap={};lats.forEach(function(l){otelMap[normalize(l.name)]=l.name});
+  var topoMap={};topoCalls.forEach(function(e){var s=e.source.split('/')[1]||e.source;if(s)topoMap[normalize(s)]=e.source});
+  var depsMap={};
+  topoCalls.forEach(function(e){
+    var srcBase=normalize(e.source.split('/')[1]||e.source);
+    var tgtBase=normalize(e.target.split('/')[1]||e.target);
+    var mSrc=otelMap[srcBase],mTgt=otelMap[tgtBase];
+    if(!mSrc)for(var k in otelMap){if(k.indexOf(srcBase)>=0||srcBase.indexOf(k)>=0){mSrc=otelMap[k];break}}
+    if(!mTgt)for(var k in otelMap){if(k.indexOf(tgtBase)>=0||tgtBase.indexOf(k)>=0){mTgt=otelMap[k];break}}
+    if(mSrc&&mTgt){var dk=mSrc+'->'+mTgt;if(!depsMap[dk])depsMap[dk]={source:mSrc,target:mTgt,p50:0,p99:0,rps:0};depsMap[dk].rps+=(e.properties&&e.properties.callCount)||1}
+  });
+  var deps=Object.values(depsMap);
+  var slowCount=lats.filter(function(l){return l.p99>500}).length,coveredCount=cov.filter(function(c){return c.covered}).length;
   document.getElementById('sumServices').textContent=lats.length;
-  document.getElementById('sumCovered').textContent=cov.filter(function(c){return c.covered}).length;
+  document.getElementById('sumCovered').textContent=coveredCount;
   document.getElementById('sumSlow').textContent=slowCount;
   document.getElementById('sumDeps').textContent=deps.length;
+  var covPct=cov.length>0?(coveredCount/cov.length*100).toFixed(0):0;
+  document.getElementById('coverSummary').innerHTML='<div class="s-icon" style="'+'background:rgba(34,197,94,.1);color:#22c55e">'+covPct+'%'+'</div><div><div class="s-lbl">埋点覆盖率</div></div>';
 
-  // Latency table
-  var lh='';
-  lats.forEach(function(l,i){
-    var isSlow=l.p99>500;
-    lh+='<tr><td style="font-weight:700;color:#94a3b8">'+(i+1)+'</td><td style="font-weight:600">'+l.name+'</td>'+
-      '<td class="text-mono">'+(l.p50||0).toFixed(0)+'ms</td><td class="text-mono">'+(l.p95||0).toFixed(0)+'ms</td>'+
-      '<td class="text-mono" style="color:'+(isSlow?'#ef4444;font-weight:700':'#1a1a2e')+'">'+(l.p99||0).toFixed(0)+'ms</td>'+
-      '<td class="text-mono">'+(l.rps||0).toFixed(1)+'</td><td class="text-mono">'+((l.errRate||0)*100).toFixed(2)+'%</td>'+
-      '<td>'+(isSlow?'<span class="badge b-bad">慢</span>':'<span class="badge b-ok">正常</span>')+'</td></tr>';
-  });
-  document.getElementById('latencyBody').innerHTML=lh||'<tr><td colspan="8" style="text-align:center;color:#94a3b8">暂无 OTel 数据</td></tr>';
+  // Index routes and deps by service
+  var routesBySvc={};routes.forEach(function(r){if(!routesBySvc[r.service])routesBySvc[r.service]=[];routesBySvc[r.service].push(r)});
+  var depsBySvc={};deps.forEach(function(d){if(!depsBySvc[d.source])depsBySvc[d.source]={out:[],in:[]};depsBySvc[d.source].out.push(d);if(!depsBySvc[d.target])depsBySvc[d.target]={out:[],in:[]};depsBySvc[d.target].in.push(d)});
 
-  // Deps table
-  var dh='';
-  deps.slice(0,20).forEach(function(d){
-    var isSlow=d.p99>500;
-    dh+='<tr><td style="font-weight:600">'+d.source+'</td><td style="color:#94a3b8">→</td><td style="font-weight:600">'+d.target+'</td>'+
-      '<td class="text-mono">'+(d.p50||0).toFixed(0)+'ms</td><td class="text-mono" style="color:'+(isSlow?'#ef4444;font-weight:700':'#1a1a2e')+'">'+(d.p99||0).toFixed(0)+'ms</td>'+
-      '<td class="text-mono">'+(d.rps||0).toFixed(1)+'</td><td class="text-mono">'+((d.errRate||0)*100).toFixed(2)+'%</td>'+
-      '<td>'+(isSlow?'<span class="badge b-bad">慢</span>':'<span class="badge b-ok">正常</span>')+'</td></tr>';
-  });
-  document.getElementById('depBody').innerHTML=dh||'<tr><td colspan="8" style="text-align:center;color:#94a3b8">暂无内部调用数据</td></tr>';
+  ALL={lats:lats,routesBySvc:routesBySvc,depsBySvc:depsBySvc,routes:routes,cov:cov};
 
-  // Coverage table
-  var ch='';
-  cov.forEach(function(c){
-    ch+='<tr><td style="font-weight:600">'+c.deployment+'</td><td><span class="badge b-gray">'+c.namespace+'</span></td>'+
-      '<td>'+(c.covered?'<span class="badge b-ok">✅ 已接入</span>':'<span class="badge b-bad">❌ 未接入</span>')+'</td></tr>';
+  // Build prev comparison map for trend arrows
+  var prevMap={};
+  if(d.prev&&d.prev.latencies){d.prev.latencies.forEach(function(l){prevMap[l.name]=l})}
+  ALL.prevMap=prevMap;
+
+  renderSvcList(lats);
+
+  // SLO: P99 < 500ms
+  var sloOk=lats.filter(function(l){return l.p99<=500}).length;
+  var sloPct=lats.length>0?(sloOk/lats.length*100).toFixed(0):0;
+  document.getElementById('sloContent').innerHTML=
+    '<div style="font-size:36px;font-weight:900;letter-spacing:-.03em;color:'+(sloPct>90?'#22c55e':sloPct>70?'#f59e0b':'#ef4444')+'">'+sloPct+'%</div>'+
+    '<div style="font-size:11px;color:#94a3b8;margin-top:4px">'+sloOk+'/'+lats.length+' 服务达标</div>'+
+    '<div class="cover-bar" style="margin-top:8px"><div class="bar"><div class="fill" style="width:'+sloPct+'%;background:'+(sloPct>90?'#22c55e':sloPct>70?'#f59e0b':'#ef4444')+'"></div></div></div>';
+
+  // Uncovered high-traffic
+  var latByName={};lats.forEach(function(l){latByName[l.name]=l});
+  var uncovered=cov.filter(function(c){return !c.covered});
+  uncovered.sort(function(a,b){
+    var ra=latByName[a.deployment],rb=latByName[b.deployment];
+    return(rb&&rb.rps||0)-(ra&&ra.rps||0);
   });
-  document.getElementById('coverageBody').innerHTML=ch||'<tr><td colspan="3" style="text-align:center;color:#94a3b8">暂无数据</td></tr>';
-}).catch(function(e){document.getElementById('latencyBody').innerHTML='<tr><td colspan="8" style="text-align:center;color:#ef4444">加载失败: '+e.message+'</td></tr>'});
+  var uh='';
+  uncovered.slice(0,10).forEach(function(c){
+    var l=latByName[c.deployment];
+    uh+='<tr><td style="font-weight:600">'+c.deployment+'</td><td><span class="badge b-gray">'+c.namespace+'</span></td>'+
+      '<td class="text-mono">'+(l?'$'+(l.rps*0.01).toFixed(2)+'/h':'未知')+'</td></tr>';
+  });
+  document.getElementById('uncoveredBody').innerHTML=uh||'<tr><td colspan="3" style="text-align:center;color:#22c55e">✅ 所有服务已接入 OTel</td></tr>';
+
+  // Scatter chart (SVG)
+  var scW=800,scH=400,pad=50;
+  var maxRPS=1,maxP99=1;lats.forEach(function(l){if(l.rps>maxRPS)maxRPS=l.rps;if(l.p99>maxP99)maxP99=l.p99});
+  var svgH='<svg width="'+scW+'" height="'+scH+'" style="max-width:100%">';
+  // Grid lines
+  for(var i=0;i<=4;i++){
+    var y=pad+(scH-pad*2)*i/4,x=pad+(scW-pad*2)*i/4;
+    svgH+='<line x1="'+pad+'" y1="'+y+'" x2="'+(scW-pad)+'" y2="'+y+'" stroke="rgba(0,0,0,.04)" stroke-width="1"/>';
+    svgH+='<text x="'+(pad-8)+'" y="'+y+'" text-anchor="end" font-size="9" fill="#94a3b8">'+(maxP99*(4-i)/4).toFixed(0)+'ms</text>';
+    svgH+='<text x="'+x+'" y="'+(scH-pad+14)+'" text-anchor="middle" font-size="9" fill="#94a3b8">'+(maxRPS*i/4).toFixed(0)+'</text>';
+  }
+  // Axis labels
+  svgH+='<text x="'+(scW/2)+'" y="'+(scH-4)+'" text-anchor="middle" font-size="10" fill="#94a3b8">RPS</text>';
+  svgH+='<text x="14" y="'+(scH/2)+'" text-anchor="middle" font-size="10" fill="#94a3b8" transform="rotate(-90,14,'+(scH/2)+')">P99 (ms)</text>';
+  // Threshold line
+  var thY=pad+(scH-pad*2)*(maxP99-500)/maxP99;
+  svgH+='<line x1="'+pad+'" y1="'+thY+'" x2="'+(scW-pad)+'" y2="'+thY+'" stroke="#ef4444" stroke-dasharray="6,3" stroke-opacity="0.4"/>';
+  svgH+='<text x="'+(scW-pad)+'" y="'+(thY-4)+'" text-anchor="end" font-size="9" fill="#ef4444">500ms 阈值</text>';
+  // Bubbles
+  lats.forEach(function(l){
+    var cx=pad+(scW-pad*2)*(l.rps/maxRPS); // X = RPS
+    var cy=pad+(scH-pad*2)*(1-l.p99/maxP99); // Y = P99 (top = high)
+    var r=Math.max(3,Math.min(Math.log10(l.rps+1)*7,20));
+    var c=l.p99>500?'#ef4444':l.p99>300?'#f97316':'#6366f1';
+    svgH+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+c+'" opacity="0.65" stroke="#fff" stroke-width="1.5"><title>'+l.name+'</title></circle>';
+    if(l.p99>maxP99*.6||l.rps>maxRPS*.4)svgH+='<text x="'+(cx+r+4)+'" y="'+(cy+3)+'" font-size="9" fill="#1a1a2e">'+l.name+'</text>';
+  });
+  svgH+='</svg>';
+  document.getElementById('scatterContent').innerHTML=svgH;
+}).catch(function(e){console.error(e);document.getElementById('svcList').innerHTML='<span style="color:#ef4444">'+e.message+'</span>'});
+
+function otelSync(){
+  var btn=document.getElementById('syncBtn');btn.disabled=true;btn.textContent='同步中...';
+  fetch('/api/otel/refresh',{method:'POST'}).then(function(r){return r.json()}).then(function(d){
+    location.reload();
+  }).catch(function(e){alert('同步失败: '+e.message);btn.disabled=false;btn.textContent='同步 OTel 数据'});
+}
+
+function renderSvcList(lats){
+  var h='';
+  var maxP99=1;lats.forEach(function(l){if(l.p99>maxP99)maxP99=l.p99});
+  lats.forEach(function(l){
+    var isSlow=l.p99>500,w50=Math.max((l.p50/maxP99)*120,3),w95=Math.max(((l.p95-l.p50)/maxP99)*120,3),w99=Math.max(((l.p99-l.p95)/maxP99)*120,3);
+    var trend='';var prev=ALL.prevMap?ALL.prevMap[l.name]:null;
+    if(prev&&prev.p99>0){var diff=l.p99-prev.p99;if(Math.abs(diff)>5)trend=' <span style="font-size:9px;color:'+(diff>0?'#ef4444':'#22c55e')+'">'+(diff>0?'↑':'↓')+Math.abs(diff).toFixed(0)+'ms</span>'}
+    h+='<div class="svc-list-item" onclick="selectSvc(\''+l.name+'\')" id="svc-'+l.name.replace(/[^a-zA-Z0-9]/g,'_')+'">'+
+      '<div style="flex:1"><div class="svc-name">'+l.name+trend+'</div>'+
+      '<div class="dist-bar"><div class="bar-wrap"><span class="seg p50" style="width:'+(w50/(w50+w95+w99)*100)+'%"></span><span class="seg p95" style="width:'+(w95/(w50+w95+w99)*100)+'%"></span><span class="seg p99" style="width:'+(w99/(w50+w95+w99)*100)+'%"></span></div>'+
+      '<span class="bar-lbl">'+(l.p50||0).toFixed(0)+' → '+(l.p95||0).toFixed(0)+' → '+(l.p99||0).toFixed(0)+' ms</span></div></div>'+
+      '<span class="svc-p99" style="color:'+(isSlow?'#ef4444':'#1a1a2e')+'">'+(l.p99||0).toFixed(0)+'ms</span></div>';
+  });
+  document.getElementById('svcList').innerHTML=h||'<div style="text-align:center;color:#94a3b8;padding:40px">暂无 OTel 数据</div>';
+  ALL.latMap={};lats.forEach(function(l){ALL.latMap[l.name]=l});
+}
+
+function filterSvcList(){
+  var q=(document.getElementById('svcSearch').value||'').toLowerCase();
+  document.querySelectorAll('#svcList .svc-list-item').forEach(function(el){
+    el.style.display=q?(el.textContent.toLowerCase().indexOf(q)>=0?'':'none'):'';
+  });
+}
+
+function selectSvc(name){
+  selected=name;
+  document.querySelectorAll('#svcList .svc-list-item').forEach(function(el){el.classList.remove('active')});
+  var el=document.getElementById('svc-'+name.replace(/[^a-zA-Z0-9]/g,'_'));
+  if(el)el.classList.add('active');
+
+  var lat=ALL.latMap[name],routes=ALL.routesBySvc[name]||[],deps=ALL.depsBySvc[name];
+  var isSlow=lat&&lat.p99>500;
+  var prev=ALL.prevMap[name]; // previous snapshot for trend
+
+  var h='';
+  // Header with trend arrows
+  h+='<div class="detail-header"><div><div class="dh-name">'+name+'</div></div>';
+  if(lat){
+    var p99Trend='',p99Color=isSlow?'#ef4444':'#1a1a2e';
+    if(prev&&prev.p99>0){var diff=lat.p99-prev.p99;if(Math.abs(diff)>5)p99Trend=' <span style="font-size:10px;color:'+(diff>0?'#ef4444':'#22c55e')+'">'+(diff>0?'↑':'↓')+Math.abs(diff).toFixed(0)+'ms</span>'}
+    h+='<div class="dh-stat"><div class="dh-val" style="color:'+p99Color+'">'+(lat.p99||0).toFixed(0)+'ms'+p99Trend+'</div><div class="dh-lbl">P99</div></div>';
+    h+='<div class="dh-stat"><div class="dh-val">'+(lat.p95||0).toFixed(0)+'ms</div><div class="dh-lbl">P95</div></div>';
+    h+='<div class="dh-stat"><div class="dh-val">'+(lat.p50||0).toFixed(0)+'ms</div><div class="dh-lbl">P50</div></div>';
+    h+='<div class="dh-stat"><div class="dh-val">'+(lat.rps||0).toFixed(1)+'</div><div class="dh-lbl">RPS</div></div>';
+  }
+  var pct=lat?Math.min((lat.p99/1000)*100,100):0;
+  if(lat)h+='<div class="latency-bar"><div class="bar"><div class="fill" style="width:'+pct+'%;background:'+(isSlow?'#ef4444':pct>40?'#f59e0b':'#22c55e')+'"></div></div></div>';
+  h+='</div>';
+
+  // Endpoint table with latency bars
+  h+='<div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:8px">🎯 接口延迟</div>';
+  h+='<div style="overflow-x:auto"><table><thead><tr><th>端点</th><th>延迟</th><th>RPS</th></tr></thead><tbody>';
+  if(routes.length===0)h+='<tr><td colspan="3" style="text-align:center;color:#94a3b8">暂无接口数据</td></tr>';
+  else routes.sort(function(a,b){return b.p99-a.p99}).forEach(function(r){
+    var epSlow=r.p99>500,epPct=Math.min((r.p99/1000)*100,100);
+    h+='<tr><td class="text-mono" style="max-width:300px;overflow:hidden;text-overflow:ellipsis">'+r.route+'</td>'+
+      '<td><div class="latency-bar"><div class="bar"><div class="fill" style="width:'+epPct+'%;background:'+(epSlow?'#ef4444':epPct>40?'#f59e0b':'#22c55e')+'"></div></div><span class="num" style="color:'+(epSlow?'#ef4444':'#1a1a2e')+'">'+(r.p99||0).toFixed(0)+'ms</span></div></td>'+
+      '<td><span class="text-mono">'+(r.rps||0).toFixed(1)+'</span><span style="display:inline-block;width:'+Math.min((r.rps/100)*100,100)+'px;height:4px;border-radius:2px;background:#6366f1;vertical-align:middle;margin-left:4px;opacity:'+Math.min(r.rps/100,.8)+'"></span></td></tr>'});
+  h+='</tbody></table></div>';
+
+  // Dependencies
+  h+='<div style="display:flex;gap:14px;margin-top:16px">';
+  // Outgoing
+  h+='<div style="flex:1"><div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:8px">📤 调用了谁</div>';
+  var outs=deps&&deps.out?deps.out.sort(function(a,b){return b.p99-a.p99}):[];
+  if(outs.length===0)h+='<div style="color:#94a3b8;font-size:11px">暂无</div>';
+  else outs.forEach(function(d){h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.03);font-size:11px"><span style="font-weight:600">'+d.target+'</span><span class="text-mono" style="color:'+(d.p99>500?'#ef4444;font-weight:700':'#1a1a2e')+'">'+(d.p99||0).toFixed(0)+'ms</span><span class="text-mono" style="color:#94a3b8">'+(d.rps||0).toFixed(1)+'/s</span></div>'});
+  h+='</div>';
+  // Incoming
+  h+='<div style="flex:1"><div style="font-size:11px;font-weight:700;color:#94a3b8;margin-bottom:8px">📥 被谁调用</div>';
+  var ins=deps&&deps.in?deps.in.sort(function(a,b){return b.p99-a.p99}):[];
+  if(ins.length===0)h+='<div style="color:#94a3b8;font-size:11px">暂无</div>';
+  else ins.forEach(function(d){h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.03);font-size:11px"><span style="font-weight:600">'+d.source+'</span><span class="text-mono" style="color:'+(d.p99>500?'#ef4444;font-weight:700':'#1a1a2e')+'">'+(d.p99||0).toFixed(0)+'ms</span><span class="text-mono" style="color:#94a3b8">'+(d.rps||0).toFixed(1)+'/s</span></div>'});
+  h+='</div></div>';
+
+  document.getElementById('detailTitle').textContent='📊 '+name;
+  document.getElementById('detailContent').innerHTML=h;
+}
 </script>
 </body>
 </html>

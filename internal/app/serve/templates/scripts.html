@@ -15,6 +15,7 @@ async function syncData(){
     if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner-border spinner-border-sm me-1"></span>'}
     try{
         var r=await fetch('/api/refresh',{method:'POST'});
+        try{await fetch('/api/otel/refresh',{method:'POST'})}catch(e){}
         var d=await r.json();
         if(d.status==='ok'){location.reload()}else{showToast('同步失败: '+(d.error||'未知错误'),'danger')}
     }catch(e){showToast('网络错误: '+e.message,'danger')}

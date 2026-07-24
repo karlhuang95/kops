@@ -23,6 +23,7 @@
 
 - kube-prometheus-stack v55.5
 - traefik 2.11.2
+- OpenTelemetry SDK（可选，OTel 可观测页面）— 需在应用中集成 OTel SDK 并配置 Prometheus exporter，暴露 `http_server_request_duration_milliseconds` 指标
 
 ## 功能
 

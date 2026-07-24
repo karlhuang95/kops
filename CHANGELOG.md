@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.3 — OTel 可观测性 (2026-07)
+
+### 新增
+- **OTel 可观测页面** `/observability`：服务延迟排行（P50/P95/P99 分布条）、接口延迟分析、OTel 埋点覆盖率
+- **SLO 达标率**：P99 < 500ms 服务占比 + 进度条
+- **未覆盖高流量服务**：按 RPS 排序列出未接 OTel 的服务，优先接入
+- **RPS vs 延迟散点图**：气泡图（X=RPS, Y=P99, 气泡大小=调用量, 500ms 红线）
+- **延迟趋势对比**：两次同步之间 P99 变化 ↑↓
+- **依赖关系交叉匹配**：OTel 服务名 ↔ 拓扑图 Jaeger 调用链
+- **本地缓存**：OTel 数据存 `data/otel.json`，全局「同步」自动刷新
+
+### 前提
+应用需集成 OpenTelemetry SDK + Prometheus exporter，暴露 `http_server_request_duration_milliseconds_bucket` 指标，标签为 `exported_job`（服务名）和 `http_route`（端点路径）。
+
 ## v2.2 — 预测 & 异常 & 稳定性 (2026-07)
 
 ### 新增

@@ -73,6 +73,7 @@ func (s *Server) registerRoutes() {
 	// Observability
 	s.router.GET("/observability", s.handleObservability)
 	s.router.GET("/api/otel/summary", s.handleOtelSummary)
+	s.router.POST("/api/otel/refresh", s.handleOtelRefresh)
 
 	// Topology
 	s.router.GET("/topology", s.handleTopologyPage)
