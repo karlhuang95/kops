@@ -31,6 +31,7 @@
     <a href="/health" class="{{if eq .Active "health"}}active{{end}}">健康状态</a>
     <a href="/cluster" class="{{if eq .Active "cluster"}}active{{end}}">集群分析</a>
     <a href="/topology" class="{{if eq .Active "topology"}}active{{end}}">业务拓扑</a>
+    <a href="/observability" class="{{if eq .Active "observability"}}active{{end}}">OTel 可观测</a>
   </div>
   <div class="nav-right">
     <span style="display:flex;align-items:center;gap:5px" id="promStatus" title="Prometheus 连接状态">

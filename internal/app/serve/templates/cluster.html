@@ -79,6 +79,26 @@ tbody tr:hover{background:rgba(99,102,241,.03)}
 
 <div class="container-fluid pt-3 px-3">
 
+<!-- Environment summary -->
+<div class="summary" id="envSummary" style="margin-bottom:14px">
+    <div class="s-card" style="flex:1">
+        <div class="s-icon" style="background:rgba(99,102,241,.1);color:#6366f1"><i class="bi bi-hdd-stack"></i></div>
+        <div><div class="s-num" id="envProdNodes">-</div><div class="s-lbl">生产节点</div></div>
+    </div>
+    <div class="s-card" style="flex:1">
+        <div class="s-icon" style="background:rgba(249,115,22,.1);color:#f97316"><i class="bi bi-hdd-stack"></i></div>
+        <div><div class="s-num" id="envFatNodes">-</div><div class="s-lbl">测试节点</div></div>
+    </div>
+    <div class="s-card" style="flex:1">
+        <div class="s-icon" style="background:rgba(0,0,0,.04);color:#94a3b8"><i class="bi bi-hdd-stack"></i></div>
+        <div><div class="s-num" id="envOtherNodes">-</div><div class="s-lbl">基础设施节点</div></div>
+    </div>
+    <div class="s-card" style="flex:1">
+        <div class="s-icon" style="background:rgba(6,182,212,.1);color:#06b6d4"><i class="bi bi-cpu"></i></div>
+        <div><div class="s-num" id="envTotalCPU">-</div><div class="s-lbl">总 CPU 核数</div></div>
+    </div>
+</div>
+
 <!-- Scaling: loaded first, most important -->
 <div id="scalingSection">
     <div class="card">
@@ -113,6 +133,15 @@ tbody tr:hover{background:rgba(99,102,241,.03)}
 
 {{template "scripts.html"}}
 <script>
+// Environment summary
+fetch('/api/cluster/env').then(function(r){return r.json()}).then(function(d){
+    document.getElementById('envProdNodes').textContent=(d.prod&&d.prod.nodes)||'-';
+    document.getElementById('envFatNodes').textContent=(d.fat&&d.fat.nodes)||'-';
+    document.getElementById('envOtherNodes').textContent=(d.default&&d.default.nodes)||'-';
+    var totalCPU=(d.prod&&d.prod.cpu||0)+(d.fat&&d.fat.cpu||0)+(d.default&&d.default.cpu||0);
+    document.getElementById('envTotalCPU').textContent=totalCPU.toFixed(0)||'-';
+}).catch(function(e){console.error('env fetch error:',e)});
+
 // === Scaling (loaded first) ===
 fetch('/api/cluster/scaling').then(function(r){return r.json()}).then(function(d){
     if(!d||d.currentNodes===0){document.getElementById('scalingContent').innerHTML='<div style="color:#94a3b8;text-align:center;padding:14px">无法获取集群数据。</div>';return}

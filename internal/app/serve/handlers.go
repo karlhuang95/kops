@@ -527,6 +527,63 @@ func (s *Server) handleClusterNodes(c *gin.Context) {
 	c.JSON(http.StatusOK, cm)
 }
 
+// handleClusterEnv returns node count grouped by environment (from node name).
+func (s *Server) handleClusterEnv(c *gin.Context) {
+	coll := platformcollector.NewCollector(s.cfg)
+
+	query := `kube_node_info`
+	data, err := coll.QueryInstant(query)
+
+	type envInfo struct {
+		nodes int
+		cpu   float64
+	}
+	envs := map[string]*envInfo{"prod": {}, "fat": {}, "default": {}}
+	totalNodes := 0
+
+	if err == nil {
+		for _, r := range data {
+			node := r.Metric["node"]
+			if node == "" {
+				continue
+			}
+			totalNodes++
+			nodeLower := strings.ToLower(node)
+			switch {
+			case strings.Contains(nodeLower, "prod"):
+				envs["prod"].nodes++
+			case strings.Contains(nodeLower, "fat"):
+				envs["fat"].nodes++
+			default:
+				envs["default"].nodes++
+			}
+		}
+	}
+
+	// Also query CPU per node
+	cpuQuery := `kube_node_status_allocatable{resource="cpu"}`
+	cpuData, _ := coll.QueryInstant(cpuQuery)
+	for _, r := range cpuData {
+		node := r.Metric["node"]
+		nodeLower := strings.ToLower(node)
+		switch {
+		case strings.Contains(nodeLower, "prod"):
+			envs["prod"].cpu += r.Value
+		case strings.Contains(nodeLower, "fat"):
+			envs["fat"].cpu += r.Value
+		default:
+			envs["default"].cpu += r.Value
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"prod":    gin.H{"nodes": envs["prod"].nodes, "cpu": envs["prod"].cpu},
+		"fat":     gin.H{"nodes": envs["fat"].nodes, "cpu": envs["fat"].cpu},
+		"default": gin.H{"nodes": envs["default"].nodes, "cpu": envs["default"].cpu},
+		"total":   totalNodes,
+	})
+}
+
 func (s *Server) handleNodeScaling(c *gin.Context) {
 	targetCPU := 0.7
 	targetMem := 0.7

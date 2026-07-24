@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 // NodeMetrics holds resource allocation for a single K8s node.
@@ -241,8 +242,11 @@ func (pc *PromCollector) discoverNodes() ([]string, error) {
 	seen := map[string]bool{}
 	for _, r := range data {
 		if node, ok := r.Metric["node"]; ok && node != "" && !seen[node] {
-			nodes = append(nodes, node)
-			seen[node] = true
+			nodeLower := strings.ToLower(node)
+			if strings.Contains(nodeLower, "prod") {
+				nodes = append(nodes, node)
+				seen[node] = true
+			}
 		}
 	}
 	return nodes, nil

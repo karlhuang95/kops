@@ -70,6 +70,10 @@ func (s *Server) registerRoutes() {
 	s.router.GET("/cluster", s.handleClusterPage)
 	s.router.GET("/service/:namespace/:name", s.handleServiceDetail)
 
+	// Observability
+	s.router.GET("/observability", s.handleObservability)
+	s.router.GET("/api/otel/summary", s.handleOtelSummary)
+
 	// Topology
 	s.router.GET("/topology", s.handleTopologyPage)
 	s.router.GET("/api/topology/graph", s.handleTopologyGraph)
@@ -82,6 +86,7 @@ func (s *Server) registerRoutes() {
 	s.router.GET("/api/analysis", s.handleAnalysisJSON)
 	s.router.GET("/api/trend", s.handleTrend)
 	s.router.GET("/api/cluster/nodes", s.handleClusterNodes)
+	s.router.GET("/api/cluster/env", s.handleClusterEnv)
 	s.router.GET("/api/cluster/scaling", s.handleNodeScaling)
 	s.router.GET("/api/cost-attribution", s.handleCostAttribution)
 	s.router.GET("/api/ingress-ranking", s.handleIngressRanking)

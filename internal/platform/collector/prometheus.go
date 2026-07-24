@@ -145,6 +145,12 @@ func (pc *PromCollector) queryScalar(query string) float64 {
 	return val
 }
 
+// QueryScalar is the public version of queryScalar.
+func (pc *PromCollector) QueryScalar(query string) (float64, error) {
+	v := pc.queryScalar(query)
+	return v, nil
+}
+
 func (pc *PromCollector) doQuery(apiURL string) ([]promResult, error) {
 	client := &http.Client{Timeout: pc.Timeout}
 	resp, err := client.Get(apiURL)
